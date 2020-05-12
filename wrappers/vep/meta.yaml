@@ -1,0 +1,4 @@
+name: "vep"
+description: Ensembl Variant Effect Predictor
+authors:
+  - Dennis Kao

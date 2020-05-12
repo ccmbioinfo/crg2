@@ -1,0 +1,17 @@
+rule vcfanno:
+    input:
+        "{sample}.vcf", # (vcf, bcf, or vcf.gz)
+    output:
+        calls="vep/{sample}.vcf",   # annotated calls (vcf, bcf, or vcf.gz)
+    log:
+        "logs/vep/{sample}.log"
+    threads: 5
+    resources:
+	mem_mb = 30000
+    params:
+        dir: config["annotation"]["vep"]["dir"],
+       	maxentscan: config["annotation"]["vep"]["maxentscan"],
+       	human_ancestor_fasta: config["annotation"]["vep"]["human_ancestor_fasta"],
+      	ref: config["ref"]["genome"],
+    wrapper:
+        "master/bio/vep"

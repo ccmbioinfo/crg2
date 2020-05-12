@@ -1,0 +1,59 @@
+project: "NA12878"
+samples: samples.tsv
+units: units.tsv
+
+cre: /hpf/largeprojects/ccm_dccforge/dccdipg/Common/pipelines/cre
+
+ref:
+  name: GRCh37.75
+  genome: /hpf/largeprojects/ccm_dccforge/dccdipg/Common/genomes/GRCh37d5/GRCh37d5.fa
+  known-variants: /hpf/largeprojects/ccmbio/naumenko/tools/bcbio/gemini_data/dbsnp.b147.20160601.tidy.vcf.gz
+
+filtering:
+  # Set to true in order to apply machine learning based recalibration of
+  # quality scores instead of hard filtering.
+  vqsr: false
+  hard:
+    # hard filtering as outlined in GATK docs
+    # (https://gatkforums.broadinstitute.org/gatk/discussion/2806/howto-apply-hard-filters-to-a-call-set)
+    snvs:
+      "QD < 2.0 || FS > 60.0 || MQ < 40.0 || MQRankSum < -12.5 || ReadPosRankSum < -8.0"
+    indels:
+      "QD < 2.0 || FS > 200.0 || ReadPosRankSum < -20.0"
+
+processing:
+  remove-duplicates: false
+  # Uncomment and point to a bed file with, e.g., captured regions if necessary,
+  # see https://gatkforums.broadinstitute.org/gatk/discussion/4133/when-should-i-use-l-to-pass-in-a-list-of-intervals.
+  # restrict-regions: captured_regions.bed
+  # If regions are restricted, uncomment this to enlarge them by the given value in order to include
+  # flanking areas.
+  # region-padding: 100
+
+annotation:
+  vcfanno:
+    conf: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/pipelines/cre/cre.vcfanno.conf"
+    lua_script: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/pipelines/cre/cre.vcfanno.lua"
+    base_path: "/hpf/largeprojects/ccmbio/naumenko/tools/bcbio/genomes/Hsapiens/GRCh37"
+  vep:
+    dir: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/snakemake/c63b7268/share/ensembl-vep-99.2-0"
+    dir_cache: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/pipelines/shared"
+    maxentscan: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/snakemake/c63b7268/share/ensembl-vep-99.2-0/maxEntScan"
+    human_ancestor_fasta: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/pipelines/shared/human_ancestor.fa.gz"
+  vcf2db:
+    ped: ""
+
+params:
+  bwa:
+    verbosity: "-v 1"
+    markSplitReads: "-M"
+    maxMem: ""
+  gatk:
+    java_opts: "-Xms500m -Xmx9555m"
+    HaplotypeCaller: ""
+    BaseRecalibrator: ""
+    #BaseRecalibrator: "--interval-set-rule INTERSECTION -U LENIENT-VCF-PROCESSING --read-filter BadCigar --read-filter NotzPrimaryAlignment"
+    GenotypeGVCFs: ""
+    VariantRecalibrator: ""
+  picard:
+    MarkDuplicates: "REMOVE_DUPLICATES=false"

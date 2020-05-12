@@ -1,0 +1,5 @@
+channels:
+  - bioconda
+dependencies:
+  - vcfanno =0.3.2
+  - bcftools =1.9

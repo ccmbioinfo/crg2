@@ -1,0 +1,4 @@
+name: "vt"
+description: A tool set for short variant discovery in genetic sequence data
+authors:
+  - Dennis Kao

@@ -1,0 +1,14 @@
+rule vcf2db:
+    input:
+        "{sample}.vcf", # (vcf, bcf, or vcf.gz)
+    output:
+         db="annotated/gemini.db",
+    log:
+        "logs/vcf2db/vcf2db.log"
+    params:
+        ped=config["annotation"]["vcf2db"]["ped"],
+    threads: 1
+    resources:
+        mem_mb = 10000
+    wrapper:
+        "master/bio/vcf2db"

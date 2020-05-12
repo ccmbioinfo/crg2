@@ -1,0 +1,5 @@
+name: picard CollectAlignmentSummaryMetrics
+description: |
+  Collect metrics on aligned reads with picard tools.
+authors:
+  - Johannes Köster

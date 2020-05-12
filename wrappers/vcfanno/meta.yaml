@@ -1,0 +1,4 @@
+name: "snpeff"
+description: Annotate a vcf with other VCFs, BEDs, tabixed files
+authors:
+  - Dennis Kao

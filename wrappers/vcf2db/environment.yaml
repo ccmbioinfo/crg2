@@ -1,0 +1,5 @@
+channels:
+  - bioconda
+dependencies:
+  - vcf2db =2018.10.26
+  - bcftools

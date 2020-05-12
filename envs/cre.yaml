@@ -1,0 +1,15 @@
+channels:
+  - conda-forge
+  - bioconda
+  - r
+dependencies:
+  - gemini =0.30.2
+  - vt =2015.11.10
+  - bcftools =1.9
+  - gatk4 =4.1.6.0
+  - tabix =0.2.6
+  - r =3.6.0
+  - r-stringr =1.4.0
+  - r-data.table =1.12.2
+  - r-dplyr =0.8.0.1
+  - r-plyr =1.8.4

@@ -1,0 +1,13 @@
+rule vcfanno:
+    input:
+        "{sample}.vcf", # (vcf, bcf, or vcf.gz)
+    output:
+        calls="vcfanno/{sample}.vcf",   # annotated calls (vcf, bcf, or vcf.gz)
+    log:
+        "logs/vcfanno/{sample}.log"
+    params:
+        lua_script=config["annotation"]["vcfanno"]["lua_script"],
+       	conf=config["annotation"]["vcfanno"]["conf"],
+	threads="5",
+    wrapper:
+        "master/bio/vcfanno"

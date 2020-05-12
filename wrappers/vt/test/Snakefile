@@ -1,0 +1,9 @@
+rule vt:
+    input:
+        "{sample}.vcf", # (vcf, bcf, or vcf.gz)
+    output:
+        calls="annnotation/{sample}.uniq.normalized.decomposed.vcf.gz",   # annotated calls (vcf, bcf, or vcf.gz)
+    log:
+        "logs/vt/{sample}.log"
+    wrapper:
+        "master/bio/vt"
