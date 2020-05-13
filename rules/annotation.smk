@@ -8,7 +8,7 @@ rule vt:
     log:
         "logs/vt/vt.uniq.normalized.decomposed.log"
     wrapper:
-        "file:/hpf/largeprojects/ccm_dccforge/dccdipg/Common/pipelines/crg2/wrappers/vt"
+        get_wrapper_path("vt")
 
 rule vep:
     input:
@@ -27,7 +27,7 @@ rule vep:
         human_ancestor_fasta=config["annotation"]["vep"]["human_ancestor_fasta"],
         ref=config["ref"]["genome"],
     wrapper:
-        "file:/hpf/largeprojects/ccm_dccforge/dccdipg/Common/pipelines/crg2/wrappers/vep"
+        get_wrapper_path("vep")
 
 rule vcfanno:
     input:
@@ -44,7 +44,7 @@ rule vcfanno:
        	conf=config["annotation"]["vcfanno"]["conf"],
         base_path=config["annotation"]["vcfanno"]["base_path"],
     wrapper:
-        "file:/hpf/largeprojects/ccm_dccforge/dccdipg/Common/pipelines/crg2/wrappers/vcfanno"
+        get_wrapper_path("vcfanno")
 
 rule vcf2db:
     input:
@@ -59,4 +59,4 @@ rule vcf2db:
     resources:
         mem_mb = 20000
     wrapper:
-        "file:/hpf/largeprojects/ccm_dccforge/dccdipg/Common/pipelines/crg2/wrappers/vcf2db"
+        get_wrapper_path("vcf2db")

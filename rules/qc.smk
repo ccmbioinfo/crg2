@@ -5,7 +5,7 @@ rule fastqc:
         html="qc/fastqc/{sample}-{unit}.html",
         zip="qc/fastqc/{sample}-{unit}.zip"
     wrapper:
-        "file:/hpf/largeprojects/ccm_dccforge/dccdipg/Common/pipelines/crg2/wrappers/fastqc"
+        get_wrapper_path("fastqc")
 
 
 rule samtools_stats:
@@ -16,7 +16,7 @@ rule samtools_stats:
     log:
         "logs/samtools-stats/{sample}-{unit}.log"
     wrapper:
-        "file:/hpf/largeprojects/ccm_dccforge/dccdipg/Common/pipelines/crg2/wrappers/samtools/stats"
+        get_wrapper_path("samtools", "stats")
 
 
 rule multiqc:
@@ -31,4 +31,4 @@ rule multiqc:
     log:
         "logs/multiqc.log"
     wrapper:
-        "file:/hpf/largeprojects/ccm_dccforge/dccdipg/Common/pipelines/crg2/wrappers/multiqc"
+        get_wrapper_path("multiqc")

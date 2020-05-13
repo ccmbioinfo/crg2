@@ -15,7 +15,7 @@ rule map_reads:
         sort_order="coordinate"
     threads: 8
     wrapper:
-        "file:/hpf/largeprojects/ccm_dccforge/dccdipg/Common/pipelines/crg2/wrappers/bwa/mem"
+        get_wrapper_path("bwa", "mem")
 
 
 rule mark_duplicates:
@@ -29,7 +29,7 @@ rule mark_duplicates:
     params:
         config["params"]["picard"]["MarkDuplicates"]
     wrapper:
-        "file:/hpf/largeprojects/ccm_dccforge/dccdipg/Common/pipelines/crg2/wrappers/picard/markduplicates"
+        get_wrapper_path("picard", "markduplicates")
 
 
 rule recalibrate_base_qualities:
@@ -46,7 +46,7 @@ rule recalibrate_base_qualities:
     log:
         "logs/gatk/bqsr/{sample}-{unit}.log"
     wrapper:
-        "file:/hpf/largeprojects/ccm_dccforge/dccdipg/Common/pipelines/crg2/wrappers/gatk/baserecalibrator"
+        get_wrapper_path("gatk", "baserecalibrator")
 
 
 rule samtools_index:
@@ -55,4 +55,4 @@ rule samtools_index:
     output:
         "{prefix}.bam.bai"
     wrapper:
-        "file:/hpf/largeprojects/ccm_dccforge/dccdipg/Common/pipelines/crg2/wrappers/samtools/index"
+        get_wrapper_path("samtools", "index")

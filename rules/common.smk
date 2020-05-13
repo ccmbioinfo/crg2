@@ -105,3 +105,6 @@ def get_recal_input(bai=False):
             return []
     else:
         return f
+
+def get_wrapper_path(*dirs):
+    return "file:%s" % os.path.join(workflow.basedir, "wrappers", *dirs)

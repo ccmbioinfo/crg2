@@ -14,7 +14,7 @@ rule select_calls:
     log:
         "logs/gatk/selectvariants/{vartype}.log"
     wrapper:
-        "file:/hpf/largeprojects/ccm_dccforge/dccdipg/Common/pipelines/crg2/wrappers/gatk/selectvariants"
+        get_wrapper_path("gatk", "selectvariants")
 
 
 def get_filter(wildcards):
@@ -34,7 +34,7 @@ rule hard_filter_calls:
     log:
         "logs/gatk/variantfiltration/{vartype}.log"
     wrapper:
-        "file:/hpf/largeprojects/ccm_dccforge/dccdipg/Common/pipelines/crg2/wrappers/gatk/variantfiltration"
+        get_wrapper_path("gatk", "variantfiltration")
 
 
 rule recalibrate_calls:
@@ -47,7 +47,7 @@ rule recalibrate_calls:
     log:
         "logs/gatk/variantrecalibrator/{vartype}.log"
     wrapper:
-        "file:/hpf/largeprojects/ccm_dccforge/dccdipg/Common/pipelines/crg2/wrappers/gatk/variantrecalibrator"
+        get_wrapper_path("gatk", "variantrecalibrator")
 
 
 rule merge_calls:
@@ -62,4 +62,4 @@ rule merge_calls:
     log:
         "logs/picard/merge-filtered.log"
     wrapper:
-        "file:/hpf/largeprojects/ccm_dccforge/dccdipg/Common/pipelines/crg2/wrappers/picard/mergevcfs"
+        get_wrapper_path("picard", "mergevcfs")

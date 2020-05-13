@@ -12,4 +12,4 @@ rule snpeff:
         extra="-Xmx6g",
 	data_dir="/hpf/largeprojects/ccmbio/naumenko/tools/bcbio/genomes/Hsapiens/GRCh37/snpeff",
     wrapper:
-        "file:/hpf/largeprojects/ccm_dccforge/dccdipg/Common/pipelines/crg2/wrappers/snpeff"
+        get_wrapper_path("snpeff")

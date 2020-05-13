@@ -24,7 +24,7 @@ rule call_variants:
         extra=get_call_variants_params,
         java_opts=config["params"]["gatk"]["java_opts"],
     wrapper:
-        "file:/hpf/largeprojects/ccm_dccforge/dccdipg/Common/pipelines/crg2/wrappers/gatk/haplotypecaller"
+        get_wrapper_path("gatk", "haplotypecaller")
 
 
 rule combine_calls:
@@ -38,7 +38,7 @@ rule combine_calls:
     log:
         "logs/gatk/combinegvcfs.{contig}.log"
     wrapper:
-        "file:/hpf/largeprojects/ccm_dccforge/dccdipg/Common/pipelines/crg2/wrappers/gatk/combinegvcfs"
+        get_wrapper_path("gatk", "combinegvcfs")
 
 
 rule genotype_variants:
@@ -53,7 +53,7 @@ rule genotype_variants:
     log:
         "logs/gatk/genotypegvcfs.{contig}.log"
     wrapper:
-        "file:/hpf/largeprojects/ccm_dccforge/dccdipg/Common/pipelines/crg2/wrappers/gatk/genotypegvcfs"
+        get_wrapper_path("gatk", "genotypegvcfs")
 
 
 rule merge_variants:
@@ -65,4 +65,4 @@ rule merge_variants:
     log:
         "logs/picard/merge-genotyped.log"
     wrapper:
-        "file:/hpf/largeprojects/ccm_dccforge/dccdipg/Common/pipelines/crg2/wrappers/picard/mergevcfs"
+        get_wrapper_path("picard", "mergevcfs")
