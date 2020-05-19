@@ -5,8 +5,7 @@ Research pipeline for exploring clinically relevant genomic variants
     <img src="/crg2logolarge.png" width="800px"</img> 
 </div>
 
-crg2 is a research pipeline aimed at discovering clinically relevant variants (SNVs, SVs) in whole genome sequencing pair
-end Illumina sequences.
+crg2 is a research pipeline aimed at discovering clinically relevant variants (SNVs, SVs) in whole genome sequencing data.
 It aims to provide reproducible results, be computationally efficient, and transparent in it's workflow.
 
 crg2 uses Snakemake and Conda to manage jobs and software dependencies.
@@ -80,7 +79,7 @@ ref:
 4. Test that the pipeline will run by adding the flag "-n" to the command in dnaseq.pbs. 
 
 ```
-(snakemake) [dennis.kao@qlogin5 crg2]$ snakemake --use-conda -s /hpf/largeprojects/ccm_dccforge/dccdipg/Common/pipelines/crg2/Snakefile --cores 4 --condaprefix ~/crg2-conda -n
+(snakemake) [dennis.kao@qlogin5 crg2]$ snakemake --use-conda -s /hpf/largeprojects/ccm_dccforge/dccdipg/Common/pipelines/crg2/Snakefile --cores 4 --conda-prefix ~/crg2-conda -n
 Building DAG of jobs...
 Job counts:
 	count	jobs
