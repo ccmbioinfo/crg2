@@ -48,6 +48,22 @@ rule recalibrate_base_qualities:
     wrapper:
         get_wrapper_path("gatk", "baserecalibrator")
 
+rule remove_decoy:
+    input:
+        bam = "recal/{sample}-{unit}.bam",
+        decoy = config["remove_decoy"]["bed"] 
+    output: 
+        out_rm = "decoy_rm/{sample}-{unit}.removed_reads.bam",
+        out_f = "decoy_rm/{sample}-{unit}.no_decoy_reads.bam"
+    log:
+        "logs/remove_decoys/{sample}-{unit}.log"
+    threads: 8
+    resources: mem_mb=10000
+    wrapper:
+        get_wrapper_path("samtools", "remove_decoys") # or whatever 
+    # shell:
+    #     "samtools view {input.bam} -b -h -t {threads} -o {output.out_rm} -U {output.out_f} -L  {input.decoy}"
+    #     "samtools view -t {threads} {output.out_f}| grep -v hs37d5 | grep -v NC_007605 | samtools view - -hb > {output.out_f}"
 
 rule samtools_index:
     input:
