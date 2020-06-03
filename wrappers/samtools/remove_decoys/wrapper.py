@@ -15,5 +15,5 @@ out_f = snakemake.output[1]
 
 shell = (
     "samtools view {bam} -b -h -t {snakemake.threads} -o {rm_reads} -U {out_f} -L  {decoy}"
-    "samtools view -t {snakemake.threads} {out_f}| grep -v hs37d5 | grep -v NC_007605 | samtools view - -hb > {out_f}"
+    "samtools view -h -t{snakemake.threads} {out_f}| grep -v hs37d5 | grep -v NC_007605 | samtools view - -hb > {out_f}"
 )
