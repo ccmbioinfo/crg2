@@ -10,7 +10,7 @@ if "restrict-regions" in config["processing"]:
             "bedextract {wildcards.contig} {input} > {output}"
 
 
-def get_sample_bams(wildcards):
+def get_decoy_removed_sample_bams(wildcards):
     """Get all aligned reads of given sample."""
     return expand("decoy_rm/{sample}-{unit}.no_decoy_reads.bam",
                   sample=wildcards.sample,
