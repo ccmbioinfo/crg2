@@ -61,7 +61,7 @@ rule remove_decoy:
     resources: mem_mb=10000
     shell:
         "samtools view {input.bam} -b -h -t {threads} -o {output.out_rm} -U {output.out_f} -L  {input.decoy}"
-        "samtools view -t {threads} {output.out_f}| grep -v hs37d5 | grep -v NC_007605 | samtools view - -hb > {output.out_f}"
+        "samtools view -h -t {threads} {output.out_f}| grep -v hs37d5 | grep -v NC_007605 | samtools view - -hb > {output.out_f}"
 
 rule samtools_index:
     input:
