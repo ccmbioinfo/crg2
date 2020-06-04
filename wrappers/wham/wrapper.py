@@ -3,7 +3,6 @@ from snakemake.shell import shell
 log = snakemake.log_fmt_shell(stdout=True, stderr=True)
 
 shell(
-    "cd sv/wham; "
     "whamg "
     "-x {snakemake.threads} "
     "-a {snakemake.input.fasta} "
