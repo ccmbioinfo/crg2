@@ -10,14 +10,14 @@ report: "../report/workflow.rst"
 configfile: "config.yaml"
 validate(config, schema="../schemas/config.schema.yaml")
 
-samples = pd.read_table(config["samples"]).set_index("sample", drop=False)
+samples = pd.read_table(config["run"]["samples"]).set_index("sample", drop=False)
 validate(samples, schema="../schemas/samples.schema.yaml")
 
-units = pd.read_table(config["units"], dtype=str).set_index(["sample", "unit"], drop=False)
+units = pd.read_table(config["run"]["units"], dtype=str).set_index(["sample", "unit"], drop=False)
 units.index = units.index.set_levels([i.astype(str) for i in units.index.levels])  # enforce str in index
 validate(units, schema="../schemas/units.schema.yaml")
 
-project=config["project"]
+project=config["run"]["project"]
 
 ##### Wildcard constraints #####
 wildcard_constraints:

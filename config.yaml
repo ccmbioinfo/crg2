@@ -1,6 +1,8 @@
-project: "NA12878"
-samples: samples.tsv
-units: units.tsv
+run:
+  project: "NA12878"
+  samples: samples.tsv
+  units: units.tsv
+  panel: "/hpf/largeprojects/ccmbio/dennis.kao/NA12878/panel.bed"
 
 cre: /hpf/largeprojects/ccm_dccforge/dccdipg/Common/pipelines/cre
 
