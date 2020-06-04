@@ -1,4 +1,0 @@
-name: "decoy removal"
-description: "Removes decoy reads in grch37 using samtools"
-authors:
-  - Delvin So
