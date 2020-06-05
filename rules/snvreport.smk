@@ -1,7 +1,7 @@
 rule snvreport:
     input:
         db="annotated/gemini.db",
-        vcf="annotated/vcfanno/all.vcfanno.vcf"
+        vcf="annotated/all.vep.vcfanno.pass.vcf"
     output:
         directory("report")
     conda:
