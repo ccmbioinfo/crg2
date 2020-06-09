@@ -5,11 +5,11 @@ log = snakemake.log_fmt_shell(stdout=True, stderr=True)
 
 shell(
 
-    # manta
     "configManta.py "
     "--runDir {snakemake.params.outdir} "
     "--reference {snakemake.input.fasta} "
-    "--bam {snakemake.input.bam}; "
+    "--bam {snakemake.input.bam} "
+    "{snakemake.params.include_chroms}; "
     "cd {snakemake.params.outdir}; "
     "./runWorkflow.py "
     "--quiet "

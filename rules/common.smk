@@ -58,8 +58,18 @@ def is_sex(chrom):
     return chrom in ["X", "chrX", "Y", "chrY"]
 
 
+def is_mitochondrial(chrom):
+    return chrom in ["MT", "chrM", "chrMT"]
+
+
 def is_autosomal_or_sex(chrom):
     return is_autosomal(chrom) or is_sex(chrom)
+
+
+def is_nonalt(chrom):
+    """Check that a chromosome is on 1-22, X, Y, MT.
+    """
+    return is_autosomal_or_sex(chrom) or is_mitochondrial(chrom)
 
 
 def get_fastq(wildcards):
