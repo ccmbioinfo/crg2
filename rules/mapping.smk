@@ -51,6 +51,7 @@ rule recalibrate_base_qualities:
 rule remove_decoy:
     input:
         bam = "recal/{sample}-{unit}.bam",
+        decoy = config["params"]["remove_decoy"]["bed"],
     output: 
         temp_out = temp("decoy_rm/{sample}-{unit}.no_decoy_reads.temp.bam"),
         out_f = "decoy_rm/{sample}-{unit}.no_decoy_reads.bam"
@@ -59,10 +60,10 @@ rule remove_decoy:
     threads: 8
     resources: mem_mb = 10000
     shell:
-    """
+        """
         samtools view {input.bam} -b -h -t {threads} -U {output.temp_out} -L {input.decoy}
         samtools view -h -t {threads} {output.temp_out} | grep -v hs37d5 | grep -v NC_007605 | samtools view - -hb > {output.out_f}
-    """
+        """
 
 rule samtools_index:
     input:
