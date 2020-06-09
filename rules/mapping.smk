@@ -53,7 +53,6 @@ rule remove_decoy:
         bam = "recal/{sample}-{unit}.bam",
         decoy = config["params"]["remove_decoy"]["bed"] 
     output: 
-        out_rm = "decoy_rm/{sample}-{unit}.removed_reads.bam",
         temp_out = temp("decoy_rm/{sample}-{unit}.no_decoy_reads.temp.bam"),
         out_f = "decoy_rm/{sample}-{unit}.no_decoy_reads.bam"
     log:
@@ -62,7 +61,7 @@ rule remove_decoy:
     resources: mem_mb=10000
     shell:
     """
-        samtools view {input.bam} -b -h -t {threads} -o {output.out_rm} -U {output.temp_out} -L  {input.decoy}
+        samtools view {input.bam} -b -h -t {threads} -U {output.temp_out} -L  {input.decoy}
         samtools view -h -t {threads} {output.temp_out}| grep -v hs37d5 | grep -v NC_007605 | samtools view - -hb > {output.out_f}
     """
 rule samtools_index:
