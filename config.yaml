@@ -3,13 +3,14 @@ run:
   samples: samples.tsv
   units: units.tsv
   panel: "/hpf/largeprojects/ccmbio/dennis.kao/NA12878/panel.bed"
+  flank: "100000"
 
 cre: /hpf/largeprojects/ccm_dccforge/dccdipg/Common/pipelines/cre
 
 ref:
   name: GRCh37.75
   genome: /hpf/largeprojects/ccm_dccforge/dccdipg/Common/genomes/GRCh37d5/GRCh37d5.fa
-  known-variants: /hpf/largeprojects/ccmbio/naumenko/tools/bcbio/gemini_data/dbsnp.b147.20160601.tidy.vcf.gz
+  known-variants: /hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/dbsnp.b147.20160601.tidy.vcf.gz
 
 filtering:
   # Set to true in order to apply machine learning based recalibration of
@@ -36,7 +37,7 @@ annotation:
   vcfanno:
     conf: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/pipelines/crg2/vcfanno/crg.vcfanno.conf"
     lua_script: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/pipelines/crg2/vcfanno/crg.vcfanno.lua"
-    base_path: "/hpf/largeprojects/ccmbio/naumenko/tools/bcbio/genomes/Hsapiens/GRCh37/variation"
+    base_path: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/vcfanno"
   vep:
     dir: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/snakemake/c63b7268/share/ensembl-vep-99.2-0"
     dir_cache: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/vep-cache"
