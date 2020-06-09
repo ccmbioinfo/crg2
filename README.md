@@ -34,7 +34,8 @@ Make sure to replace ```~/crg2-conda``` with the path made in step 4. This will 
 8. Replace the cre path in crg2/config.yaml with the one from step 7
 
 ## Running the pipeline
-1. Make a folder in a directory with sufficient space. Copy over the template files samples.tsv, units.tsv, config.yaml. 
+1. Make a folder in a directory with sufficient space. Copy over the template files samples.tsv, units.tsv, config.yaml.
+You may need to re-copy config.yaml if the file was recently updated in repo for previous crg2 runs.
 ```
 mkdir NA12878
 cp crg2/samples.tsv crg2/units.tsv crg2/config.yaml NA12878
