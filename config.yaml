@@ -2,7 +2,8 @@ run:
   project: "NA12878"
   samples: samples.tsv
   units: units.tsv
-  panel: "/hpf/largeprojects/ccmbio/dennis.kao/NA12878/panel.bed"
+  ped: "" # leave this line blank if there is no ped
+  panel: "/hpf/largeprojects/ccmbio/dennis.kao/NA12878/panel.bed" # remove this line entirely if there is no panel bed file
   flank: "100000"
 
 cre: /hpf/largeprojects/ccm_dccforge/dccdipg/Common/pipelines/cre
@@ -43,8 +44,6 @@ annotation:
     dir_cache: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/vep-cache"
     maxentscan: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/snakemake/c63b7268/share/ensembl-vep-99.2-0/maxEntScan"
     human_ancestor_fasta: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/human_ancestor.fa.gz"
-  vcf2db:
-    ped: ""
 
 params:
   bwa:

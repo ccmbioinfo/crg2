@@ -66,7 +66,7 @@ rule vcf2db:
     log:
         "logs/vcf2db/vcf2db.log"
     params:
-        ped=config["annotation"]["vcf2db"]["ped"],
+        ped=config["run"]["ped"],
     threads: 1
     resources:
         mem_mb = 20000
