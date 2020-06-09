@@ -74,17 +74,3 @@ rule metasv:
         "sv/metasv/{sample}-{unit}/variants.vcf.gz"
     wrapper:
         get_wrapper_path("metasv")
-
-# rule snpeff:
-#    input:
-#        "sv/metasv/{sample}-{unit}/variants.vcf.gz"
-#    output:
-#        "sv/metasv/{sample}-{unit}/variants.snpeff.vcf.gz"
-#    log:
-#        "logs/snpeff.log"
-#    params:
-#        reference = config["ref"]["name"],
-#        extra = "-Xmx6g",
-#        data_dir = "/hpf/largeprojects/ccmbio/naumenko/tools/bcbio/genomes/Hsapiens/GRCh37/snpeff",
-#    wrapper:
-#        get_wrapper_path("snpeff")
