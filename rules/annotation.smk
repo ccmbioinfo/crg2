@@ -33,7 +33,7 @@ rule vcfanno:
     input:
         "annotated/vep/all.vep.vcf",
     output:
-        "annotated/vcfanno/all.vep.vcfanno.vcf",
+        "annotated/vcfanno/all.vcfanno.vcf",
     log:
         "logs/vcfanno/vcfanno.log"
     threads: 10
@@ -46,27 +46,15 @@ rule vcfanno:
     wrapper:
         get_wrapper_path("vcfanno")
 
-rule pass:
-    input:
-       	"annotated/vcfanno/all.vep.vcfanno.vcf",
-    output:
-        "annotated/all.vep.vcfanno.pass.vcf"
-    threads: 1
-    resources:
-        mem_mb = 4000
-    params: "-f PASS"
-    wrapper:
-        get_wrapper_path("bcftools", "view")
-
 rule vcf2db:
     input:
-        "annotated/all.vep.vcfanno.pass.vcf",
+        "annotated/vcfanno/all.vcfanno.vcf",
     output:
-         db="annotated/gemini.db",
+         db="annotated/gemini.db",   # annotated calls (vcf, bcf, or vcf.gz)
     log:
         "logs/vcf2db/vcf2db.log"
     params:
-        ped=config["run"]["ped"],
+        ped=config["annotation"]["vcf2db"]["ped"],
     threads: 1
     resources:
         mem_mb = 20000

@@ -1,5 +1,5 @@
 # crg2
-Clinical research pipeline for exploring variants in whole genome sequencing data
+Research pipeline for exploring clinically relevant genomic variants
 
 <div align="center">
     <img src="/crg2logolarge.png" width="800px"</img> 
@@ -27,11 +27,11 @@ snakemake --use-conda -s Snakefile --conda-prefix ~/crg2-conda --create-envs-onl
 ```
 Make sure to replace ```~/crg2-conda``` with the path made in step 4. This will take a while.
 
-6. Install these plugins for VEP: ```LoF, MaxEntScan, SpliceRegion```. Refer to this page for installation instructions: https://useast.ensembl.org/info/docs/tools/vep/script/vep_plugins.html. The INSTALL.pl script has been renamed to vep_install in the VEP's Conda build. It is located in the conda environment directory, under ```share/ensembl-vep-99.2-0/vep_install```.
+6. Install plugins for VEP (TBA)
 
 7. Git clone cre: ```git clone https://github.com/ccmbioinfo/cre``` to a safe place
 
-8. Replace the VEP path's to the VEP directory installed from step 6. Replace the cre path in crg2/config.yaml with the one from step 7.
+8. Replace the cre path in crg2/config.yaml with the one from step 7
 
 ## Running the pipeline
 1. Make a folder in a directory with sufficient space. Copy over the template files samples.tsv, units.tsv, config.yaml.
@@ -41,7 +41,7 @@ mkdir NA12878
 cp crg2/samples.tsv crg2/units.tsv crg2/config.yaml NA12878
 ```
 
-2. Reconfigure the 3 files to reflect project names, sample names, input fastq files, a panel bed file (if any) and a ped file (if any). Inclusion of a panel bed file will generate 2 SNV reports with all variants falling within these regions. Inclusion of a ped file currently does nothing except create a gemini db with the pedigree data stored in it.
+2. Reconfigure the 3 files to reflect project names, sample names and input fastq files.
 
 samples.tsv
 ```
@@ -57,14 +57,10 @@ NA12878	1	ILLUMINA	/hpf/largeprojects/ccm_dccforge/dccdipg/Common/NA12878/NA1287
 
 config.yaml
 ```
-run:
-  project: "NA12878"
-  samples: samples.tsv
-  units: units.tsv
-  ped: "" # leave this line blank if there is no ped
-  panel: "/hpf/largeprojects/ccmbio/dennis.kao/NA12878/panel.bed" # remove this line entirely if there is no panel bed file
-  flank: "100000"
-  
+project: "NA12878"
+samples: samples.tsv
+units: units.tsv
+
 cre: /hpf/largeprojects/ccm_dccforge/dccdipg/Common/pipelines/cre
 
 ref:
@@ -144,8 +140,6 @@ rule call_variants:
 
 3. GATK4 base recalibration
 
-4. Remove reads mapped to decoy chromosomes
-
 ### SNV
 1. Call SNV's and generate gVCFs
 
@@ -162,30 +156,10 @@ rule call_variants:
 7. Generate a cre report using cre.sh
 
 ### SV
-1. Call SV's using Manta, Smoove and Wham
+TBD
 
-2. Merge calls using MetaSV
-
-3. Annotate VCF using snpEff and SVScores
-
-4. Split multi-sample VCF into individual sample VCFs
-
-5. Generate an annotated report using crg
-
-## Reports
-
-Column descriptions and more info on how variants are filtered can be found here:
+## Report columns
 
 SNV: https://docs.google.com/document/d/1zL4QoINtkUd15a0AK4WzxXoTWp2MRcuQ9l_P9-xSlS4
 
 SV: https://docs.google.com/document/d/1o870tr0rcshoae_VkG1ZOoWNSAmorCZlhHDpZuZogYE
-
-The pipeline generates 4 reports:
-
-1. wgs.snv - a report on coding SNVs across the entire genome
-
-2. wgs.panel.snv - a report on SNVs within the panel specified bed file
-
-3. wgs.panel.snv - a report on SNVs within the panel specified bed file with a 100kb flank on each side
-
-4. wgs.sv - a report on SVs across the entire genome
