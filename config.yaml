@@ -3,7 +3,7 @@ run:
   samples: samples.tsv
   units: units.tsv
   ped: "" # leave this line blank if there is no ped
-  panel: "/hpf/largeprojects/ccmbio/dennis.kao/NA12878/panel.bed" # remove this line entirely if there is no panel bed file
+  panel: "" # leave this line blank if there is no panel
   flank: "100000"
 
 cre: /hpf/largeprojects/ccm_dccforge/dccdipg/Common/pipelines/cre

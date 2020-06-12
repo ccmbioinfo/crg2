@@ -23,7 +23,7 @@ rule allsnvreport:
          {params.cre}/cre.sh {project} {params.ref}
          '''
 
-if "panel" in config["run"] and config["run"]["panel"]: #present in config file and non-empty string
+if config["run"]["panel"]: #non-empty string
     rule panelsnvreport:
         input:
             db="annotated/gemini.db",
