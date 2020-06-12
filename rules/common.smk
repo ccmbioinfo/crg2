@@ -13,19 +13,19 @@ validate(config, schema="../schemas/config.schema.yaml")
 samples = pd.read_table(config["run"]["samples"]).set_index("sample", drop=False)
 validate(samples, schema="../schemas/samples.schema.yaml")
 
-units = pd.read_table(config["run"]["units"], dtype=str).set_index(["sample", "unit"], drop=False)
-units.index = units.index.set_levels([i.astype(str) for i in units.index.levels])  # enforce str in index
+units = pd.read_table(config["units"], dtype=str).set_index(["sample", "unit"], drop=False)
+units.index = units.index.set_levels([i.astype(str)
+                                      for i in units.index.levels])  # enforce str in index
 validate(units, schema="../schemas/units.schema.yaml")
 
-project=config["run"]["project"]
-
-flank=config["run"]["flank"]
+project = config["project"]
+flank = config["run"]["flank"]
 
 ##### Wildcard constraints #####
 wildcard_constraints:
-    vartype="snvs|indels",
-    sample="|".join(samples.index),
-    unit="|".join(units["unit"])
+    vartype = "snvs|indels",
+    sample = "|".join(samples.index),
+    unit = "|".join(units["unit"])
 
 
 ##### Helper functions #####
@@ -38,6 +38,40 @@ def get_fai():
 def get_contigs():
     return pd.read_table(get_fai(),
                          header=None, usecols=[0], squeeze=True, dtype=str)
+
+
+def is_autosomal(chrom):
+    # from bcbio-nextgen/bcbio/heterogeneity/chromhacks.py
+    """Keep chromosomes that are a digit 1-22, or chr prefixed digit chr1-chr22
+    """
+    try:
+        int(chrom)
+        return True
+    except ValueError:
+        try:
+            int(str(chrom.lower().replace("chr", "").replace("_", "").replace("-", "")))
+            return True
+        except ValueError:
+            return False
+
+
+def is_sex(chrom):
+    return chrom in ["X", "chrX", "Y", "chrY"]
+
+
+def is_mitochondrial(chrom):
+    return chrom in ["MT", "chrM", "chrMT"]
+
+
+def is_autosomal_or_sex(chrom):
+    return is_autosomal(chrom) or is_sex(chrom)
+
+
+def is_nonalt(chrom):
+    """Check that a chromosome is on 1-22, X, Y, MT.
+    """
+    return is_autosomal_or_sex(chrom) or is_mitochondrial(chrom)
+
 
 def get_fastq(wildcards):
     """Get fastq files of given sample-unit."""
@@ -107,6 +141,7 @@ def get_recal_input(bai=False):
             return []
     else:
         return f
+
 
 def get_wrapper_path(*dirs):
     return "file:%s" % os.path.join(workflow.basedir, "wrappers", *dirs)
