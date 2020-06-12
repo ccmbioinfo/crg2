@@ -7,6 +7,8 @@ rule all:
         "filtered/all.vcf.gz",
         "annotated/gemini.db",
         "report",
+        "report/panel" if config["run"]["panel"] else [],
+        expand("report/panel-flank-{flank}", flank=flank) if config["run"]["panel"] else [],
 #        "qc/multiqc.html",
 #        "plots/depths.svg",
 #        "plots/allele-freqs.svg"
