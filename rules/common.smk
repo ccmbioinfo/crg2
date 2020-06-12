@@ -19,6 +19,8 @@ validate(units, schema="../schemas/units.schema.yaml")
 
 project=config["run"]["project"]
 
+flank=config["run"]["flank"]
+
 ##### Wildcard constraints #####
 wildcard_constraints:
     vartype="snvs|indels",
