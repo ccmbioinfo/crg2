@@ -4,7 +4,7 @@ log = snakemake.log_fmt_shell(stdout=True, stderr=True)
 
 
 shell(
-    "run_metasv.py "
+    "(run_metasv.py "
     "--sample {snakemake.params.sample} "
     "--reference {snakemake.input.fasta} "
     "--bam {snakemake.input.bam} "
@@ -14,5 +14,5 @@ shell(
     "--wham_vcf {snakemake.input.wham} "
     "--num_threads {snakemake.threads} "
     "--disable_assembly "
-    "--filter_gaps"
+    "--filter_gaps) {log}"
 )

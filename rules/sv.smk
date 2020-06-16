@@ -11,6 +11,8 @@ rule manta:
         4
     output:
         "sv/manta/{sample}-{unit}/results/variants/diploidSV.vcf.gz"
+    log:
+        "logs/manta/{sample}-{unit}.log"
     wrapper:
         get_wrapper_path("manta")
 
@@ -20,13 +22,14 @@ rule wham:
         bai = "decoy_rm/{sample}-{unit}.no_decoy_reads.bam.bai",
         fasta = config["ref"]["no_decoy"]
     params:
-        # include MT as well?
         include_chroms = ",".join(
             [c for c in get_contigs().tolist() if is_nonalt(c)])
     threads:
         4
     output:
         "sv/wham/{sample}-{unit}.wham.vcf"
+    log:
+        "logs/wham/{sample}-{unit}.log"
     wrapper:
         get_wrapper_path("wham")
 
@@ -54,6 +57,8 @@ rule smoove:
         4
     output:
         "sv/smoove/{sample}-{unit}-smoove.genotyped.vcf.gz"
+    log:
+        "logs/smoove/{sample}-{unit}.log"
     wrapper:
         get_wrapper_path("smoove")
 
@@ -72,5 +77,23 @@ rule metasv:
         4
     output:
         "sv/metasv/{sample}-{unit}/variants.vcf.gz"
+    log:
+        "logs/metasv/{sample}-{unit}.log"
     wrapper:
         get_wrapper_path("metasv")
+
+
+rule snpeff:
+    input:
+        "sv/metasv/{sample}-{unit}/variants.vcf.gz"
+    output:
+        "sv/metasv/{sample}-{unit}/variants.snpeff.vcf"
+    log:
+        "logs/snpeff/{sample}-{unit}.log"
+    params:
+        memory_initial = "-Xms750m",
+        memory_max = "-Xmx20g",
+        reference = "GRCh37.75",
+        data_dir = "/hpf/largeprojects/ccmbio/naumenko/tools/bcbio/genomes/Hsapiens/GRCh37/snpeff"
+    wrapper:
+        get_wrapper_path("snpeff")
