@@ -6,7 +6,7 @@ rule all:
     input:
         "filtered/all.vcf.gz",
         "annotated/gemini.db",
-        "report",
+        "report/all",
         "report/panel" if config["run"]["panel"] else [],
         expand("report/panel-flank-{flank}", flank=flank) if config["run"]["panel"] else [],
 #        "qc/multiqc.html",
