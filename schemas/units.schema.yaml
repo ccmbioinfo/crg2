@@ -17,8 +17,10 @@ properties:
   fq2:
     type: string
     description: path to second FASTQ file (leave empty in case of single-end)
+  bam:
+    type: string
+    description: path to bam file (fill this in if fastqs are not available)
 required:
   - sample
   - unit
   - platform
-  - fq1

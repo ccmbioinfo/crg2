@@ -13,12 +13,12 @@ validate(config, schema="../schemas/config.schema.yaml")
 samples = pd.read_table(config["run"]["samples"]).set_index("sample", drop=False)
 validate(samples, schema="../schemas/samples.schema.yaml")
 
-units = pd.read_table(config["units"], dtype=str).set_index(["sample", "unit"], drop=False)
+units = pd.read_table(config["run"]["units"], dtype=str).set_index(["sample", "unit"], drop=False)
 units.index = units.index.set_levels([i.astype(str)
                                       for i in units.index.levels])  # enforce str in index
 validate(units, schema="../schemas/units.schema.yaml")
 
-project = config["project"]
+project = config["run"]["project"]
 flank = config["run"]["flank"]
 
 ##### Wildcard constraints #####
@@ -79,6 +79,12 @@ def get_fastq(wildcards):
     if len(fastqs) == 2:
         return [fastqs.fq1, fastqs.fq2]
     return [fastqs.fq1]
+
+
+def get_bam(wildcards):
+    """Get previously aligned bam files of given sample-unit."""
+    bam_file = units.loc[(wildcards.sample, wildcards.unit), ["bam"]].dropna()
+    return [bam_file.bam]
 
 
 def is_single_end(sample, unit):
