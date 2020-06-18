@@ -1,6 +1,9 @@
 rule bamtofastq:
     input:
         bam_file = get_bam
+    params:
+        outdir = temp("fastq/"),
+        sort_check = True
     output:
         fastq1 = temp("fastq/{sample}-{unit}_1.fq"),
         fastq2 = temp("fastq/{sample}-{unit}_2.fq")
@@ -13,8 +16,7 @@ rule bamtofastq:
 
 rule map_reads:
     input:
-        reads = get_fastq if config["run"]["bam"] == False else [
-            "fastq/{sample}-{unit}_1.fq", "fastq/{sample}-{unit}_2.fq"]
+        reads = get_fastq
     output:
         temp("mapped/{sample}-{unit}.sorted.bam")
     log:

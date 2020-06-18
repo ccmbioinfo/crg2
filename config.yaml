@@ -2,7 +2,6 @@ run:
   project: "NA12878"
   samples: samples.tsv
   units: units.tsv
-  bam: False # change to True if input is bam instead of fastq
   ped: "" # leave this line blank if there is no ped
   panel: "" # leave this line blank if there is no panel
   flank: "100000"

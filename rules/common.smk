@@ -75,16 +75,21 @@ def is_nonalt(chrom):
 
 def get_fastq(wildcards):
     """Get fastq files of given sample-unit."""
-    fastqs = units.loc[(wildcards.sample, wildcards.unit), ["fq1", "fq2"]].dropna()
+    sample = wildcards.sample
+    unit = wildcards.unit
+    fastqs = units.loc[(sample, unit), ["fq1", "fq2"]].dropna()
     if len(fastqs) == 2:
         return [fastqs.fq1, fastqs.fq2]
-    return [fastqs.fq1]
+    elif len(fastqs) == 1:
+        return [fastqs.fq1]
+    else:
+        return ["fastq/{sample}-{unit}_1.fq".format(sample=sample, unit=unit), "fastq/{sample}-{unit}_2.fq".format(sample=sample, unit=unit)]
 
 
 def get_bam(wildcards):
     """Get previously aligned bam files of given sample-unit."""
     bam_file = units.loc[(wildcards.sample, wildcards.unit), ["bam"]].dropna()
-    return [bam_file.bam]
+    return bam_file.bam
 
 
 def is_single_end(sample, unit):
