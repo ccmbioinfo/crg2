@@ -13,7 +13,7 @@ crg2 uses Snakemake and Conda to manage jobs and software dependencies.
 ## Installation instructions
 
 1. Download and setup Anaconda: https://docs.conda.io/projects/conda/en/latest/user-guide/install/linux.html
-2. Install Snakemake via Conda: https://snakemake.readthedocs.io/en/stable/getting_started/installation.html
+2. Install Snakemake 5.10.0 via Conda: https://snakemake.readthedocs.io/en/stable/getting_started/installation.html
 3. Git clone this repo
 4. Make a directory for Conda to install all it's environments and executables in, for example:
 ```
