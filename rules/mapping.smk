@@ -1,3 +1,19 @@
+rule bamtofastq:
+    input:
+        bam_file = get_bam
+    params:
+        outdir = temp("fastq/"),
+        sort_check = True
+    output:
+        fastq1 = temp("fastq/{sample}-{unit}_1.fq"),
+        fastq2 = temp("fastq/{sample}-{unit}_2.fq")
+    log:
+        "logs/bamtofastq/{sample}-{unit}.log"
+    threads:
+        4
+    wrapper:
+        get_wrapper_path("bedtools", "bamtofastq")
+
 rule map_reads:
     input:
         reads = get_fastq
@@ -52,7 +68,7 @@ rule remove_decoy:
     input:
         bam = "recal/{sample}-{unit}.bam",
         decoy = config["params"]["remove_decoy"]["bed"],
-    output: 
+    output:
         temp_out = temp("decoy_rm/{sample}-{unit}.no_decoy_reads.temp.bam"),
         out_f = "decoy_rm/{sample}-{unit}.no_decoy_reads.bam"
     log:
