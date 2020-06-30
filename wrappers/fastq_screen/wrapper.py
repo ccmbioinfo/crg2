@@ -9,7 +9,7 @@ __license__ = "MIT"
 
 _config = snakemake.params["fastq_screen_config"]
 
-subset = snakemake.params.get("subset", 100)
+subset = snakemake.params.get("subset", 100000)
 aligner = snakemake.params.get("aligner", "bowtie2")
 extra = snakemake.params.get("extra", "")
 log = snakemake.log_fmt_shell()
