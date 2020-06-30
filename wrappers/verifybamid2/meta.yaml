@@ -1,0 +1,5 @@
+name: verifybamid2
+description: detects sample contamination using previously known genotypes
+authors: Delvin So
+input: sorted bam file
+output: sample statistics on how much the sample matches known provided samples

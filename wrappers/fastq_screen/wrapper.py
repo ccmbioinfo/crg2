@@ -1,7 +1,7 @@
 import os
 from snakemake.shell import shell
 import tempfile
-
+import re
 __author__ = "Ryan Dale"
 __copyright__ = "Copyright 2016, Ryan Dale"
 __email__ = "dalerr@niddk.nih.gov"
@@ -9,7 +9,7 @@ __license__ = "MIT"
 
 _config = snakemake.params["fastq_screen_config"]
 
-subset = snakemake.params.get("subset", 100000)
+subset = snakemake.params.get("subset", 100)
 aligner = snakemake.params.get("aligner", "bowtie2")
 extra = snakemake.params.get("extra", "")
 log = snakemake.log_fmt_shell()
@@ -33,7 +33,9 @@ else:
 
 # fastq_screen hard-codes filenames according to this prefix. We will send
 # hard-coded output to a temp dir, and then move them later.
-prefix = os.path.basename(snakemake.input[0].split(".fastq")[0])
+
+# more robust to fastq naming conventions
+prefix = re.split("(.fastq|.fq)", os.path.basename(snakemake.input[0]))[0]
 tempdir = tempfile.mkdtemp()
 
 shell(
