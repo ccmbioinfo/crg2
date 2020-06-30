@@ -30,7 +30,7 @@ rule fastq_screen:
     log:
         "logs/fastq_screen/{sample}-{unit}.log"
     params:
-        fastq_screen_config="/hpf/largeprojects/ccm_dccforge/dccdipg/Common/qc/FastQ_Screen_Genomes/fastq_screen.conf", # need to replace bowtie2 bin and path to Arun's directory
+        fastq_screen_config="/hpf/largeprojects/ccm_dccforge/dccdipg/Common/qc/FastQ_Screen_Genomes/fastq_screen.conf", 
         aligner='bowtie2'
     threads: 8
     wrapper:
