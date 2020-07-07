@@ -27,3 +27,6 @@ shell(
     "{log}"
 )
 
+shell(
+    "sed -i 's/{snakemake.wildcards[0]}/{snakemake.wildcards[0]}-{snakemake.wildcards[1]}/g' {snakemake.output.sm}"
+)
