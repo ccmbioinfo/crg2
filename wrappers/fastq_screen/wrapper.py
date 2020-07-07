@@ -1,7 +1,6 @@
 import os
 from snakemake.shell import shell
 import tempfile
-import re
 __author__ = "Ryan Dale"
 __copyright__ = "Copyright 2016, Ryan Dale"
 __email__ = "dalerr@niddk.nih.gov"
@@ -35,7 +34,7 @@ else:
 # hard-coded output to a temp dir, and then move them later.
 
 # more robust to fastq naming conventions
-prefix = re.split("(.fastq|.fq)", os.path.basename(snakemake.input[0]))[0]
+prefix = os.path.basename(os.path.splitext(snakemake.input[0])[0])
 tempdir = tempfile.mkdtemp()
 
 shell(
