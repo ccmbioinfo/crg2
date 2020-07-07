@@ -32,7 +32,7 @@ rule fastq_screen:
     params:
         fastq_screen_config="/hpf/largeprojects/ccm_dccforge/dccdipg/Common/qc/FastQ_Screen_Genomes/fastq_screen.conf", 
         aligner='bowtie2'
-    threads: 8
+    threads: 4
     wrapper:
         get_wrapper_path("fastq_screen")
 
@@ -53,7 +53,7 @@ rule qualimap:
         c = config["params"]["qualimap"]["c"],
         mem_size = config["params"]["qualimap"]["mem"],
         extra = config["params"]["qualimap"]["extra"]
-    threads: 8 
+    threads: 4
     log:
         "logs/qualimap/{sample}-{unit}.log"
     wrapper:
@@ -73,26 +73,29 @@ rule verifybamid2:
         svd_prefix = config["params"]["verifybamid2"]["svd_prefix"],
         out_dir = "qc/verifybamid2/{sample}-{unit}" ,
         extra = config["params"]["verifybamid2"]["extra"]
-    threads: 8
+    threads: 4
     wrapper:
         get_wrapper_path("verifybamid2")
 
 rule multiqc:
     input:
-        expand("qc/samtools-stats/{u.sample}-{u.unit}.txt", u = units.itertuples()),
-        expand("qc/fastqc/{u.sample}-{u.unit}.zip", u = units.itertuples()),
-        expand("qc/dedup/{u.sample}-{u.unit}.metrics.txt", u = units.itertuples()),
-        expand("qc/verifybamid2/{u.sample}-{u.unit}.selfSM", u = units.itertuples()),
-        expand("qc/qualimap/{u.sample}-{u.unit}/genome_results.txt", u = units.itertuples()),
-        expand("qc/qualimap/{u.sample}-{u.unit}/raw_data_qualimapReport/coverage_histogram.txt", u = units.itertuples()),
-        expand("qc/qualimap/{u.sample}-{u.unit}/qualimapReport.html", u = units.itertuples()),
-        expand("qc/qualimap/{u.sample}-{u.unit}/raw_data_qualimapReport/genome_fraction_coverage.txt", u = units.itertuples()),
-        expand("qc/qualimap/{u.sample}-{u.unit}/raw_data_qualimapReport/mapped_reads_gc-content_distribution.txt", u = units.itertuples()),
-        expand("qc/fastq_screen/{u.sample}-{u.unit}_screen.txt", u = units.itertuples()),
+        [expand(input_file, u=units.itertuples()) for input_file in ["qc/samtools-stats/{u.sample}-{u.unit}.txt", 
+                                                            "qc/fastqc/{u.sample}-{u.unit}.zip",
+                                                            "qc/fastqc/{u.sample}-{u.unit}.zip", 
+                                                            "qc/dedup/{u.sample}-{u.unit}.metrics.txt", 
+                                                            "qc/verifybamid2/{u.sample}-{u.unit}.selfSM", 
+                                                            "qc/qualimap/{u.sample}-{u.unit}/genome_results.txt", 
+                                                            "qc/qualimap/{u.sample}-{u.unit}/raw_data_qualimapReport/coverage_histogram.txt",
+                                                            "qc/qualimap/{u.sample}-{u.unit}/qualimapReport.html", 
+                                                            "qc/qualimap/{u.sample}-{u.unit}/raw_data_qualimapReport/genome_fraction_coverage.txt", 
+                                                            "qc/qualimap/{u.sample}-{u.unit}/raw_data_qualimapReport/mapped_reads_gc-content_distribution.txt",
+                                                            "qc/qualimap/{u.sample}-{u.unit}/raw_data_qualimapReport/mapped_reads_gc-content_distribution.txt", 
+                                                            "qc/fastq_screen/{u.sample}-{u.unit}_screen.txt"
+                                                                    ]],
         "snpeff/all.csv"
     params:
     output:
-        report("qc/multiqc/multiqc.html", caption="../report/multiqc.rst", category="Quality control") # add dedicated folder
+        report("qc/multiqc/multiqc.html", caption="../report/multiqc.rst", category="Quality control") 
     log:
         "logs/multiqc/multiqc.log"
     wrapper:
