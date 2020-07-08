@@ -91,8 +91,8 @@ rule multiqc:
                                                             "qc/qualimap/{u.sample}-{u.unit}/raw_data_qualimapReport/mapped_reads_gc-content_distribution.txt",
                                                             "qc/qualimap/{u.sample}-{u.unit}/raw_data_qualimapReport/mapped_reads_gc-content_distribution.txt", 
                                                             "qc/fastq_screen/{u.sample}-{u.unit}_screen.txt"
-                                                                    ]],
-        "snpeff/all.csv"
+                                                                    ]]
+       # "snpeff/all.csv"
     params:
     output:
         report("qc/multiqc/multiqc.html", caption="../report/multiqc.rst", category="Quality control") 
