@@ -3,5 +3,4 @@ channels:
   - conda-forge
   - defaults
 dependencies:
-  - fastq-screen ==0.13.0
-  - bowtie2 ==2.4.1
+  - verifybamid2==1.0.6

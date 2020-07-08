@@ -1,0 +1,5 @@
+name: qualimap
+description: high level overview of sequencing quality to assist in detection of sequencing bias and mapping
+authors: Delvin So
+input: sorted bam file
+output: statistics such as genome coverage, gc content distribution

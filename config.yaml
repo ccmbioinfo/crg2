@@ -60,6 +60,15 @@ params:
     VariantRecalibrator: ""
   picard:
     MarkDuplicates: "REMOVE_DUPLICATES=false"
-
+  qualimap:
+    mem: "4G"
+    nw: 400
+    c: "-c"
+    hm: 3
+    extra: ""
+  verifybamid2:
+    svd_prefix: "1000g.phase3 100k b37"
+    extra: ""
   remove_decoy:
     bed: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/pipelines/cre/data/grch37d5.decoy.bed"
+  
