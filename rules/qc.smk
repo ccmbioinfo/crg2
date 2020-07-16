@@ -53,7 +53,7 @@ rule qualimap:
         c = config["params"]["qualimap"]["c"],
         mem_size = config["params"]["qualimap"]["mem"],
         extra = config["params"]["qualimap"]["extra"]
-    threads: 4
+    threads: 8
     log:
         "logs/qualimap/{sample}-{unit}.log"
     wrapper:
@@ -99,5 +99,3 @@ rule multiqc:
         "logs/multiqc/multiqc.log"
     wrapper:
         get_wrapper_path("multiqc")
-
-
