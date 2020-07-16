@@ -67,7 +67,7 @@ rule recalibrate_base_qualities:
 rule remove_decoy:
     input:
         bam = "recal/{sample}-{unit}.bam",
-        decoy = config["params"]["remove_decoy"]["bed"],
+        decoy = config["ref"]["decoy_bed"],
     output:
         temp_out = temp("decoy_rm/{sample}-{unit}.no_decoy_reads.temp.bam"),
         out_f = "decoy_rm/{sample}-{unit}.no_decoy_reads.bam"

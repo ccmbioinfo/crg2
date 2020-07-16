@@ -2,21 +2,25 @@ run:
   project: "NA12878"
   samples: samples.tsv
   units: units.tsv
-  ped: "" # leave this line blank if there is no ped
-  panel: "" # leave this line blank if there is no panel
+  ped: "" # leave this string empty if there is no ped
+  panel: "" # leave this string empty if there is no panel
+  hpo: "" # leave this string empty is there are no hpo terms
   flank: "100000"
+
+tools:
+  svscore_script: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/crg2-non-conda-tools/SVScore/svscore.pl"
 
 cre: /hpf/largeprojects/ccm_dccforge/dccdipg/Common/pipelines/cre
 
 ref:
   name: GRCh37.75
+  no_decoy_name: GRCh37
   genome: /hpf/largeprojects/ccm_dccforge/dccdipg/Common/genomes/GRCh37d5/GRCh37d5.fa
   known-variants: /hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/dbsnp.b147.20160601.tidy.vcf.gz
   no_decoy: /hpf/largeprojects/ccm_dccforge/dccdipg/Common/genomes/GRCh37/GRCh37.fa
+  decoy_bed: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/pipelines/cre/data/grch37d5.decoy.bed"
 
 filtering:
-  # Set to true in order to apply machine learning based recalibration of
-  # quality scores instead of hard filtering.
   vqsr: false
   hard:
     # hard filtering as outlined in GATK docs
@@ -45,6 +49,22 @@ annotation:
     dir_cache: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/vep-cache"
     maxentscan: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/snakemake/c63b7268/share/ensembl-vep-99.2-0/maxEntScan"
     human_ancestor_fasta: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/human_ancestor.fa.gz"
+  snpeff:
+    dataDir: "/hpf/largeprojects/ccmbio/naumenko/tools/bcbio/genomes/Hsapiens/GRCh37/snpeff"
+  svscore:
+    exon_bed: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/SVScore/refGene.exons.bed.gz"
+    intron_bed: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/SVScore/refGene.introns.bed.gz"
+    cadd: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/SVScore/whole_genome_SNVs.tsv.gz"
+  svreport:
+    hgmd: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/HGMD_2018/hgmd_pro.db"
+    protein_coding_genes: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/grch37.p13.ensembl.sorted.protein.coding.genes.bed"
+    exon_bed: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/protein_coding_genes.exons.fixed.sorted.bed"
+    exac: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/ExAC/fordist_cleaned_nonpsych_z_pli_rec_null_data.txt"
+    omim: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/OMIM_2020-04-09/genemap2.txt"
+    gnomad: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/gnomad_v2_sv.sites.bed"
+    biomart: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/BioMaRt.GrCh37.75.ensembl.mim.hgnc.entrez.txt"
+    mssng_manta_counts: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/MSSNG_COUNTS/Canadian_MSSNG_parent_SVs.Manta.counts.txt"
+    mssng_lumpy_counts: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/MSSNG_COUNTS/Canadian_MSSNG_parent_SVs.LUMPY.counts.txt"
 
 params:
   bwa:
@@ -69,6 +89,7 @@ params:
   verifybamid2:
     svd_prefix: "1000g.phase3 100k b37"
     extra: ""
-  remove_decoy:
-    bed: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/pipelines/cre/data/grch37d5.decoy.bed"
-  
+  snpeff:
+    java_opts: "-Xms750m -Xmx20g"
+  svscore:
+    operations: "max,sum,top5,top10,mean"
