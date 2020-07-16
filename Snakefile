@@ -1,3 +1,5 @@
+PIPELINE_VERSION="0.9.0"
+
 include: "rules/common.smk"
 
 ##### Target rules #####
