@@ -20,7 +20,7 @@ rule allsnvreport:
          bgzip {input.vcf} -c > report/all/{project}/{project}-gatk-haplotype-annotated-decomposed.vcf.gz
          ln -s ./{project}-gatk-haplotype-annotated-decomposed.vcf.gz report/all/{project}/{project}-ensemble-annotated-decomposed.vcf.gz
          cd report/all
-         {params.cre}/cre.sh {project} {params.ref}
+         {params.cre}/cre.sh {project}
          '''
 
 if config["run"]["panel"]: #non-empty string
@@ -47,7 +47,7 @@ if config["run"]["panel"]: #non-empty string
              bedtools intersect -header -a {input.vcf} -b {input.panel} | bgzip -c > {output.dir}/{project}/{project}-gatk-haplotype-annotated-decomposed.vcf.gz
              ln -s {output.dir}/{project}/{project}-gatk-haplotype-annotated-decomposed.vcf.gz {output.dir}/{project}/{project}-ensemble-annotated-decomposed.vcf.gz
              cd {output.dir}
-             {params.cre}/cre.sh {project} {params.ref}
+             {params.cre}/cre.sh {project}
              '''
 
     rule panelflanksnvreport:
@@ -75,5 +75,5 @@ if config["run"]["panel"]: #non-empty string
              bedtools intersect -header -a {input.vcf} -b {output.panelflank} | bgzip -c > {output.dir}/{project}/{project}-gatk-haplotype-annotated-decomposed.vcf.gz
              cd {output.dir}
              ln -s {project}/{project}-gatk-haplotype-annotated-decomposed.vcf.gz {project}/{project}-ensemble-annotated-decomposed.vcf.gz
-             {params.cre}/cre.sh {project} {params.ref}
+             {params.cre}/cre.sh {project}
              '''
