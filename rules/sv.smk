@@ -110,6 +110,8 @@ rule svscore:
         exon_bed=config["annotation"]["svscore"]["exon_bed"],
 	intron_bed=config["annotation"]["svscore"]["intron_bed"],
 	cadd=config["annotation"]["svscore"]["cadd"],
+    conda:
+        "../envs/svscore.yaml"
     shell:
         """
         perl -w {params.svscore_script} \

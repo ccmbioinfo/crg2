@@ -1,0 +1,14 @@
+channels:
+  - conda-forge
+  - bioconda
+
+dependencies:
+  - vt =2015.11.10
+  - tabix =0.2.6
+  - vcfanno =0.3.2
+  - pbgzip =2016.08.04
+  - svtools =0.5.1
+  - perl >5.10.1
+  - perl-list-moreutils =0.428
+  - perl-math-round =0.07
+  - perl-findbin =1.51
