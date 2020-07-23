@@ -11,7 +11,7 @@ rule allsnvreport:
     resources:
          mem_mb=40000
     params:
-         cre=config["cre"],
+         cre=config["tools"]["cre"],
          ref=config["ref"]["genome"]
     shell:
          '''
@@ -38,7 +38,7 @@ if config["run"]["panel"]: #non-empty string
         resources:
             mem_mb=40000
         params:
-            cre=config["cre"],
+            cre=config["tools"]["cre"],
             ref=config["ref"]["genome"],
         shell:
              '''
@@ -65,7 +65,7 @@ if config["run"]["panel"]: #non-empty string
         resources:
             mem_mb=40000
         params:
-            cre=config["cre"],
+            cre=config["tools"]["cre"],
             ref=config["ref"]["genome"],
         shell:
              '''

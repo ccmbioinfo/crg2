@@ -9,8 +9,9 @@ run:
 
 tools:
   svscore_script: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/crg2-non-conda-tools/SVScore/svscore.pl"
-
-cre: /hpf/largeprojects/ccm_dccforge/dccdipg/Common/pipelines/cre
+  annotsv: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/crg2-non-conda-tools/AnnotSV_2.1"
+  cre: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/pipelines/cre"
+  crg: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/pipelines/crg"
 
 ref:
   name: GRCh37.75
@@ -58,7 +59,7 @@ annotation:
   svreport:
     hgmd: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/HGMD_2018/hgmd_pro.db"
     protein_coding_genes: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/grch37.p13.ensembl.sorted.protein.coding.genes.bed"
-    exon_bed: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/protein_coding_genes.exons.fixed.sorted.bed"
+    exon_bed: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/grch37.p13.ensembl.protein.coding.genes.exons.fixed.sorted.bed"
     exac: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/ExAC/fordist_cleaned_nonpsych_z_pli_rec_null_data.txt"
     omim: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/OMIM_2020-04-09/genemap2.txt"
     gnomad: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/gnomad_v2_sv.sites.bed"

@@ -6,6 +6,8 @@ rule svreport:
     log:
         "logs/report/sv.log"
     params:
+        PIPELINE_VERSION=PIPELINE_VERSION,
+        project=config["run"]["project"],
         hgmd=config["annotation"]["svreport"]["hgmd"],
         hpo=config["run"]["hpo"],
         protein_coding_genes=config["annotation"]["svreport"]["protein_coding_genes"],
@@ -16,12 +18,7 @@ rule svreport:
         biomart=config["annotation"]["svreport"]["biomart"],
         mssng_manta_counts=config["annotation"]["svreport"]["mssng_manta_counts"],
         mssng_lumpy_counts=config["annotation"]["svreport"]["mssng_lumpy_counts"],
-    shell:
-        """
-        mkdir -p {output.dir}
-        cd {output.dir}
-        python3 ~/crg/crg.intersect_sv_vcfs.py -protein_coding_genes={params.protein_coding_genes} -exon_bed={params.exon_bed} \
-        -hgmd={params.hgmd} -hpo={params.hpo} -exac={params.exac} -omim={params.omim} -biomart={params.biomart} -gnomad={params.gnomad} \
-        -sv_counts {params.mssng_manta_counts} ${params.mssng_lumpy_counts} \
-        -o={{"%s.wgs.sv.v%s.%s.tsv" % (project, PIPELINE_VERSION, date.today().strftime("%Y-%m-%d"))}} -i {{",".join(["../%s" % vcf for vcf in input[0]])}}
-        """
+    conda:
+        "../envs/crg.yaml"
+    script:
+        os.path.join(config["tools"]["crg"], "crg.intersect_sv_vcfs.py")
