@@ -70,11 +70,13 @@ rule remove_decoy:
         decoy = config["ref"]["decoy_bed"],
     output:
         temp_out = temp("decoy_rm/{sample}-{unit}.no_decoy_reads.temp.bam"),
-        out_f = "decoy_rm/{sample}-{unit}.no_decoy_reads.bam"
+        out_f = temp("decoy_rm/{sample}-{unit}.no_decoy_reads.bam")
     log:
         "logs/remove_decoys/{sample}-{unit}.log"
     threads: 8
     resources: mem_mb = 10000
+    conda:
+        "../envs/samtools.yaml"
     shell:
         """
         samtools view {input.bam} -b -h -t {threads} -U {output.temp_out} -L {input.decoy}
