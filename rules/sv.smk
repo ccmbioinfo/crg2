@@ -85,7 +85,7 @@ rule metasv:
 
 rule snpeff:
     input:
-        "sv/metasv/{sample}-{unit}/variants.vcf.gz"
+        "sv/metasv/{sample}-{unit}/variants.pass.vcf.gz"
     output:
         temp("sv/metasv/{sample}-{unit}/variants.snpeff.vcf")
     log:
