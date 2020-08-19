@@ -46,12 +46,16 @@ rule samblaster:
         get_wrapper_path("samblaster")
 
 rule smoove:
+    #smoove creates a lot intermediary bam files and .histo files;
+    #added param for --outdir and use in the shell to delete the intermediary files with 'rm'
+    #changed --name param to include only name
     input:
         bam = "decoy_rm/{sample}-{unit}.no_decoy_reads.bam",
         bai = "decoy_rm/{sample}-{unit}.no_decoy_reads.bam.bai",
         fasta = config["ref"]["no_decoy"]
     params:
-        name = "sv/smoove/{sample}-{unit}",
+        outdir = "sv/smoove",
+        name = "{sample}-{unit}",
         exclude_chroms = ",".join([c for c in get_contigs().tolist() if is_nonalt(c) == False])
     threads:
         4
