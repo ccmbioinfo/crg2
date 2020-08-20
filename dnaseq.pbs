@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#PBS -l walltime=48:00:00,nodes=1:ppn=4
+#PBS -l walltime=72:00:00,nodes=1:ppn=4
 #PBS -joe .
 #PBS -d .
 #PBS -l vmem=80g,mem=80g

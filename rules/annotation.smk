@@ -12,7 +12,7 @@ rule vt:
 
 rule vep:
     input:
-        "filtered/all.uniq.normalized.decomposed.vcf",
+        "filtered/all.uniq.normalized.decomposed.pass.vcf",
     output:
         temp("annotated/vep/all.vep.vcf"),
     log:
@@ -48,9 +48,9 @@ rule vcfanno:
 
 rule pass:
     input:
-       	"annotated/vcfanno/all.vep.vcfanno.vcf",
+       	"{prefix}.{ext}"
     output:
-        "annotated/all.vep.vcfanno.pass.vcf"
+        temp("{prefix}.pass.{ext,(vcf|vcf\.gz)}")
     threads: 1
     resources:
         mem_mb = 4000
@@ -60,7 +60,7 @@ rule pass:
 
 rule vcf2db:
     input:
-        "annotated/all.vep.vcfanno.pass.vcf",
+        "annotated/vcfanno/all.vep.vcfanno.vcf",
     output:
          db="annotated/gemini.db",
     log:

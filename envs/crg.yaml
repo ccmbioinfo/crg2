@@ -1,0 +1,9 @@
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - sqlite >3.2
+  - python >3.5
+  - scikit-allel >1.2
+  - pybedtools >0.8.0
+  - numpy >1.1

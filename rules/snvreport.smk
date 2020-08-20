@@ -1,7 +1,7 @@
 rule allsnvreport:
     input:
         db="annotated/gemini.db",
-        vcf="annotated/all.vep.vcfanno.pass.vcf"
+        vcf="annotated/vcfanno/all.vep.vcfanno.vcf"
     output:
         directory("report/all")
     conda:
@@ -11,7 +11,7 @@ rule allsnvreport:
     resources:
          mem_mb=40000
     params:
-         cre=config["cre"],
+         cre=config["tools"]["cre"],
          ref=config["ref"]["genome"]
     shell:
          '''
@@ -20,14 +20,14 @@ rule allsnvreport:
          bgzip {input.vcf} -c > report/all/{project}/{project}-gatk-haplotype-annotated-decomposed.vcf.gz
          ln -s ./{project}-gatk-haplotype-annotated-decomposed.vcf.gz report/all/{project}/{project}-ensemble-annotated-decomposed.vcf.gz
          cd report/all
-         {params.cre}/cre.sh {project} {params.ref}
+         {params.cre}/cre.sh {project}
          '''
 
 if config["run"]["panel"]: #non-empty string
     rule panelsnvreport:
         input:
             db="annotated/gemini.db",
-            vcf="annotated/all.vep.vcfanno.pass.vcf",
+            vcf="annotated/vcfanno/all.vep.vcfanno.vcf",
             panel=config["run"]["panel"]
         output:
             dir=directory("report/panel")
@@ -38,7 +38,7 @@ if config["run"]["panel"]: #non-empty string
         resources:
             mem_mb=40000
         params:
-            cre=config["cre"],
+            cre=config["tools"]["cre"],
             ref=config["ref"]["genome"],
         shell:
              '''
@@ -47,13 +47,13 @@ if config["run"]["panel"]: #non-empty string
              bedtools intersect -header -a {input.vcf} -b {input.panel} | bgzip -c > {output.dir}/{project}/{project}-gatk-haplotype-annotated-decomposed.vcf.gz
              ln -s {output.dir}/{project}/{project}-gatk-haplotype-annotated-decomposed.vcf.gz {output.dir}/{project}/{project}-ensemble-annotated-decomposed.vcf.gz
              cd {output.dir}
-             {params.cre}/cre.sh {project} {params.ref}
+             {params.cre}/cre.sh {project}
              '''
 
     rule panelflanksnvreport:
         input:
             db="annotated/gemini.db",
-            vcf="annotated/all.vep.vcfanno.pass.vcf",
+            vcf="annotated/vcfanno/all.vep.vcfanno.vcf",
             panel=config["run"]["panel"],
         output:
             dir=directory("report/panel-flank-{flank}"),
@@ -65,7 +65,7 @@ if config["run"]["panel"]: #non-empty string
         resources:
             mem_mb=40000
         params:
-            cre=config["cre"],
+            cre=config["tools"]["cre"],
             ref=config["ref"]["genome"],
         shell:
              '''
@@ -75,5 +75,5 @@ if config["run"]["panel"]: #non-empty string
              bedtools intersect -header -a {input.vcf} -b {output.panelflank} | bgzip -c > {output.dir}/{project}/{project}-gatk-haplotype-annotated-decomposed.vcf.gz
              cd {output.dir}
              ln -s {project}/{project}-gatk-haplotype-annotated-decomposed.vcf.gz {project}/{project}-ensemble-annotated-decomposed.vcf.gz
-             {params.cre}/cre.sh {project} {params.ref}
+             {params.cre}/cre.sh {project}
              '''

@@ -53,7 +53,7 @@ rule qualimap:
         c = config["params"]["qualimap"]["c"],
         mem_size = config["params"]["qualimap"]["mem"],
         extra = config["params"]["qualimap"]["extra"]
-    threads: 4
+    threads: 8
     log:
         "logs/qualimap/{sample}-{unit}.log"
     wrapper:
@@ -92,7 +92,6 @@ rule multiqc:
                                                             "qc/qualimap/{u.sample}-{u.unit}/raw_data_qualimapReport/mapped_reads_gc-content_distribution.txt", 
                                                             "qc/fastq_screen/{u.sample}-{u.unit}_screen.txt"
                                                                     ]]
-       # "snpeff/all.csv"
     params:
     output:
         report("qc/multiqc/multiqc.html", caption="../report/multiqc.rst", category="Quality control") 
@@ -100,5 +99,3 @@ rule multiqc:
         "logs/multiqc/multiqc.log"
     wrapper:
         get_wrapper_path("multiqc")
-
-
