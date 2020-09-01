@@ -58,7 +58,7 @@ rule smoove:
         name = "{sample}-{unit}",
         exclude_chroms = ",".join([c for c in get_contigs().tolist() if is_nonalt(c) == False])
     threads:
-        4
+       4
     output:
         "sv/smoove/{sample}-{unit}-smoove.genotyped.vcf.gz"
     log:

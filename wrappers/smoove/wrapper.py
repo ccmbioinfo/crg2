@@ -13,5 +13,5 @@ shell(
     "--excludechroms {snakemake.params.exclude_chroms} "
     "{snakemake.input.bam}) {log}; "
     "cd {snakemake.params.outdir}; "
-    "rm *.bam* *.histo "
+    "rm *.bam* *.histo ;"
 )
