@@ -1,7 +1,7 @@
 rule allsnvreport:
     input:
         db="annotated/gemini.db",
-        vcf="annotated/all.vep.vcfanno.pass.vcf"
+        vcf="annotated/vcfanno/all.vep.vcfanno.vcf"
     output:
         directory("report/all")
     conda:
@@ -27,7 +27,7 @@ if config["run"]["panel"]: #non-empty string
     rule panelsnvreport:
         input:
             db="annotated/gemini.db",
-            vcf="annotated/all.vep.vcfanno.pass.vcf",
+            vcf="annotated/vcfanno/all.vep.vcfanno.vcf",
             panel=config["run"]["panel"]
         output:
             dir=directory("report/panel")
@@ -53,7 +53,7 @@ if config["run"]["panel"]: #non-empty string
     rule panelflanksnvreport:
         input:
             db="annotated/gemini.db",
-            vcf="annotated/all.vep.vcfanno.pass.vcf",
+            vcf="annotated/vcfanno/all.vep.vcfanno.vcf",
             panel=config["run"]["panel"],
         output:
             dir=directory("report/panel-flank-{flank}"),
