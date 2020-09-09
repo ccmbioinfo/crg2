@@ -21,7 +21,7 @@ out_dir = snakemake.params.get("out_dir")
 shell(
     "qualimap bamqc"
     " -bam {snakemake.input}"
-    " -c {c}"
+    "  {c}"
     " -nw {num_windows}"
     " -hm {min_homopolymer}"
     " -nt {snakemake.threads}"

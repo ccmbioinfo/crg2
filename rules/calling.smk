@@ -1,5 +1,3 @@
-localrules: merge_variants
-
 if "restrict-regions" in config["processing"]:
     rule compose_regions:
         input:
