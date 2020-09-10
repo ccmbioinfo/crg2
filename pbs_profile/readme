@@ -1,5 +1,0 @@
-This profile is a blend of https://github.com/Snakemake-Profiles/generic
-and https://github.com/Snakemake-Profiles/pbs-torque
-
-- prioritizing values passed in "cluster" in properties over command-line arguments
-- allow job chaining with command-line argument {dependencies}

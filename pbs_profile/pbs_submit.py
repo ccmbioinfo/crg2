@@ -78,30 +78,6 @@ try:
     res = subprocess.run(command, check=True, shell=True, stdout=subprocess.PIPE)
 except subprocess.CalledProcessError as e:
     raise e
-
-## Popen blocks process from submitting other jobs
-# p = Popen(command.split(" "), stdout=PIPE, stderr=PIPE)
-# output, error = p.communicate()
-# if p.returncode != 0:
-#     raise Exception(
-#         "Job can't be submitted\n" + output.decode("utf-8") + error.decode("utf-8")
-#     )
-# else:
-#     res = output.decode("utf-8")
-
 res = res.stdout.decode()
 jobid = res.strip()
-
-# if system == "lsf":
-#     import re
-
-#     match = re.search(r"Job <(\d+)> is submitted", res)
-#     jobid = match.group(1)
-
-# elif system == "pbs":
-#     jobid = res.strip()
-
-# else:
-#     jobid = int(res.strip().split()[-1])
-
 print(jobid)
