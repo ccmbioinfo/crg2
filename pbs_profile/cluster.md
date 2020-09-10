@@ -5,25 +5,27 @@ Snakemake can be made to submit each rule as a separate job to the PBS cluster b
 https://snakemake.readthedocs.io/en/v5.1.4/executable.html#profiles
 https://snakemake.readthedocs.io/en/v5.10.0/executing/cluster-cloud.html
 
-`pbs_profile` is the profile folder with all the relevant files and settings for PBS job submission.
-    |- `config.yaml`: contains common cluster parameters
-    |- `pbs_config.yaml`: contains default and rule specific cluster settings like memory, nodes, walltime etc.,
-    |- `pbs_submit.py`: script to create the 'qsub' commands for each job
-    |- `pbs_status.py`: script to check/interpret job status
-    |- `pbs_jobscript.sh`: template job script
-    |- `key_mapping.yaml`: dictionary of various parameters available in 'qsub'
-
+```
+pbs_profile is the profile folder with all the relevant files and settings for PBS job submission.
+    |- config.yaml: contains common cluster parameters
+    |- pbs_config.yaml: contains default and rule specific cluster settings like memory, nodes, walltime etc.,
+    |- pbs_submit.py: script to create the 'qsub' commands for each job
+    |- pbs_status.py: script to check/interpret job status
+    |- pbs_jobscript.sh: template job script
+    |- key_mapping.yaml: dictionary of various parameters available in 'qsub'
+```
 The above files for the profile were adapted from https://github.com/Snakemake-Profiles/generic and https://github.com/Snakemake-Profiles/pbs-torque
 
 Once the above files are in place, you can dry-run Snakemake by passing the absolute location of the profile folder. Make sure the value of `cluster-config` is set to absolute path inside the `config.yaml` file. 
+`cluster-config: "/home/<username>/crg2/pbs_profile/pbs_config.yaml"`
 
-```cluster-config: "/home/<username>/crg2/pbs_profile/pbs_config.yaml"```
-
-`snakemake --use-conda -s ~/crg2/Snakefile --conda-prefix /hpf/largeprojects/ccm_dccforge/dccdipg/Common/snakemake --profile ~/crg2/pbs_profile -nr`
+```bash
+snakemake --use-conda -s ~/crg2/Snakefile --conda-prefix /hpf/largeprojects/ccm_dccforge/dccdipg/Common/snakemake --profile ~/crg2/pbs_profile -nr
+```
 
 If the profile directory is located in either of these two places `$HOME/.config/snakemake` and `/etc/xdg/snakemake`, then you can just pass the name of the profile folder. 
 
-To submit snakemake to cluster, use `dnaseq_cluster.pbs` and change the value of variables inside as appropriate for your settings.
+To submit snakemake to cluster, use `dnaseq_cluster.pbs` and change the value of variables inside as appropriate to your settings.
 
 
 ## Development notes
