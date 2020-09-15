@@ -1,5 +1,5 @@
 channels:
   - bioconda
 dependencies:
-  - ensembl-vep =99.2
+  - ensembl-vep =101.0
   - bcftools =1.9
