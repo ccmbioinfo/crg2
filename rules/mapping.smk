@@ -67,9 +67,8 @@ rule recalibrate_base_qualities:
 rule remove_decoy:
     input:
         bam = "recal/{sample}-{unit}.bam",
-        decoy = config["ref"]["decoy_bed"],
+        canon = config["ref"]["canon_bed"],
     output:
-        temp_out = temp("decoy_rm/{sample}-{unit}.no_decoy_reads.temp.bam"),
         out_f = temp("decoy_rm/{sample}-{unit}.no_decoy_reads.bam")
     log:
         "logs/remove_decoys/{sample}-{unit}.log"
@@ -79,8 +78,7 @@ rule remove_decoy:
         "../envs/samtools.yaml"
     shell:
         """
-        samtools view {input.bam} -b -h -t {threads} -U {output.temp_out} -L {input.decoy}
-        samtools view -h -t {threads} {output.temp_out} | grep -v hs37d5 | grep -v NC_007605 | samtools view - -hb > {output.out_f}
+        samtools view -t {threads} -h -L {input.canon} {input.bam} | egrep -v "hs37d5|NC_007605" | samtools view -t {threads} - -bh > {output.out_f}
         """
 
 rule samtools_index:
