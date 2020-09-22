@@ -40,6 +40,9 @@ def get_contigs():
     return pd.read_table(get_fai(),
                          header=None, usecols=[0], squeeze=True, dtype=str)
 
+def get_canon_contigs():
+    return pd.read_table(config["ref"]["canon_bed"],
+                         header=None, usecols=[0], squeeze=True, dtype=str)
 
 def is_autosomal(chrom):
     # from bcbio-nextgen/bcbio/heterogeneity/chromhacks.py
