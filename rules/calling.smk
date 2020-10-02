@@ -68,7 +68,7 @@ rule genotype_variants:
 rule merge_variants:
     input:
         ref=get_fai(), # fai is needed to calculate aggregation over contigs below
-        vcfs=lambda w: expand("genotyped/all.{contig}.vcf.gz", contig=get_contigs()),
+        vcfs=lambda w: expand("genotyped/all.{contig}.vcf.gz", contig=get_canon_contigs()),
     output:
         vcf="genotyped/all.vcf.gz"
     log:
