@@ -1,0 +1,14 @@
+restart-times: 3
+cluster: "/home/amphan/crg2/pbs_profile/pbs-submit.py --depend \"{dependencies}\"" #
+cluster-status: "~/crg2/pbs_profile/pbs_status.py" #
+cluster-config: "~/crg2/pbs_profile/pbs-config.yaml"
+jobscript: "~/crg2/pbs_profile/pbs-jobscript.sh"
+max-jobs-per-second: 10
+max-status-checks-per-second: 10
+cores: 86 # how many jobs you want to submit to your cluster queue
+local-cores: 1
+rerun-incomplete: true  # recomended for cluster submissions
+keep-going: false
+notemp: true
+immediate-submit: true
+verbose: true

@@ -1,0 +1,19 @@
+cluster: "pbs_submit.py" 
+ 
+#pbs_submit.py --depend \"{dependencies}\" -> use this only when you 
+#set immediate-submit:true.
+
+cluster-status: "pbs_status.py" #
+cluster-config: "/home/amohan/crg2/pbs_profile/pbs_config.yaml"
+jobscript: "pbs_jobscript.sh"
+max-jobs-per-second: 10
+max-status-checks-per-second: 1
+cores: 100 # how many jobs you want to submit to your cluster queue
+local-cores: 1
+rerun-incomplete: true  # recommended for cluster submissions
+restart-times: 3
+keep-going: false
+notemp: true
+immediate-submit: false
+latency-wait: 60
+verbose: true

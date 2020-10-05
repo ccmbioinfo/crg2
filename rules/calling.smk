@@ -29,6 +29,7 @@ rule call_variants:
     params:
         extra=get_call_variants_params,
         java_opts=config["params"]["gatk"]["java_opts"],
+    group: "gatkcall"
     wrapper:
         get_wrapper_path("gatk", "haplotypecaller")
 
@@ -43,6 +44,7 @@ rule combine_calls:
         java_opts=config["params"]["gatk"]["java_opts"],
     log:
         "logs/gatk/combinegvcfs.{contig}.log"
+    group: "gatkcall"
     wrapper:
         get_wrapper_path("gatk", "combinegvcfs")
 
@@ -58,6 +60,7 @@ rule genotype_variants:
         java_opts=config["params"]["gatk"]["java_opts"],
     log:
         "logs/gatk/genotypegvcfs.{contig}.log"
+    group: "gatkcall"
     wrapper:
         get_wrapper_path("gatk", "genotypegvcfs")
 

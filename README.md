@@ -133,7 +133,14 @@ rule call_variants:
 ...
 ```
 
-5. Run the pipeline as a single job using: ```qsub dnaseq.pbs```. The SNV report can be found in the directory: report/{PROJECT_ID}/{PROJECT_ID}.*.csv
+5. Run the pipeline
+  - as a single job using: ```qsub dnaseq.pbs```. 
+  - as multi-node jobs using: ```qsub dnaseq_cluster.pbs```. Change the value of variables defined inside the above file according to your system and make sure the following in `pbs_profile/config.yaml` is set to absolute path. 
+  ```cluster-config: "/home/<username>/crg2/pbs_profile/pbs_config.yaml"```
+  Refer `pbs_profile/cluster.md` document for detailed description.
+  
+The SNV report can be found in the directory: report/all/{PROJECT_ID}/{PROJECT_ID}.*.csv.
+The SV reports can be found in the directory: report/sv/{PROJECt_ID}.wgs.{VER}.{DATE}.tsv.
 
 ## Pipeline details
 

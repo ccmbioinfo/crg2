@@ -65,6 +65,8 @@ rule recalibrate_base_qualities:
         get_wrapper_path("gatk", "baserecalibrator")
 
 rule remove_decoy:
+    #redirect first samtools command to a temp output file "decoy.bam" 
+    #otherwise it floods the log file with binary stream of decoy reads
     input:
         bam = "recal/{sample}-{unit}.bam",
         canon = config["ref"]["canon_bed"],

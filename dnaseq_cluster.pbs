@@ -1,0 +1,19 @@
+#!/bin/bash
+
+#PBS -l walltime=72:00:00,nodes=1:ppn=4
+#PBS -joe .
+#PBS -d .
+#PBS -l vmem=80g,mem=80g
+#PBS -N crg2_pbs
+
+
+#please change the following three variables according to your settings, as the recent crg2 repo is not copied over here
+
+SF="/hpf/largeprojects/ccm_dccforge/dccdipg/Common/pipelines/crg2/Snakefile" 
+CP="/hpf/largeprojects/ccm_dccforge/dccdipg/Common/snakemake"
+PBS="~/crg2/pbs_profile"
+
+source /hpf/largeprojects/ccm_dccforge/dccdipg/Common/anaconda3/etc/profile.d/conda.sh
+conda activate snakemake
+
+snakemake --use-conda -s $SF --conda-prefix $CP  --profile $PBS -p  
