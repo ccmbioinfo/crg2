@@ -28,7 +28,9 @@ if job_properties["type"] == "single":
 elif job_properties["type"] == "group":
     cluster_param["name"] = job_properties["groupid"]
 else:
-    raise NotImplementedError(f"Don't know what to do with job_properties['type']=={job_properties['type']}")
+    raise NotImplementedError(
+        f"Don't know what to do with job_properties['type']=={job_properties['type']}"
+    )
 
 
 # don't overwrite default parameters if defined in rule (or config file)
@@ -39,6 +41,10 @@ if "mem" in resources and "mem" not in cluster_param:
 
 if "join" in cluster_param and cluster_param["join"] == True:
     cluster_param["join"] = "oe"
+    # store job outputs from each rule to "pbs" sub-folder
+    if "output" in cluster_param:
+        if not os.path.isdir(cluster_param["output"]):
+            os.mkdir(cluster_param["output"])
 
 # qsub takes mem as mem,vmem
 if "mem" in cluster_param:

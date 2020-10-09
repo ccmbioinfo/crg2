@@ -22,6 +22,8 @@ pbs:
     time: "-l walltime={}"
     mail: "-m {}"
     join: "-j {}"
+    output: "-o {}"
+    error: "-e {}"
 
 
 lsf:

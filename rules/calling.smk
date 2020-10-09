@@ -69,6 +69,8 @@ rule merge_variants:
     input:
         ref=get_fai(), # fai is needed to calculate aggregation over contigs below
         vcfs=lambda w: expand("genotyped/all.{contig}.vcf.gz", contig=get_canon_contigs()),
+	## use this to remove repetitive contigs for dag generation
+	#vcfs=lambda w: expand("genotyped/all.{contig}.vcf.gz", contig="GRCh37"), 
     output:
         vcf="genotyped/all.vcf.gz"
     log:

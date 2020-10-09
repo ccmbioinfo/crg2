@@ -22,6 +22,8 @@ __default__:
   mem: "40g"
   time: "20:00:00"
   join: True
+  output: "pbs/"
+  error: "pbs/"
 
 map_reads:
   mem: "70g"
