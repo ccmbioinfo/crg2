@@ -8,5 +8,6 @@ shell(
     "-o VCF "
     "-dataDir {snakemake.params.data_dir} "
     "{snakemake.params.reference} "
-    "{snakemake.input} > {snakemake.output}) {log}"
+    "{snakemake.input} > {snakemake.output.vcf}; "
+    "mv snpEff_summary.html {snakemake.output.report}) {log}"
 )

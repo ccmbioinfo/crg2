@@ -91,7 +91,8 @@ rule snpeff:
     input:
         "sv/metasv/{sample}-{unit}/variants.pass.vcf.gz"
     output:
-        temp("sv/metasv/{sample}-{unit}/variants.snpeff.vcf")
+        vcf = temp("sv/metasv/{sample}-{unit}/variants.snpeff.vcf"),
+        report = "sv/snpeff/{sample}-{unit}/snpEff_summary.html"
     log:
         "logs/snpeff/{sample}-{unit}.log"
     params:
