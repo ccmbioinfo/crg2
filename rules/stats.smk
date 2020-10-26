@@ -1,13 +1,12 @@
 rule vcf_to_tsv:
     input:
-        "annotated/all.vcf.gz"
+        "annotated/vcfanno/all.vep.vcfanno.pass.vcf"
     output:
         report("tables/calls.tsv.gz", caption="../report/calls.rst", category="Calls")
     conda:
         "../envs/rbt.yaml"
     shell:
-        "bcftools view --apply-filters PASS --output-type u {input} | "
-        "rbt vcf-to-txt -g --fmt DP AD --info ANN | "
+        "rbt vcf-to-txt -g --fmt DP AD --info ANN < {input} | "
         "gzip > {output}"
 
 
