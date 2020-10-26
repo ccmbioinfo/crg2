@@ -33,16 +33,16 @@ remove_decoy:
   mem: "40g"
 
 qualimap:
-  mem: "80g"
+  mem: "30g"
 
 manta:
-  mem: "80g"
+  mem: "20g"
 
 smoove:
-  mem: "80g" 
+  mem: "20g" 
 
 snpeff:
-  mem: 40gb
+  mem: "20g"
 
 svscore:
   mail: "ae"

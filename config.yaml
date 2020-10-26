@@ -83,7 +83,7 @@ params:
   picard:
     MarkDuplicates: "REMOVE_DUPLICATES=false"
   qualimap:
-    mem: "70G"
+    mem: "20G"
     nw: 400
     c: "-c"
     hm: 3
