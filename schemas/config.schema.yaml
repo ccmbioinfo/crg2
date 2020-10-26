@@ -13,22 +13,56 @@ properties:
       type: string
     units:
       type: string
+    ped:
+      type: string
     panel:
+      type: string
+    hpo:
+      type: string
+    flank:
       type: string
     required:
       - samples
       - units
 
+  tools:
+    type: object
+    properties:
+      svscore_script:
+        type: string
+      annotsv:
+        type: string
+      cre:
+        type: string
+      crg:
+        type: string
+    required:
+      - svscore_script
+      - annotsv
+      - cre
+      - crg
+
   ref:
     type: object
     properties:
+      name:
+        type: string
+      no_decoy_name:
+        type: string
       genome:
         type: string
       known-variants:
         type: string
+      no_decoy:
+        type: string
+      decoy_bed:
+        type: string
+      canon_bed:
+        type: string
     required:
       - genome
       - known-variants
+      - canon_bed
 
   filtering:
     type: object
@@ -61,9 +95,113 @@ properties:
     required:
       - remove-duplicates
 
+  annotation:
+    type: object
+    properties:
+      vcfanno:
+        type: object
+        properties:
+          conf:
+            type: string
+          lua_script:
+            type: string
+          base_path:
+            type: string
+        required:
+          - conf
+          - lua_script
+          - base_path
+
+      vep:
+        type: object
+        properties:
+          dir:
+            type: string
+          dir_cache:
+            type: string
+          maxentscan:
+            type: string
+          human_ancestor_fasta:
+            type: string
+        required:
+          - dir
+          - dir_cache
+          - maxentscan
+          - human_ancestor_fasta
+
+      snpeff:
+        type: object
+        properties:
+          dataDir:
+            type: string
+        required:
+          - dataDir
+
+      svscore:
+        type: object
+        properties:
+          exon_bed:
+            type: string
+          intron_bed:
+            type: string
+          cadd:
+            type: string
+        required:
+          - exon_bed
+          - intron_bed
+          - cadd
+
+      svreport:
+        type: object
+        properties:
+          hgmd:
+            type: string
+          protein_coding_genes:
+            type: string
+          exon_bed:
+            type: string
+          exac:
+            type: string
+          omim:
+            type: string
+          gnomad:
+            type: string
+          biomart:
+            type: string
+          mssng_lumpy_counts:
+            type: string
+        required:
+          - hgmd
+          - protein_coding_genes
+          - exon_bed
+          - exac
+          - omim
+          - gnomad
+          - biomart
+          - mssng_lumpy_counts
+
+    required:
+      - vep
+      - vcfanno
+      - snpeff
+      - svscore
+      - svreport
+
   params:
     type: object
     properties:
+      bwa:
+        type: object
+        properties:
+          verbosity:
+            type: string
+          markSplitReads:
+            type: string
+          maxMem:
+            type: string
+        required:
+          - markSplitReads
+
       gatk:
         type: object
         properties:
@@ -80,6 +218,7 @@ properties:
           - BaseRecalibrator
           - GenotypeGVCFs
           - VariantRecalibrator
+
       picard:
         type: object
         properties:
@@ -87,13 +226,62 @@ properties:
             type: string
         required:
           - MarkDuplicates
+
+      qualimap:
+        type: object
+        properties:
+          mem:
+            type: string
+          nw:
+            type: integer
+          c:
+            type: string
+          hm:
+            type: integer
+          extra:
+            type: string
+        required:
+          - mem
+          - nw
+          - c
+
+      verifybamid2:
+        type: object
+        properties:
+          svd_prefix:
+            type: string
+          extra:
+            type: string
+        required:
+          - svd_prefix
+
+      snpeff:
+        type: object
+        properties:
+          java_opts:
+            type: string
+        required:
+          - java_opts
+
+      svscore:
+        type: object
+        properties:
+          operations:
+            type: string
+        required:
+          - operations
+
     required:
       - gatk
       - picard
+      - snpeff
+      - svscore
 
 required:
   - run
+  - tools
   - ref
   - filtering
   - processing
+  - annotation
   - params
