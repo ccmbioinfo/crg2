@@ -21,4 +21,4 @@ rule svreport:
     conda:
         "../envs/crg.yaml"
     script:
-        os.path.join(config["tools"]["crg"], "crg.intersect_sv_vcfs.py")
+        "../scripts/crg.intersect_sv_vcfs.py"

@@ -35,15 +35,6 @@ remove_decoy:
 qualimap:
   mem: "30g"
 
-manta:
-  mem: "20g"
-
-smoove:
-  mem: "20g" 
-
-snpeff:
-  mem: "20g"
-
 svscore:
   mail: "ae"
 

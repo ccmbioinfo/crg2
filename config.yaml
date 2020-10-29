@@ -10,8 +10,8 @@ run:
 tools:
   svscore_script: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/crg2-non-conda-tools/SVScore/svscore.pl"
   annotsv: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/crg2-non-conda-tools/AnnotSV_2.1"
-  cre: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/pipelines/cre"
-  crg: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/pipelines/crg"
+  cre: "~/cre"
+  crg: "~/crg"
 
 ref:
   name: GRCh37.75

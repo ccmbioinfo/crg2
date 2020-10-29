@@ -13,8 +13,8 @@ rule all:
         expand("report/panel-flank-{flank}", flank=flank) if config["run"]["panel"] else [],
         "report/sv",
         "qc/multiqc/multiqc.html",
-#        "plots/depths.svg",
-#        "plots/allele-freqs.svg"
+        "plots/depths.svg",
+        "plots/allele-freqs.svg"
 
 ##### Modules #####
 

@@ -1,6 +1,6 @@
 rule vcf_to_tsv:
     input:
-        "annotated/vcfanno/all.vep.vcfanno.pass.vcf"
+        "annotated/vcfanno/all.vep.vcfanno.vcf"
     output:
         report("tables/calls.tsv.gz", caption="../report/calls.rst", category="Calls")
     conda:
