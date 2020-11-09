@@ -16,8 +16,7 @@ pbs_profile is the profile folder with all the relevant files and settings for P
 ```
 The above files for the profile were adapted from https://github.com/Snakemake-Profiles/generic and https://github.com/Snakemake-Profiles/pbs-torque
 
-Once the above files are in place, you can dry-run Snakemake by passing the absolute location of the profile folder. Make sure the value of `cluster-config` is set to absolute path inside the `config.yaml` file. 
-`cluster-config: "/home/<username>/crg2/pbs_profile/pbs_config.yaml"`
+Copy the `pbs_config.yaml` file to the directory you wish to start Snakemake (this is expected to be in current path, just like the main crg2/config.yaml). Run Snakemake in dry-run mode by passing the absolute location of the profile folder as below,
 
 ```bash
 snakemake --use-conda -s ~/crg2/Snakefile --conda-prefix /hpf/largeprojects/ccm_dccforge/dccdipg/Common/snakemake --profile ~/crg2/pbs_profile -nr
