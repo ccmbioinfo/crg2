@@ -36,8 +36,8 @@ else:
 # don't overwrite default parameters if defined in rule (or config file)
 if ("threads" in job_properties) and ("threads" not in cluster_param):
     cluster_param["threads"] = job_properties["threads"]
-if "mem" in resources and "mem" not in cluster_param:
-    cluster_param["mem"] = resources["mem"]
+if "mem" in resources: #and "mem" not in cluster_param:
+    cluster_param["mem"] = str(resources["mem"]) + "g"
 
 if "join" in cluster_param and cluster_param["join"] == True:
     cluster_param["join"] = "oe"
