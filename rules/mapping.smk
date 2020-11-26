@@ -29,7 +29,9 @@ rule map_reads:
         markSplitReads = config["params"]["bwa"]["markSplitReads"],
         sort = "samtools",
         sort_order = "coordinate"
-    threads: 8
+    threads: 16
+    resources: 
+        mem=lambda wildcards, threads: threads * 2
     wrapper:
         get_wrapper_path("bwa", "mem")
 
@@ -80,7 +82,7 @@ rule remove_decoy:
         "../envs/samtools.yaml"
     shell:
         """
-        samtools view -t {threads} -h -L {input.canon} {input.bam} | egrep -v "hs37d5|NC_007605" | samtools view -t {threads} - -bh > {output.out_f}
+        samtools view --threads {threads} -h -L {input.canon} {input.bam} | egrep -v "hs37d5|NC_007605" | samtools view --threads {threads} - -bh > {output.out_f}
         """
 
 rule samtools_index:
