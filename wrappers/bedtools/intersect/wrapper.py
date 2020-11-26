@@ -9,11 +9,12 @@ from snakemake.shell import shell
 extra = snakemake.params.get("extra", "")
 log = snakemake.log_fmt_shell(stdout=True, stderr=True)
 
+
 shell(
     "(bedtools intersect"
     " {extra}"
     " -a {snakemake.input.left}"
     " -b {snakemake.input.right}"
-    " > {snakemake.output})"
+    " | bgzip -c > {snakemake.output})"
     " {log}"
 )

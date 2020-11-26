@@ -6,11 +6,8 @@ include: "rules/common.smk"
 
 rule all:
     input:
-        "filtered/all.vcf.gz",
-        "annotated/gemini.db",
-        "report/all",
-        "report/panel" if config["run"]["panel"] else [],
-        expand("report/panel-flank-{flank}", flank=flank) if config["run"]["panel"] else [],
+        expand("report/{p}", p=["panel", "panel-flank"]) if config["run"]["panel"] else [],
+        "report/coding",
         "report/sv",
         "qc/multiqc/multiqc.html",
         "plots/depths.svg",

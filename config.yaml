@@ -5,7 +5,7 @@ run:
   ped: "" # leave this string empty if there is no ped
   panel: "" # leave this string empty if there is no panel
   hpo: "" # leave this string empty is there are no hpo terms
-  flank: "100000"
+  flank: 100000
 
 tools:
   svscore_script: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/crg2-non-conda-tools/SVScore/svscore.pl"

@@ -1,13 +1,13 @@
 rule allsnvreport:
     input:
-        db="annotated/gemini.db",
-        vcf="annotated/vcfanno/all.vep.vcfanno.vcf"
+        db="annotated/{p}/gemini.db",
+        vcf="annotated/{p}/vcfanno/all.{p}.vep.vcfanno.vcf"
     output:
-        directory("report/all")
+        directory("report/{p}")
     conda:
         "../envs/cre.yaml"
     log:
-        "logs/report/all-cre.log"
+        "logs/report/{p}/cre.log"
     resources:
          mem_mb=40000
     params:
@@ -15,65 +15,46 @@ rule allsnvreport:
          ref=config["ref"]["genome"]
     shell:
          '''
-         mkdir -p report/all/{project}
-         ln -s ../../../{input.db} report/all/{project}/{project}-ensemble.db
-         bgzip {input.vcf} -c > report/all/{project}/{project}-gatk-haplotype-annotated-decomposed.vcf.gz
-         ln -s ./{project}-gatk-haplotype-annotated-decomposed.vcf.gz report/all/{project}/{project}-ensemble-annotated-decomposed.vcf.gz
-         cd report/all
-         {params.cre}/cre.sh {project}
+         mkdir -p {output}/{project}
+         cd {output}/{project}
+         ln -s ../../../{input.db} {project}-ensemble.db
+         bgzip ../../../{input.vcf} -c > {project}-gatk-haplotype-annotated-decomposed.vcf.gz
+         ln -s {project}-gatk-haplotype-annotated-decomposed.vcf.gz {project}-ensemble-annotated-decomposed.vcf.gz
+         cd ../
+         if [ {wildcards.p} == "coding" ]; then  
+         {params.cre}/cre.sh {project} 
+         else
+         type=wgs {params.cre}/cre.sh {project}
+         unset type
+         fi;
          '''
+if config["run"]["panel"]:
 
-if config["run"]["panel"]: #non-empty string
-    rule panelsnvreport:
-        input:
-            db="annotated/gemini.db",
-            vcf="annotated/vcfanno/all.vep.vcfanno.vcf",
-            panel=config["run"]["panel"]
-        output:
-            dir=directory("report/panel")
-        conda:
-            "../envs/cre.yaml"
-        log:
-            "logs/report/panel-cre.log"
-        resources:
-            mem_mb=40000
-        params:
-            cre=config["tools"]["cre"],
-            ref=config["ref"]["genome"],
-        shell:
-             '''
-             mkdir -p {output.dir}/{project}
-             ln -s ../../../{input.db} {output.dir}/{project}/{project}-ensemble.db
-             bedtools intersect -header -a {input.vcf} -b {input.panel} | bgzip -c > {output.dir}/{project}/{project}-gatk-haplotype-annotated-decomposed.vcf.gz
-             ln -s {output.dir}/{project}/{project}-gatk-haplotype-annotated-decomposed.vcf.gz {output.dir}/{project}/{project}-ensemble-annotated-decomposed.vcf.gz
-             cd {output.dir}
-             {params.cre}/cre.sh {project}
-             '''
+    def get_bed(wildcards):
+        if wildcards.p == "panel-flank":
+            return "{}-flank-{}k.bed".format(config["run"]["project"], int(config["run"]["flank"]/1000))
+        else:
+            return config["run"]["panel"]
 
-    rule panelflanksnvreport:
-        input:
-            db="annotated/gemini.db",
-            vcf="annotated/vcfanno/all.vep.vcfanno.vcf",
-            panel=config["run"]["panel"],
-        output:
-            dir=directory("report/panel-flank-{flank}"),
-            panelflank="panel-{flank}.bed"
-        conda:
-            "../envs/cre.yaml"
-        log:
-            "logs/report/panel-flank-{flank}-cre.log"
-        resources:
-            mem_mb=40000
-        params:
-            cre=config["tools"]["cre"],
-            ref=config["ref"]["genome"],
+    rule add_flank:
+        input: config["run"]["panel"]
+        output: "{}-flank-{}k.bed".format(config["run"]["project"], int(config["run"]["flank"]/1000))
+        params: config["run"]["flank"]
         shell:
-             '''
-             mkdir -p {output.dir}/{project}
-             ln -s ../../../{input.db} {output.dir}/{project}/{project}-ensemble.db
-             cat {input.panel} | awk -F "\t" '{{print $1"\t"$2-{flank}"\t"$3+{flank}}}' | sed 's/-[0-9]*/0/g' | bedtools sort | bedtools merge > {output.panelflank}
-             bedtools intersect -header -a {input.vcf} -b {output.panelflank} | bgzip -c > {output.dir}/{project}/{project}-gatk-haplotype-annotated-decomposed.vcf.gz
-             cd {output.dir}
-             ln -s {project}/{project}-gatk-haplotype-annotated-decomposed.vcf.gz {project}/{project}-ensemble-annotated-decomposed.vcf.gz
-             {params.cre}/cre.sh {project}
-             '''
+            '''
+            cat {input} | awk -F "\t" '{{print $1"\t"$2-{params}"\t"$3+{params}}}' | sed 's/-[0-9]*/0/g' | bedtools sort | bedtools merge > {output}
+            '''
+
+    rule intersect:
+        input: 
+            left="filtered/all.vcf.gz",
+            right=get_bed
+        output:
+            vcf="filtered/{p}/all.{p}.vcf.gz"
+        params:
+            extra="-header"
+        log: "logs/report/bedtools-{p}.log"
+        wrapper:
+            get_wrapper_path("bedtools", "intersect")
+            
+        
