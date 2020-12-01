@@ -28,6 +28,9 @@ __default__:
 map_reads:
   time: "350:00:00"
 
+snpeff:
+  mem: "25g"
+
 qualimap:
   mem: "30g"
 
