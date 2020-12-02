@@ -19,18 +19,17 @@
 
 __default__:
   name: "{rule}"
-  mem: "40g"
+  mem: "20g"
   time: "20:00:00"
   join: True
   output: "pbs/"
   error: "pbs/"
 
 map_reads:
-  mem: "70g"
   time: "350:00:00"
 
-remove_decoy:
-  mem: "40g"
+snpeff:
+  mem: "25g"
 
 qualimap:
   mem: "30g"
