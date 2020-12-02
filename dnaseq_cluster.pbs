@@ -1,9 +1,9 @@
 #!/bin/bash
 
-#PBS -l walltime=72:00:00,nodes=1:ppn=4
+#PBS -l walltime=72:00:00,nodes=1:ppn=1
 #PBS -joe .
 #PBS -d .
-#PBS -l vmem=80g,mem=80g
+#PBS -l vmem=30g,mem=30g
 #PBS -N crg2_pbs
 
 
@@ -13,7 +13,7 @@ SF=~/crg2/Snakefile;
 CP="/hpf/largeprojects/ccm_dccforge/dccdipg/Common/snakemake";
 PBS=~/crg2/pbs_profile;
 
-source /hpf/largeprojects/ccm_dccforge/dccdipg/Common/anaconda3/etc/profile.d/conda.sh
-conda activate snakemake
+source /hpf/largeprojects/ccmbio/aarthi/miniconda3/etc/profile.d/conda.sh
+conda activate /hpf/largeprojects/ccmbio/aarthi/miniconda3
 
 snakemake --use-conda -s $SF --conda-prefix $CP  --profile $PBS -p  
