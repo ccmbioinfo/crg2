@@ -1,0 +1,12 @@
+name: Platypus variant caller
+description: |
+  Run platypus variant caller for single/multiple bams and regions (optional)
+authors:
+  - Aarthi Mohan
+input:
+  - bam file(s)
+  - region file (optional)
+output:
+  - VCF file
+notes: |
+  * For full usage see, https://github.com/andyrimmer/Platypus/blob/master/misc/README.txt

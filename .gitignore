@@ -127,3 +127,7 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+wrappers/platypus/test/.DS_Store
+wrappers/platypus/.DS_Store
+wrappers/.DS_Store
+.DS_Store
