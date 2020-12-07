@@ -65,3 +65,20 @@ rule vt:
         "logs/vt/{project}-{caller}.log"
     wrapper:
         get_wrapper_path("vt")
+
+rule ensemble:
+    input: 
+        vcf=get_cre_vcfs(),
+        ref=config["ref"]["genome"]
+    output:
+        "ensemble/{project}-ensemble.vcf"
+    threads: 8
+    log: "logs/ensemble/{project}.log"
+    params: 
+        numpass = 2,
+
+    resources:
+        mem=lambda wildcards, threads: threads * 2
+    wrapper:
+        get_wrapper_path("bcbio","variation-recall")
+    
