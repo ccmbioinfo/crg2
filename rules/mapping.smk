@@ -10,7 +10,7 @@ rule bamtofastq:
     log:
         "logs/bamtofastq/{sample}-{unit}.log"
     threads:
-        4
+        8
     wrapper:
         get_wrapper_path("bedtools", "bamtofastq")
 
