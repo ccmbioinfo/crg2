@@ -95,3 +95,9 @@ params:
     java_opts: "-Xms750m -Xmx20g"
   svscore:
     operations: "max,sum,top5,top10,mean"
+  samtools:
+    mpileup: " -t DP -t AD -u -g "
+  bcftools:
+    call: " -m "
+  freebayes: " --genotype-qualities --strict-vcf --ploidy 1 --no-partial-observations --min-repeat-entropy 1 "
+
