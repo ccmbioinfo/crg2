@@ -9,10 +9,13 @@ import os
 from snakemake.shell import shell
 
 regions = snakemake.input.get("regions", "")
-if regions != "":
+if regions:
     regions = "--regions=" + regions
 
-threads = snakemake.get("threads",8):
+if snakemake.threads:
+    threads = snakemake.threads
+else:
+    threads = 8
 
 bams = snakemake.input.bam
 if isinstance(bams, list):

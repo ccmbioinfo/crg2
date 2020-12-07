@@ -21,3 +21,47 @@ rule freebayes:
     threads: 8
     wrapper:
         get_wrapper_path("freebayes")
+
+rule platypus:
+    input:
+	# single or list of bam files
+        bam=get_cre_bams(),
+        bai=get_cre_bams(ext="bam.bai"),
+        ref=config["ref"]["genome"],
+        #regions="regions.bed" #remove or empty quotes if not using regions
+    output:
+	    "called/{project}-platypus.vcf"
+    threads: 8
+    log:
+        "logs/platypus/{project}.log"
+    wrapper:
+       get_wrapper_path("platypus")
+
+rule samtools_call:
+    input:
+        samples=get_cre_bams(),
+        ref=config["ref"]["genome"],
+        bai=get_cre_bams(ext="bam.bai"),
+        #regions="regions.bed" #remove or empty quotes if not using regions
+    output:
+	    "called/{project}-samtools_call.vcf"
+    params:
+        mpileup = config["params"]["samtools"]["mpileup"],
+        call = config["params"]["bcftools"]["call"]
+    threads: 8
+    log:
+        "logs/samtools_call/{project}.log"
+    wrapper:
+       get_wrapper_path("bcftools", "call")
+
+rule vt:
+    input:
+        "called/{project}-{caller}.vcf"
+    output:
+        "called/{project}-{caller}-vt.vcf"  
+    params:
+        ref=config["ref"]["genome"],
+    log:
+        "logs/vt/{project}-{caller}.log"
+    wrapper:
+        get_wrapper_path("vt")
