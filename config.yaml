@@ -20,7 +20,7 @@ ref:
   known-variants: /hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/dbsnp.b147.20160601.tidy.vcf.gz
   no_decoy: /hpf/largeprojects/ccm_dccforge/dccdipg/Common/genomes/GRCh37/GRCh37.fa
   decoy_bed: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/pipelines/cre/data/grch37d5.decoy.bed"
-  canon_bed: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/genomes/grch37.canon.bed"
+  canon_bed: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/pipelines/crg2/data/grch37.canon.bed"
 
 filtering:
   vqsr: false
