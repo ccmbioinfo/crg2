@@ -9,9 +9,10 @@
 
 #please change the following three variables according to your settings, as the recent crg2 repo is not copied over here
 
-SF="/hpf/largeprojects/ccm_dccforge/dccdipg/Common/pipelines/crg2/Snakefile" 
-CP="/hpf/largeprojects/ccm_dccforge/dccdipg/Common/snakemake"
-PBS="~/crg2/pbs_profile"
+
+SF=~/crg2/Snakefile; 
+CP="/hpf/largeprojects/ccm_dccforge/dccdipg/Common/snakemake";
+PBS=~/crg2/pbs_profile;
 
 source /hpf/largeprojects/ccmbio/aarthi/miniconda3/etc/profile.d/conda.sh
 conda activate /hpf/largeprojects/ccmbio/aarthi/miniconda3
