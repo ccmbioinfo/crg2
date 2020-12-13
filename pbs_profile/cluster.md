@@ -16,8 +16,7 @@ pbs_profile is the profile folder with all the relevant files and settings for P
 ```
 The above files for the profile were adapted from https://github.com/Snakemake-Profiles/generic and https://github.com/Snakemake-Profiles/pbs-torque
 
-Once the above files are in place, you can dry-run Snakemake by passing the absolute location of the profile folder. Make sure the value of `cluster-config` is set to absolute path inside the `config.yaml` file. 
-`cluster-config: "/home/<username>/crg2/pbs_profile/pbs_config.yaml"`
+Copy the `pbs_config.yaml` file to the directory you wish to start Snakemake (this is expected to be in current path, just like the main crg2/config.yaml). Run Snakemake in dry-run mode by passing the absolute location of the profile folder as below,
 
 ```bash
 snakemake --use-conda -s ~/crg2/Snakefile --conda-prefix /hpf/largeprojects/ccm_dccforge/dccdipg/Common/snakemake --profile ~/crg2/pbs_profile -nr
@@ -40,4 +39,4 @@ B. Setting `immediate_submit=true` in 'config.yaml' along with passing `--depend
     2. The main Snakemake process exits immediately, so there is no process to track output file presence before consequent job submission, monitor jobs and resubmit if failure happens. 
 Therefore, setting 'immediate_submission=false' and not passing '--depend' will work best for our scenario. 
 
-C.`pbs_submit.py` script prioritizes (mem and thread) options set in `pbs_config.yaml` over resources set inside ".smk" files. This would only affect the resources when submitting job, not the threads in actual program execution. May have to test for every case and rethink if this is not desired.  
+C.`pbs_submit.py` script prioritizes (mem and thread) options set in `pbs_config.yaml` over resources set inside ".smk" files. This would only affect the resources when submitting job, not the threads in actual program execution. May have to test for every case and rethink if this is not desired.
