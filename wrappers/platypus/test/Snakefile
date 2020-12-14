@@ -1,0 +1,17 @@
+samples = ["a", "b"]
+project = "ab"
+
+rule platypus:
+    input:
+	# single or list of bam files
+        bam=expand("mapped/{sample}.bam", sample=samples),
+        bai=expand("mapped/{sample}.bam.bai", sample=samples),
+        ref="genome.fasta",
+        regions="regions.bed" #remove or empty quotes if not using regions
+    output:
+	    "calls/{project}-platypus.vcf"
+    threads: 8
+    log:
+        "logs/platypus/{project}.log"
+    wrapper:
+       "file:.."

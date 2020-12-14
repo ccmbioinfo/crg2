@@ -39,4 +39,4 @@ B. Setting `immediate_submit=true` in 'config.yaml' along with passing `--depend
     2. The main Snakemake process exits immediately, so there is no process to track output file presence before consequent job submission, monitor jobs and resubmit if failure happens. 
 Therefore, setting 'immediate_submission=false' and not passing '--depend' will work best for our scenario. 
 
-C.`pbs_submit.py` script prioritizes (mem and thread) options set in `pbs_config.yaml` over resources set inside ".smk" files. This would only affect the resources when submitting job, not the threads in actual program execution. May have to test for every case and rethink if this is not desired.  
+C.`pbs_submit.py` script prioritizes (mem and thread) options set in `pbs_config.yaml` over resources set inside ".smk" files. This would only affect the resources when submitting job, not the threads in actual program execution. May have to test for every case and rethink if this is not desired.
