@@ -38,4 +38,5 @@ svscore:
   mail: "ae"
 
 allsnvreport:
+  mem: "60g"
   mail: "ae"
