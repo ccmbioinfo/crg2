@@ -18,7 +18,7 @@ rule map_reads:
     input:
         reads = get_fastq
     output:
-        temp("mapped/{sample}-{unit}.sorted.bam")
+        "mapped/{sample}-{unit}.sorted.bam"
     log:
         "logs/bwa_mem/{sample}-{unit}.log"
     params:

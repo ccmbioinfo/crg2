@@ -80,7 +80,7 @@ rule metasv:
     threads:
         4
     output:
-        temp("sv/metasv/{sample}-{unit}/variants.vcf.gz")
+        "sv/metasv/{sample}-{unit}/variants.vcf.gz"
     log:
         "logs/metasv/{sample}-{unit}.log"
     wrapper:
@@ -91,7 +91,7 @@ rule snpeff:
     input:
         "sv/metasv/{sample}-{unit}/variants.pass.vcf.gz"
     output:
-        vcf = temp("sv/metasv/{sample}-{unit}/variants.snpeff.vcf"),
+        vcf = "sv/metasv/{sample}-{unit}/variants.snpeff.vcf",
         report = report("sv/metasv/{sample}-{unit}/snpEff_summary.html",caption="../report/snpeff.rst",category="SnpEff")
     log:
         "logs/snpeff/{sample}-{unit}.log"
