@@ -16,9 +16,9 @@ tools:
 ref:
   name: GRCh37.75
   no_decoy_name: GRCh37
-  genome: /hpf/largeprojects/ccm_dccforge/dccdipg/Common/genomes/GRCh37d5/GRCh37d5.fa
+  genome: /hpf/largeprojects/smital/smitalCCM/Reference/hg19/genome.fa
   known-variants: /hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/dbsnp.b147.20160601.tidy.vcf.gz
-  no_decoy: /hpf/largeprojects/ccm_dccforge/dccdipg/Common/genomes/GRCh37/GRCh37.fa
+  no_decoy: /hpf/largeprojects/smital/smitalCCM/Reference/hg19/genome.fa
   decoy_bed: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/pipelines/cre/data/grch37d5.decoy.bed"
   canon_bed: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/genomes/grch37.canon.bed"
 
