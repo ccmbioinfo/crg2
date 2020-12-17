@@ -48,6 +48,7 @@ def main(protein_coding_genes, exon_bed, hgmd_db, hpo, exac, omim, biomart, gnom
     sv_records.df = ann_records.annotate_gnomad(gnomad, sv_records)
     sv_records.df = ann_records.annotate_hgmd(hgmd_db, sv_records.df)
     ann_records.add_decipher_link(sv_records.df)
+    sv_records.df = ann_records.calc_exon_boundaries(sv_records.df.reset_index(), exon_bed)
 
     if not set(HPO_cols).issubset(set(sv_records.df.columns)):
         for col in HPO_cols:
@@ -66,14 +67,27 @@ def main(protein_coding_genes, exon_bed, hgmd_db, hpo, exac, omim, biomart, gnom
     [ "DGV_GAIN_IDs", "DGV_GAIN_n_samples_with_SV", "DGV_GAIN_n_samples_tested", "DGV_GAIN_Frequency", ] + \
     [ "DGV_LOSS_IDs", "DGV_LOSS_n_samples_with_SV", "DGV_LOSS_n_samples_tested", "DGV_LOSS_Frequency", ] + \
     [ "gnomAD_AF", "gnomAD_SV", "gnomAD_AN", "gnomAD_AC", "gnomAD_N_HOMREF", "gnomAD_N_HET", "gnomAD_N_HOMALT", "gnomAD_FREQ_HOMREF", "gnomAD_FREQ_HET", "gnomAD_FREQ_HOMALT", "gnomAD_POPMAX_AF" ] + \
-    [ "DDD_mode", "DDD_pmids", ] + \
-    [ "Genes in HGMD", "HGMD disease", "HGMD tag", "HGMD descr", "HGMD JOURNAL_DETAILS" ] + \
+    [ "DDD_disease", "DDD_mode", "DDD_pmids", ] + \
+    [ "Genes in HGMD", "HGMD disease", "HGMD descr", "HGMD JOURNAL_DETAILS" ] + \
     [ "ExAC syn_z", "ExAC mis_z", "ExAC lof_z", "ExAC pLI" ] + \
     [ col for col in SVScore_cols if col != 'variants/SVLEN'] + \
+    [ "nearestLeftExonBoundary", "nearestLeftExonDistance", "nearestRightExonBoundary", "nearestRightExonDistance", ] + \
     [ "DECIPHER_LINK" ] ]
     sv_records.df.columns = sv_records.df.columns.str.replace('variants/','')
+    sv_records.df = sv_records.df.drop_duplicates()
 
     # [ "DDD_SV", "DDD_DUP_n_samples_with_SV", "DDD_DUP_Frequency", "DDD_DEL_n_samples_with_SV", "DDD_DEL_Frequency" ]
+
+    # set missing values in numeric columns to 0, and '.' in non-numeric columns
+    numeric =  [ "N_GENES_IN_HPO", "N_UNIQUE_HPO_TERMS", "N_GENES_IN_OMIM","gnomAD_AF", "gnomAD_AN", "gnomAD_AC", "gnomAD_N_HOMREF", "gnomAD_N_HET", "gnomAD_N_HOMALT", "gnomAD_FREQ_HOMREF", "gnomAD_FREQ_HET", "gnomAD_FREQ_HOMALT", "gnomAD_POPMAX_AF" ]
+    non_numeric = [col for col in sv_records.df.columns if col not in numeric]
+    for col in numeric:
+        sv_records.df[col] = [val if val == val else '0' for val in sv_records.df[col].tolist()]
+    for col in non_numeric:
+        sv_records.df[col] = ['.' if val == 'na' else val for val in sv_records.df[col].tolist()]
+        sv_records.df[col] = ['.' if val == '' else val for val in sv_records.df[col].tolist()]
+        sv_records.df[col] = ['.' if val == 'nan' else val for val in sv_records.df[col].tolist()]
+
 
     print('Writing results to file ...')
     sv_records.write(outfile_name)
