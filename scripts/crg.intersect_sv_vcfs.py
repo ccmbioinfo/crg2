@@ -15,6 +15,11 @@ def make_exon_gene_set(protein_coding_genes):
     df = pd.read_csv(protein_coding_genes, sep="\t")
     return(set(df[df.columns[5]]))
 
+def filter_report(svreport):
+    svreport = pd.read_csv(svreport, sep='\t', encoding='utf-8')
+    filtered_report = svreport[svreport['NUM_SVTOOLS'] >= 2]
+    return(filtered_report)
+
 def main(protein_coding_genes, exon_bed, hgmd_db, hpo, exac, omim, biomart, gnomad, sv_counts, outfile_name, vcfs):
     SVScore_cols = ['variants/SVLEN', 'variants/SVSCORESUM', 'variants/SVSCOREMAX', 'variants/SVSCORETOP5', 'variants/SVSCORETOP10', 'variants/SVSCOREMEAN',]
     MetaSV_col = 'variants/NUM_SVTOOLS'
@@ -77,12 +82,15 @@ if __name__ == "__main__":
 
     report_dir=snakemake.output[0]
 
-    out_report="{}.wgs.sv.v{}.{}.tsv".format(snakemake.params.project, snakemake.params.PIPELINE_VERSION, date.today().strftime("%Y-%m-%d"))
-
+    out_report="{}.unfiltered.wgs.sv.v{}.{}.tsv".format(snakemake.params.project, snakemake.params.PIPELINE_VERSION, date.today().strftime("%Y-%m-%d"))
     main(snakemake.params.protein_coding_genes, snakemake.params.exon_bed, snakemake.params.hgmd, snakemake.params.hpo, snakemake.params.exac, \
          snakemake.params.omim, snakemake.params.biomart, snakemake.params.gnomad, \
          [snakemake.params.mssng_manta_counts, snakemake.params.mssng_lumpy_counts], \
          out_report, snakemake.input)
-
+         
+    filtered_report=filter_report(out_report)
     mkdir(report_dir)
+    out_filtered_report="{}/{}.wgs.sv.v{}.{}.tsv".format(report_dir,snakemake.params.project, snakemake.params.PIPELINE_VERSION, date.today().strftime("%Y-%m-%d"))
+    filtered_report.to_csv(out_filtered_report, sep='\t', encoding='utf-8', na_rep='.')
+
     move(out_report, report_dir)
