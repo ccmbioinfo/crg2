@@ -19,7 +19,9 @@ rule allsnvreport:
          cd {output}/{project}
          ln -s ../../../{input.db} {project}-ensemble.db
          bgzip ../../../{input.vcf} -c > {project}-gatk-haplotype-annotated-decomposed.vcf.gz
+         tabix {project}-gatk-haplotype-annotated-decomposed.vcf.gz
          ln -s {project}-gatk-haplotype-annotated-decomposed.vcf.gz {project}-ensemble-annotated-decomposed.vcf.gz
+         ln -s {project}-gatk-haplotype-annotated-decomposed.vcf.gz.tbi {project}-ensemble-annotated-decomposed.vcf.gz.tbi
          cd ../
          if [ {wildcards.p} == "coding" ]; then  
          {params.cre}/cre.sh {project} 

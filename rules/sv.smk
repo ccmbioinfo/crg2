@@ -89,7 +89,7 @@ rule metasv:
 
 rule snpeff:
     input:
-        "sv/metasv/{sample}-{unit}/variants.pass.vcf.gz"
+        "sv/metasv/{sample}-{unit}/variants.vcf.gz"
     output:
         vcf = "sv/metasv/{sample}-{unit}/variants.snpeff.vcf",
         report = report("sv/metasv/{sample}-{unit}/snpEff_summary.html",caption="../report/snpeff.rst",category="SnpEff")
