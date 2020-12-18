@@ -40,3 +40,6 @@ svscore:
 allsnvreport:
   mem: "60g"
   mail: "ae"
+
+smoove:
+  mem: "70g"
