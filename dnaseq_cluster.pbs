@@ -17,4 +17,4 @@ PBS=~/crg2/pbs_profile;
 source /hpf/largeprojects/ccmbio/aarthi/miniconda3/etc/profile.d/conda.sh
 conda activate /hpf/largeprojects/ccmbio/aarthi/miniconda3
 
-snakemake --use-conda -s $SF --conda-prefix $CP  --profile $PBS -p  
+snakemake --use-conda -s $SF --conda-prefix $CP  --profile $PBS -p  report/sv
