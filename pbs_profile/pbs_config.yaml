@@ -41,5 +41,8 @@ allsnvreport:
   mem: "60g"
   mail: "ae"
 
+wham:
+  mem: "70g"
+
 smoove:
   mem: "70g"
