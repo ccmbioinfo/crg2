@@ -2,7 +2,8 @@ import sys, os, subprocess
 from collections import namedtuple
 
 '''
-Parse three-column(family,sample,file-path) TSV file and sets up necessary directories, files as below:
+Usage: python parser.py <input_sample.tsv> <absolute path to create directories> 
+Parse three-column(family,sample,file-path) TSV file (1st argument) and sets up necessary directories (under 2nd argument), files as below:
 1. create family and decoy_rm directory
 2. symlink BAM files to deocy_rm
 3. copy config.yaml, pbs_config.yaml and dnaseq_cluster.pbs from crg2 repo and replace necessary string
