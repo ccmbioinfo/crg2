@@ -46,3 +46,6 @@ wham:
 
 smoove:
   mem: "70g"
+
+manta:
+  mem: "70g"
