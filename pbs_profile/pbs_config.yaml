@@ -42,10 +42,10 @@ allsnvreport:
   mail: "ae"
 
 wham:
-  mem: "70g"
+  mem: "100g"
 
 smoove:
-  mem: "70g"
+  mem: "100g"
 
 manta:
-  mem: "70g"
+  mem: "100g"
