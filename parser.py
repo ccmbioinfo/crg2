@@ -203,7 +203,7 @@ if __name__ == "__main__":
         
         if submit_flag:
             write_proj_files(sample_list, filepath)
-            # submit_jobs(filepath, i)
+            submit_jobs(filepath, i)
 
     print("DONE")
 
