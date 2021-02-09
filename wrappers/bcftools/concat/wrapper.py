@@ -6,8 +6,12 @@ __license__ = "MIT"
 
 from snakemake.shell import shell
 
+if not {snakemake.threads}:
+    threads = 8
+else:
+    threads =  {snakemake.threads}
 
 shell(
-    "bcftools concat {snakemake.params} -o {snakemake.output[0]} "
+    "bcftools concat {snakemake.params} --threads {threads} -o {snakemake.output[0]} "
     "{snakemake.input.calls}"
 )
