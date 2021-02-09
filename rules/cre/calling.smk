@@ -82,3 +82,33 @@ rule ensemble:
     wrapper:
         get_wrapper_path("bcbio","variation-recall")
     
+
+rule vcf_isec:
+    input:
+        vcf =  get_cre_vcfs()
+    output:
+        outdir = dir("isec")
+    params:
+        numpass: 1+
+    threads: 8
+    log: "logs/isec/{project}.log"
+    wrapper:
+        get_wrapper_path("bcftools","isec")
+
+rule tabix:
+    input: "{prefix}.vcf.gz"
+    output: "{preifx}.vcf.gz.tbi"
+    logs: "logs/tabix/{prefix}.log"
+    wrapper:
+        get_wrapper_path("tabix")
+
+rule vcf_concat:
+    input:
+        vcf = [ "isec/000{}.vcf.gz".format(i) for i in range(4) ]
+    output:
+        "concat/{project}-concat.vcf.gz"
+    params: "-d none"
+    threads: 8
+    wrapper:
+        get_wrapper_path("bcftools", "concat")
+     
