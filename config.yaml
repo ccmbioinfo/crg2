@@ -43,8 +43,8 @@ processing:
 
 annotation:
   vcfanno:
-    conf: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/pipelines/crg2/vcfanno/crg.vcfanno.conf"
-    lua_script: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/pipelines/crg2/vcfanno/crg.vcfanno.lua"
+    conf: "~/crg/crg.vcfanno.conf" 
+    lua_script: "~/crg/crg.vcfanno.lua"
     base_path: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/vcfanno"
   vep:
     dir: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/snakemake/6ea37454/share/ensembl-vep-101.0-0/"
