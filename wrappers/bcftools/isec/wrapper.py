@@ -1,18 +1,20 @@
-__author__ = "Patrik Smeds"
-__copyright__ = "Copyright 2018, Patrik Smeds"
-__email__ = "patrik.smeds@gmail.com"
+__author__ = "Aarthi Mohan"
+__copyright__ = "Copyright 2021, Aarthi Mohan"
+__email__ = "aarthi.mohan@sickkids.ca"
 __license__ = "MIT"
 
 
 from snakemake.shell import shell
 
+log = snakemake.log_fmt_shell(stdout=True, stderr=True)
+
 if not {snakemake.threads}:
-    threads = "--threads " + 8
+    threads =  8
 else:
-    threads =  "--threads " + {snakemake.threads}
+    threads = {snakemake.threads}
 
 shell(
-    "bcftools isec {snakemake.params.numpass} {threads} -p {snakemake.output.outdir} "
-    "{snakemake.input.vcf} "
+    "bcftools isec -n {snakemake.params.numpass} -O z --threads {threads} -p {snakemake.params.outdir} "
+    "{snakemake.input.vcf} {log}"
 
 )
