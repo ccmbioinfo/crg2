@@ -1,24 +1,21 @@
 PIPELINE_VERSION="0.9.0"
 
+project=config["run"]["project"]
+
 include: "rules/common.smk"
 
 ##### Target rules #####
 
 rule all:
     input:
-        expand("called/{project}-{callers}-vt-pass.vcf", project=config["run"]["project"], callers = ["freebayes", "platypus", "samtools_call"]),
-        "ensemble/{project}-ensemble.vcf".format(project=config["run"]["project"]),
-        #expand("report/{p}", p=["panel", "panel-flank"]) if config["run"]["panel"] else [],
-        #"report/coding",
-       # "report/sv",
-        #"qc/multiqc/multiqc.html",
-        #"plots/depths.svg",
-        #"plots/allele-freqs.svg"
+        "concat/{}-concat-annot.vcf.gz".format(project)
+        
 
 ##### Modules #####
 
 include: "rules/mapping.smk"
 include: "rules/cre/calling.smk"
+
 # include: "rules/filtering.smk"
 # include: "rules/stats.smk"
 # include: "rules/qc.smk"
