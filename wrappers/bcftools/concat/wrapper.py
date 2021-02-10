@@ -6,6 +6,8 @@ __license__ = "MIT"
 
 from snakemake.shell import shell
 
+log = snakemake.log_fmt_shell(stdout=True, stderr=True)
+
 if not {snakemake.threads}:
     threads = 8
 else:
@@ -13,5 +15,5 @@ else:
 
 shell(
     "bcftools concat {snakemake.params} --threads {threads} -o {snakemake.output[0]} "
-    "{snakemake.input.calls}"
+    "{snakemake.input.vcf} {log}"
 )
