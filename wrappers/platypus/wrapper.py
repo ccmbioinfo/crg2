@@ -22,10 +22,12 @@ if isinstance(bams, list):
     bams = ",".join(bams)
 bams = "--bamFiles={}".format(bams)
 
+params = {snakemake.params} if {snakemake.params} else ""
+
 log = snakemake.log_fmt_shell(stdout=True, stderr=True)
 
 shell(
-    "platypus callVariants {bams} --nCPU {threads} "
+    "platypus callVariants {bams} {params} --nCPU {threads} "
     "--refFile={snakemake.input.ref} {regions} "
     "--output={snakemake.output} {log}"
 )
