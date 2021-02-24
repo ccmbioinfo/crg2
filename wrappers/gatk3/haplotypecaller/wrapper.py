@@ -21,16 +21,15 @@ bams = list(map("-I {}".format, bams))
 
 annot = snakemake.params.get("annot","")
 if annot:
-    extra += " ".join([ "--annotation " + i for i in annot.split(" ") ])
+    extra += " ".join([ " --annotation " + i for i in annot.split(" ") ])
 
-
+print(extra)
 
 log = snakemake.log_fmt_shell(stdout=True, stderr=True)
 shell(
-    "gatk3 --java-options '{java_opts}' -T HaplotypeCaller {extra} "
+    "gatk3 {java_opts} -T HaplotypeCaller {extra} "
     "-R {snakemake.input.ref} "
-    "-I {bams} "
-    "-L {known} "
-    "-ERC GVCF "
+    "{bams} "
+    "{known} "
     "-o {snakemake.output.gvcf} {log}"
 )
