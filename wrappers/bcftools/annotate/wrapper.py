@@ -8,10 +8,10 @@ from snakemake.shell import shell
 
 log = snakemake.log_fmt_shell(stdout=True, stderr=True)
 
-if not {snakemake.threads}:
+if not snakemake.threads:
     threads = 8
 else:
-    threads =  {snakemake.threads}
+    threads =  snakemake.threads
 
 shell(
     "bcftools annotate -a {snakemake.input.annot} -h {snakemake.input.hdr} " 
