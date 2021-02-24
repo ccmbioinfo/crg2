@@ -1,8 +1,9 @@
 rule vep:
     input:
-        "filtered/{project}-ensemble-decomposed.vcf.gz",
+        "annotated/{project}-ensemble-decomposed.vcf.gz",
     output:
-        temp("annotated/vep/{project}-ensemble-decomposed.vep.vcf"),
+        #temp("annotated/vep/{project}-ensemble-decomposed.vep.vcf"),
+        "annotated/vep/{project}-ensemble-decomposed.vep.vcf",
     log:
         "logs/vep/vep.{project}.log"
     threads: 10
@@ -28,9 +29,9 @@ rule vcfanno:
     resources:
         mem_mb = 20000
     params:
-        lua_script=config["annotation"]["cre.vcfanno"]["lua_script"],
-       	conf=config["annotation"]["cre.vcfanno"]["conf"],
-        base_path=config["annotation"]["cre.vcfanno"]["base_path"],
+        lua_script = config["annotation"]["cre.vcfanno"]["lua_script"],
+       	conf = config["annotation"]["cre.vcfanno"]["conf"],
+        base_path = config["annotation"]["cre.vcfanno"]["base_path"],
     wrapper:
         get_wrapper_path("vcfanno")
 
@@ -40,11 +41,11 @@ rule vcf2db:
     input:
         "annotated/vcfanno/{project}-ensemble-decomposed.vep.vcfanno.vcf"
     output:
-         db="annotated/{project}-gemini.db",
+         db = "annotated/{project}-gemini.db",
     log:
         "logs/vcf2db/vcf2db.{project}.log"
     params:
-        ped=config["run"]["ped"],
+        ped = config["run"]["ped"],
     threads: 1
     resources:
         mem_mb = 20000
