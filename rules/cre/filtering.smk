@@ -1,8 +1,8 @@
 def get_cre_vcfs():
-    return ["filtered/{}-{}-decomposed-filt.vcf.gz".format(config["run"]["project"],i) for i in ["gatk_haplotype", "samtools", "freebayes", "platypus"] ]
+    return ["filtered/{}-{}-decomposed-filt.vcf.gz".format(config["run"]["project"],i) for i in [gatk+"_haplotype", "samtools", "freebayes", "platypus"] ]
 
 def get_cre_vcf_tbi():
-    return ["filtered/{}-{}-decomposed-filt.vcf.gz.tbi".format(config["run"]["project"],i) for i in ["gatk_haplotype", "samtools", "freebayes", "platypus"] ]
+    return ["filtered/{}-{}-decomposed-filt.vcf.gz.tbi".format(config["run"]["project"],i) for i in [gatk+"_haplotype", "samtools", "freebayes", "platypus"] ]
     
 def get_vartype_arg(wildcards):
     return "--select-type-to-include {}".format(

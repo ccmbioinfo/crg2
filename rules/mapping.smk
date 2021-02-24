@@ -66,6 +66,43 @@ rule recalibrate_base_qualities:
     wrapper:
         get_wrapper_path("gatk", "baserecalibrator")
 
+rule realignertargetcreator:
+    input:
+        bam = get_recal_input(),
+        bai = get_recal_input(bai=True),
+        ref = config["ref"]["genome"],
+        known = config["ref"]["known-variants"]
+    output:
+        intervals="recal/gatk3/{sample}-{unit}.intervals",
+        java_temp=temp(directory("gatk3_indelrealigner/{sample}-{unit}")),
+    log:
+        "logs/gatk3/realignertargetcreator/{sample}-{unit}.log"
+    params:
+        extra = get_regions_param() + config["params"]["gatk3"]["RealignerTargetCreator"],
+        java_opts = config["params"]["gatk"]["java_opts"],
+    wrapper:
+        get_wrapper_path("gatk3", "realignertargetcreator")
+
+rule indelrealigner:
+    input:
+        bam = get_recal_input(),
+        bai = get_recal_input(bai=True),
+        ref = config["ref"]["genome"],
+        known = config["ref"]["known-variants"],
+        target_intervals="recal/gatk3/{sample}-{unit}.intervals",
+    output:
+        bam = protected("recal/gatk3/{sample}-{unit}.bam"),
+        java_temp=temp(directory("/tmp/gatk3_indelrealigner/{sample}-{unit}")),
+    log:
+        "logs/gatk3/indelrealigner/{sample}-{unit}.log"
+    params:
+        extra = get_regions_param() + config["params"]["gatk3"]["IndelRealigner"],
+        java_opts = config["params"]["gatk"]["java_opts"],
+    wrapper:
+        get_wrapper_path("gatk3", "indelrealigner")
+        
+
+
 rule remove_decoy:
     #redirect first samtools command to a temp output file "decoy.bam" 
     #otherwise it floods the log file with binary stream of decoy reads

@@ -1,12 +1,6 @@
 def get_cre_bams(ext="bam"):
-    return ["recal/{}-{}.{}".format(s,units.loc[s].unit[0],ext) for s in samples.index]
+    return ["recal/{}-{}.{}".format(s,units.loc[s].unit[0],ext) if gatk=="gatk" else "recal/gatk3/{}-{}.{}".format(s,units.loc[s].unit[0],ext) for s in samples.index]
 
-def get_cre_vcfs():
-    return ["filtered/{}-{}-vt.vcf.gz".format(config["run"]["project"],i) for i in ["gatk_haplotype", "samtools", "freebayes", "platypus"] ]
-
-def get_cre_vcf_tbi():
-    return ["filtered/{}-{}-vt.vcf.gz.tbi".format(config["run"]["project"],i) for i in ["gatk_haplotype", "samtools", "freebayes", "platypus"] ]
-    
 rule gatk3:
     input:
         bam=get_cre_bams(),
@@ -14,7 +8,7 @@ rule gatk3:
         known=config["ref"]["known-variants"],
         ref=config["ref"]["genome"],
     output:
-        gvcf=protected("called/{project}-gatk_haplotype.vcf")
+        gvcf=protected("called/{project}-gatk3_haplotype.vcf")
     log:
         "logs/gatk/{project}.log"
     params:
@@ -25,7 +19,24 @@ rule gatk3:
     wrapper:
         get_wrapper_path("gatk3", "haplotypecaller")
 
-        
+rule gatk:
+    input:
+        bam=get_cre_bams(),
+        bai=get_cre_bams(ext="bam.bai"),
+        ref=config["ref"]["genome"],
+        known=config["ref"]["known-variants"],
+    output:
+        gvcf=protected("called/{project}-gatk_haplotype.vcf")
+    log:
+        "logs/gatk/{project}.log"
+    params:
+        #extra=get_call_variants_params,
+        java_opts=config["params"]["gatk"]["java_opts"],
+    resources: 
+        mem=lambda wildcards, input: len(input.bam) * 15
+    wrapper:
+        get_wrapper_path("gatk", "haplotypecaller")
+
 
 rule freebayes:
     input:
