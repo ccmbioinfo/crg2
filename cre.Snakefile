@@ -10,9 +10,8 @@ project=config["run"]["project"]
 
 rule all:
     input:
-        #"concat/{}-concat-annot.vcf.gz".format(project)
-        #"filtered/{}-ensemble-decomposed-caller.vcf.gz".format(project)
-        "annotated/{}-gemini.db".format(project)
+        "report/{}".format(project)
+        
         
 
 ##### Modules #####
