@@ -1,20 +1,27 @@
 PIPELINE_VERSION="0.9.0"
 
-project=config["run"]["project"]
+
 
 include: "rules/common.smk"
+
+project=config["run"]["project"]
 
 ##### Target rules #####
 
 rule all:
     input:
-        "concat/{}-concat-annot.vcf.gz".format(project)
+        #"concat/{}-concat-annot.vcf.gz".format(project)
+        #"filtered/{}-ensemble-decomposed-caller.vcf.gz".format(project)
+        "annotated/{}-gemini.db".format(project)
         
 
 ##### Modules #####
 
 include: "rules/mapping.smk"
 include: "rules/cre/calling.smk"
+include: "rules/cre/filtering.smk"
+include: "rules/cre/annotation.smk"
+include: "rules/cre/snvreport.smk"
 
 # include: "rules/filtering.smk"
 # include: "rules/stats.smk"
