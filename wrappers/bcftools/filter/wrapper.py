@@ -1,6 +1,7 @@
 
 from snakemake.shell import shell
 
+
 outfile = snakemake.output[0]
 
 compress_flags = ""
@@ -15,31 +16,38 @@ elif outfile.endswith("bcf.gz"):
     compress_flags = "-Ob"
 
 
-if params.order:
-    samples = "-S "
-    samples = [samples for sample in popen('bcftools query -l {} | sort'.format(snakemake.input})).readlines()]
-    samples = "-S " + ",".join(samples)    
-else:
-    samples = ""
 
-params = {snakemake.params.soft}
-if "freebayes" in {snakemake.input}:
-    filter = params["freebayes"]
-    filters = "--soft-filter FBQualDepth -e " + filter + " -m + "
-elif "samtools" in {snakemake.input}:
-    filter = params["samtools"]
-    filters = "--soft-filter stQualDepth -e " + filter + " -m + "
-elif "platypus" in {snakemake.input}:
-    filter = params["platypus"]
-    filters = " --soft-filter PlatQualDepth -e " + filter + " -m + "
-elif "gatk" in {snakemake.input}:
-    snvfilter = params["gatk"]["snv"]
-    indelfilter = params["gatk"]["indel"]
-    filters = "--soft-filter GATKCutoffSNP -e " + snvfilter + " -m + "
-    filters = filters + " --soft-filter GATKCutoffIndel -e" + indelfilter + " -m + "
+vcf = snakemake.input[0]
+hard = snakemake.params.get("hard", "")
+soft = snakemake.params.get("soft", "")
+indel = ""
+
+if hard:
+    filters = hard
+    command = hard + " " + snakemake.input[0]
+elif soft:
+    if "freebayes" in vcf:
+        filter = soft["freebayes"]
+        command = "--soft-filter FBQualDepth -e '{}'  -m + {} ".format(filter, snakemake.input[0])
+    elif "samtools" in vcf:
+        filter = soft["samtools"]
+        command = "--soft-filter stQualDepth -e '{}'  -m + {} ".format(filter, snakemake.input[0])
+    elif "platypus" in vcf:
+        filter = soft["platypus"]
+        command = " --soft-filter PlatQualDepth -e '{}'  -m + {} ".format(filter, snakemake.input[0])
+    elif "gatk" in vcf:
+        snvfilter = soft["gatk"]["snvs"]
+        indelfilter = soft["gatk"]["indel"]
+        command = "--soft-filter GATKCutoffSNP -e '{}'  -m + {} ".format(snvfilter, snakemake.input[0])
+        command += " | bcftools filter --soft-filter GATKCutoffIndel -e '{}'  -m + ".format(indelfilter) 
+
+    else:
+        command = ""
 else:
-    filters = ""
+    command = ""
+
 
 shell(
-    "bcftools filter {samples} {filters} {snakemake.input[0]} {compress_flags} " "-o {outfile}"
+    "bcftools filter {command} {compress_flags} -o {outfile} "
+
 )
