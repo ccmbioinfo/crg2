@@ -12,6 +12,7 @@ tools:
   annotsv: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/crg2-non-conda-tools/AnnotSV_2.1"
   cre: "~/cre"
   crg: "~/crg"
+  crg2: "~/crg2"
 
 ref:
   name: GRCh37.75
@@ -21,6 +22,7 @@ ref:
   no_decoy: /hpf/largeprojects/ccm_dccforge/dccdipg/Common/genomes/GRCh37/GRCh37.fa
   decoy_bed: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/pipelines/cre/data/grch37d5.decoy.bed"
   canon_bed: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/genomes/grch37.canon.bed"
+  split_genome: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/genomes/split_genome"
 
 filtering:
   vqsr: false
@@ -31,6 +33,19 @@ filtering:
       "QD < 2.0 || FS > 60.0 || MQ < 40.0 || MQRankSum < -12.5 || ReadPosRankSum < -8.0"
     indels:
       "QD < 2.0 || FS > 200.0 || ReadPosRankSum < -20.0"
+  soft:
+    platypus:
+      '(FR[0] <= 0.5 && TC < 4 && %QUAL < 20) || (TC < 13 && %QUAL < 10) || (FR[0] > 0.5 && TC < 4 && %QUAL < 50)'
+    freebayes:
+      '(AF[0] <= 0.5 && (max(FORMAT/DP) < 4 || (max(FORMAT/DP) < 13 && %QUAL < 10))) || (AF[0] > 0.5 && (max(FORMAT/DP) < 4 && %QUAL < 50))'
+    samtools:
+      '((AC[0] / AN) <= 0.5 && max(FORMAT/DP) < 4 && %QUAL < 20) || (max(FORMAT/DP) < 13 && %QUAL < 10) || ((AC[0] / AN) > 0.5 && max(format/DP) < 4 && %QUAL < 50)'
+    gatk:
+      snvs:
+        'TYPE="snp" && (MQRankSum < -12.5 || ReadPosRankSum < -8.0 || QD < 2.0 || FS > 60.0 || (QD < 10.0 && AD[0:1] / (AD[0:1] + AD[0:0]) < 0.25 && ReadPosRankSum < 0.0) || MQ < 30.0)'
+      indel:
+        'TYPE="indel" && (ReadPosRankSum < -20.0 || QD < 2.0 || FS > 200.0 || SOR > 10.0 || (QD < 10.0 && AD[0:1] / (AD[0:1] + AD[0:0]) < 0.25 && ReadPosRankSum < 0.0))'
+
 
 processing:
   remove-duplicates: false
@@ -42,9 +57,13 @@ processing:
   # region-padding: 100
 
 annotation:
+  cre.vcfanno:
+    conf: "crg2/vcfanno/cre.vcfanno.conf"
+    lua_script: "crg2/vcfanno/cre.vcfanno.lua"
+    base_path: "/hpf/largeprojects/ccmbio/naumenko/tools/bcbio/genomes/Hsapiens/GRCh37"
   vcfanno:
-    conf: "~/crg/crg.vcfanno.conf" 
-    lua_script: "~/crg/crg.vcfanno.lua"
+    conf: "~/crg2/crg.vcfanno.conf" 
+    lua_script: "~/crg2/crg.vcfanno.lua"
     base_path: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/vcfanno"
   vep:
     dir: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/snakemake/6ea37454/share/ensembl-vep-101.0-0/"
@@ -80,6 +99,10 @@ params:
     #BaseRecalibrator: "--interval-set-rule INTERSECTION -U LENIENT-VCF-PROCESSING --read-filter BadCigar --read-filter NotzPrimaryAlignment"
     GenotypeGVCFs: ""
     VariantRecalibrator: ""
+  gatk3:
+    java_opts: "-Xms500m -Xmx9555m"
+    HaplotypeCaller: "-drf DuplicateRead --interval_set_rule INTERSECTION --pair_hmm_implementation VECTOR_LOGLESS_CACHING -ploidy 1 -U LENIENT_VCF_PROCESSING --read_filter BadCigar --read_filter NotPrimaryAlignment"
+    annotation: "MappingQualityRankSumTest MappingQualityZero QualByDepth ReadPosRankSumTest RMSMappingQuality BaseQualityRankSumTest FisherStrand GCContent HaplotypeScore HomopolymerRun DepthPerAlleleBySample Coverage ClippingRankSumTest DepthPerSampleHC"
   picard:
     MarkDuplicates: "REMOVE_DUPLICATES=false"
   qualimap:
@@ -98,6 +121,8 @@ params:
   samtools:
     mpileup: " -t DP -t AD -u -g "
   bcftools:
-    call: " -m "
+    mpileup: "-a DP -a AD "
+    call: " -m -v "
   freebayes: " --genotype-qualities --strict-vcf --ploidy 1 --no-partial-observations --min-repeat-entropy 1 "
+  platypus: "--filterDuplicates=0"
 
