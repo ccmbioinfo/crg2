@@ -2,11 +2,30 @@ def get_cre_bams(ext="bam"):
     return ["recal/{}-{}.{}".format(s,units.loc[s].unit[0],ext) for s in samples.index]
 
 def get_cre_vcfs():
-    return ["called/{}-{}.vcf.gz".format(config["run"]["project"],i) for i in ["freebayes", "platypus", "samtools"] ]
+    return ["filtered/{}-{}-vt.vcf.gz".format(config["run"]["project"],i) for i in ["gatk_haplotype", "samtools", "freebayes", "platypus"] ]
 
 def get_cre_vcf_tbi():
-    return ["called/{}-{}.vcf.gz.tbi".format(config["run"]["project"],i) for i in ["freebayes", "platypus", "samtools"] ]
+    return ["filtered/{}-{}-vt.vcf.gz.tbi".format(config["run"]["project"],i) for i in ["gatk_haplotype", "samtools", "freebayes", "platypus"] ]
     
+rule gatk3:
+    input:
+        bam=get_cre_bams(),
+        bai=get_cre_bams(ext="bam.bai"),
+        known=config["ref"]["known-variants"],
+        ref=config["ref"]["genome"],
+    output:
+        gvcf=protected("called/{project}-gatk_haplotype.vcf")
+    log:
+        "logs/gatk/{project}.log"
+    params:
+        #extra=get_call_variants_params,
+        extra=config["params"]["gatk3"]["HaplotypeCaller"],
+        annot=config["params"]["gatk3"]["annotation"],
+        java_opts=config["params"]["gatk3"]["java_opts"],
+    wrapper:
+        get_wrapper_path("gatk3", "haplotypecaller")
+
+        
 
 rule freebayes:
     input:
@@ -15,26 +34,30 @@ rule freebayes:
         ref=config["ref"]["genome"],
         #regions="/path/to/region-file.bed"
     output:
-        "called/{project}-freebayes.vcf.gz"  # either .vcf or .bcf
+        "called/{project}-freebayes.vcf"  # either .vcf or .bcf
     log:
         "logs/freebayes/{project}.log"
     params:
         extra=config["params"]["freebayes"],         # optional parameters
         chunksize=100000  # reference genome chunk size for parallelization (default: 100000)
-    threads: 8
+    threads: 16
+    resources:
+        mem=lambda wildcards, threads: threads * 4
     wrapper:
         get_wrapper_path("freebayes")
 
 rule platypus:
     input:
-	# single or list of bam files
         bam=get_cre_bams(),
         bai=get_cre_bams(ext="bam.bai"),
         ref=config["ref"]["genome"],
         #regions="regions.bed" #remove or empty quotes if not using regions
     output:
-	    "called/{project}-platypus.vcf.gz"
-    threads: 8
+	    "called/{project}-platypus.vcf"
+    params: config["params"]["platypus"]
+    threads: 16
+    resources:
+        mem=lambda wildcards, threads: threads * 4
     log:
         "logs/platypus/{project}.log"
     wrapper:
@@ -47,42 +70,42 @@ rule samtools_call:
         bai=get_cre_bams(ext="bam.bai"),
         #regions="regions.bed" #remove or empty quotes if not using regions
     output:
-	    "called/{project}-samtools.vcf.gz"
+	    "called/samtools-{contig}.vcf"
     params:
         mpileup = config["params"]["samtools"]["mpileup"],
-        call = config["params"]["bcftools"]["call"]
+        call = config["params"]["bcftools"]["call"],
+        region = config["ref"]["split_genome"]
     threads: 8
+    resources:
+        mem=lambda wildcards, threads: threads * 4
     log:
-        "logs/samtools_call/{project}.log"
+        "logs/samtools_call/samtools-{contig}.log"
     wrapper:
        get_wrapper_path("bcftools", "call")
 
-rule vt:
+rule merge_mpileup:
     input:
-        "called/{project}-{caller}.vcf.gz"
+        vcfs =lambda w: expand("called/samtools-{contig}.vcf", contig = get_canon_contigs())
+        #vcfs =lambda w: expand("called/samtools-{contig}.vcf", contig = "GRCh37d5")
     output:
-        "called/{project}-{caller}-vt.vcf.gz"  
-    params:
-        ref=config["ref"]["genome"],
-    log:
-        "logs/vt/{project}-{caller}.log"
-    wrapper:
-        get_wrapper_path("vt")
-
-rule vcf_isec:
+        "called/{project}-samtools.vcf"
+    shell:
+        '''
+        if [ -f files ]; then rm files; fi;
+        for i in {input}; do echo $i >> files; done;
+        bcftools concat -f files | bcftools sort > {output}
+        rm {input}
+        '''
+ 
+rule bgzip:
     input:
-        vcf =  get_cre_vcfs(),
-        tbi = get_cre_vcf_tbi()
+        "{prefix}.vcf"
     output:
-        vcf = expand("isec/000{index}.vcf.gz", index=range(len(get_cre_vcfs()))),
-        sites = "isec/sites.txt"
-    params:
-        outdir = "isec",
-        numpass = "1+",
-    threads: 8
-    log: "logs/isec.log"
-    wrapper:
-        get_wrapper_path("bcftools","isec")
+        "{prefix}.vcf.gz"
+    shell:
+        '''
+        bgzip -c {input} > {output}
+        '''
 
 rule tabix:
     input: 
@@ -93,47 +116,3 @@ rule tabix:
         "logs/{prefix}.log"
     wrapper:
         get_wrapper_path("tabix")
-
-rule vcf_concat:
-    input:
-        vcf = expand("isec/000{index}.vcf.gz", index=range(len(get_cre_vcfs())))
-    output: 
-        "concat/{project}-concat.vcf.gz"
-    params: 
-        "-a -d none"
-    log: 
-        "logs/concat.log"
-    threads: 8
-    wrapper:
-        get_wrapper_path("bcftools", "concat")
-
-rule annot_caller:
-    input: "isec/sites.txt"
-    output: 
-        txt = "isec/sites.caller.txt",
-        bz = "isec/sites.caller.txt.gz",
-        hdr = "isec/hdr.txt"
-    shell:
-        '''
-        cat {input} | parallel -j 16  ./annotate-caller.sh {{}} >> {output.txt}
-        bgzip -c {output.txt} > {output.bz}
-        tabix -s1 -b2 -e2 {output.bz}
-        echo -e '##INFO=<ID=CALLERS,Number=.,Type=String,Description="Variant called by">' > {output.hdr}
-        '''
-
-rule vcf_annotate:
-    input: 
-        vcf = "concat/{project}-concat.vcf.gz",
-        annot = "isec/sites.caller.txt.gz",
-        hdr = "isec/hdr.txt"
-    output: 
-        "concat/{project}-concat-annot.vcf.gz"
-    log: 
-        "logs/annotate.log"
-    wrapper:
-        get_wrapper_path("bcftools", "annotate")
-
-    
-
-
-     
