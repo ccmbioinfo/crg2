@@ -108,6 +108,9 @@ def get_read_group(wildcards):
         sample=wildcards.sample,
         platform=units.loc[(wildcards.sample, wildcards.unit), "platform"])
 
+def get_sample_order(wildcards):
+    """bcftools view -s <sample_order> as freebaayes randomly picks order"""
+    return [ "{}_{}".format(project,s) for s in samples.index ]
 
 def get_trimmed_reads(wildcards):
     """Get trimmed reads of given sample-unit."""
