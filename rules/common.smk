@@ -21,6 +21,7 @@ validate(units, schema="../schemas/units.schema.yaml")
 
 project = config["run"]["project"]
 flank = config["run"]["flank"]
+gatk = config["run"]["gatk"] 
 
 ##### Wildcard constraints #####
 wildcard_constraints:
