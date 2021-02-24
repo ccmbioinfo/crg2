@@ -6,6 +6,7 @@ run:
   panel: "" # leave this string empty if there is no panel
   hpo: "" # leave this string empty is there are no hpo terms
   flank: 100000
+  gatk: "gatk"
 
 tools:
   svscore_script: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/crg2-non-conda-tools/SVScore/svscore.pl"
@@ -23,6 +24,7 @@ ref:
   decoy_bed: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/pipelines/cre/data/grch37d5.decoy.bed"
   canon_bed: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/genomes/grch37.canon.bed"
   split_genome: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/genomes/split_genome"
+  gatk-known: "/hpf/largeprojects/ccmbio/naumenko/tools/bcbio/genomes/Hsapiens/GRCh37/variation/Mills_and_1000G_gold_standard.indels.vcf.gz"
 
 filtering:
   vqsr: false
@@ -103,6 +105,8 @@ params:
     java_opts: "-Xms500m -Xmx9555m"
     HaplotypeCaller: "-drf DuplicateRead --interval_set_rule INTERSECTION --pair_hmm_implementation VECTOR_LOGLESS_CACHING -ploidy 1 -U LENIENT_VCF_PROCESSING --read_filter BadCigar --read_filter NotPrimaryAlignment"
     annotation: "MappingQualityRankSumTest MappingQualityZero QualByDepth ReadPosRankSumTest RMSMappingQuality BaseQualityRankSumTest FisherStrand GCContent HaplotypeScore HomopolymerRun DepthPerAlleleBySample Coverage ClippingRankSumTest DepthPerSampleHC"
+    RealignerTargetCreator: " -l INFO --interval_set_rule INTERSECTION -U LENIENT_VCF_PROCESSING --read_filter BadCigar --read_filter NotPrimaryAlignment "
+    IndelRealigner: " -U LENIENT_VCF_PROCESSING --read_filter BadCigar --read_filter NotPrimaryAlignment "
   picard:
     MarkDuplicates: "REMOVE_DUPLICATES=false"
   qualimap:
