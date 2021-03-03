@@ -19,23 +19,84 @@ rule gatk3:
     wrapper:
         get_wrapper_path("gatk3", "haplotypecaller")
 
-rule gatk:
+
+#duplicating gatk4 rules from crg2/calling.smk for cre file namings 
+#sub-workflows does not seem to work smoothly
+rule call_variants:
     input:
-        bam=get_cre_bams(),
-        bai=get_cre_bams(ext="bam.bai"),
+        bam=get_sample_bams,
         ref=config["ref"]["genome"],
         known=config["ref"]["known-variants"],
+        regions="called/gatk/{contig}.regions.bed" if config["processing"].get("restrict-regions") else []
     output:
-        gvcf=protected("called/{project}-gatk_haplotype.vcf")
+        gvcf=temp("called/gatk/{sample}.{contig}.g.vcf.gz")
     log:
-        "logs/gatk/{project}.log"
+        "logs/gatk/haplotypecaller/{sample}.{contig}.log"
     params:
-        #extra=get_call_variants_params,
+        extra=get_call_variants_params,
         java_opts=config["params"]["gatk"]["java_opts"],
+    group: "gatkcall"
     resources: 
         mem=lambda wildcards, input: len(input.bam) * 15
     wrapper:
         get_wrapper_path("gatk", "haplotypecaller")
+
+
+rule combine_calls:
+    input:
+        ref=config["ref"]["genome"],
+        gvcfs=expand("called/gatk/{sample}.{{contig}}.g.vcf.gz", sample=samples.index)
+    output:
+        gvcf=temp("called/gatk/all.{contig}.g.vcf.gz")
+    params:
+        java_opts=config["params"]["gatk"]["java_opts"],
+    log:
+        "logs/gatk/combinegvcfs.{contig}.log"
+    group: "gatkcall"
+    wrapper:
+        get_wrapper_path("gatk", "combinegvcfs")
+
+
+rule genotype_variants:
+    input:
+        ref=config["ref"]["genome"],
+        gvcf="called/gatk/all.{contig}.g.vcf.gz"
+    output:
+        vcf=temp("called/gatk/genotype/all.{contig}.vcf.gz")
+    params:
+        extra=config["params"]["gatk"]["GenotypeGVCFs"],
+        java_opts=config["params"]["gatk"]["java_opts"],
+    log:
+        "logs/gatk/genotypegvcfs.{contig}.log"
+    group: "gatkcall"
+    wrapper:
+        get_wrapper_path("gatk", "genotypegvcfs")
+
+
+rule merge_variants:
+    input:
+        ref=get_fai(), # fai is needed to calculate aggregation over contigs below
+        vcfs=lambda w: expand("called/gatk/genotype/all.{contig}.vcf.gz", contig=get_canon_contigs()),
+	## use this to remove repetitive contigs for dag generation
+	#vcfs=lambda w: expand("genotyped/all.{contig}.vcf.gz", contig="GRCh37"), 
+    output:
+        vcf="called/gatk/all.vcf.gz"
+    log:
+        "logs/picard/merge-genotyped.log"
+    wrapper:
+        get_wrapper_path("picard", "mergevcfs")
+
+rule gatk4:
+    input: 
+        "called/gatk/all.vcf.gz"
+    output:
+        gvcf=protected("called/{project}-gatk_haplotype.vcf")
+    log:
+        "logs/gatk/{project}.log"
+    shell:
+        '''
+        gunzip -c -d {input} > {output}
+        '''
 
 
 rule freebayes:
