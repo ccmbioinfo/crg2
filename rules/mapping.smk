@@ -79,6 +79,7 @@ rule realignertargetcreator:
         "logs/gatk3/realignertargetcreator/{sample}-{unit}.log"
     params:
         extra = get_regions_param() + config["params"]["gatk3"]["RealignerTargetCreator"],
+        jar = config["params"]["gatk3"]["jar"],
         java_opts = config["params"]["gatk"]["java_opts"],
     wrapper:
         get_wrapper_path("gatk3", "realignertargetcreator")
@@ -97,6 +98,7 @@ rule indelrealigner:
         "logs/gatk3/indelrealigner/{sample}-{unit}.log"
     params:
         extra = get_regions_param() + config["params"]["gatk3"]["IndelRealigner"],
+        jar = config["params"]["gatk3"]["jar"],
         java_opts = config["params"]["gatk"]["java_opts"],
     wrapper:
         get_wrapper_path("gatk3", "indelrealigner")
