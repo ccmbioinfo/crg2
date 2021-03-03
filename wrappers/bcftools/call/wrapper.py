@@ -20,7 +20,7 @@ if snakemake.threads:
 else:
     threads = 1 
 
-chrom = path.splitext(outfile)[0].split("-")[-1]
+chrom = path.join("samtools", path.splitext(outfile)[0].split("-")[-1])
 print(chrom)
 
 region = path.join(snakemake.params.region, chrom + ".txt")
@@ -38,5 +38,5 @@ shell(
     "ls {chrom}/*.vcf > {chrom}.files && "
     "bcftools concat -f {chrom}.files | "
     "bcftools sort > {outfile} && "   
-    "rm {chrom}/*.vcf {chrom}.files ;  {log} "
+    "rm {chrom}/*.vcf {chrom}.files && rmdir {chrom};  {log} "
 )
