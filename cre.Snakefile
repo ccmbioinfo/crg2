@@ -22,10 +22,4 @@ include: "rules/cre/filtering.smk"
 include: "rules/cre/annotation.smk"
 include: "rules/cre/snvreport.smk"
 
-# include: "rules/filtering.smk"
-# include: "rules/stats.smk"
-# include: "rules/qc.smk"
-# include: "rules/annotation.smk"
-# include: "rules/snvreport.smk"
-# include: "rules/sv.smk"
-# include: "rules/svreport.smk"
+
