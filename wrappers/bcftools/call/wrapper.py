@@ -20,23 +20,21 @@ if snakemake.threads:
 else:
     threads = 1 
 
-chrom = path.join("samtools", path.splitext(outfile)[0].split("-")[-1])
-print(chrom)
+chrom = path.splitext(outfile)[0].split("-")[-1]
+chromdir = path.join("samtools", chrom)
 
-region = path.join(snakemake.params.region, chrom + ".txt")
-print(region)
-
+region = path.join(snakemake.params.region, chrom + ".txt")    
 
 ref = snakemake.input.ref
 bams = snakemake.input.samples
-popen("mkdir -p " + chrom)
-command = '"samtools mpileup -t AD -t DP -u -g -f {} {} -r {{}} --BCF --uncompressed | bcftools call -m -v {} > {}/{{}}.vcf "'.format(ref, bams,out_format, chrom)
+popen("mkdir -p " + chromdir)
+command = '"samtools mpileup -t AD -t DP -u -g -f {} {} -r {{}} --BCF --uncompressed | bcftools call -m -v {} > {}/{{}}.vcf "'.format(ref, bams, out_format, chromdir)
 #command = '"bcftools mpileup -a AD -a DP -f {} {} -r {{}}   | bcftools call -m -v {} > {}/{{}}.vcf "'.format(ref, bams,out_format, chrom)
 
 shell(
     "cat {region} | parallel -k -j {threads} {command} && "
-    "ls {chrom}/*.vcf > {chrom}.files && "
+    "ls {chromdir}/*.vcf > {chrom}.files && "
     "bcftools concat -f {chrom}.files | "
     "bcftools sort > {outfile} && "   
-    "rm {chrom}/*.vcf {chrom}.files && rmdir {chrom};  {log} "
+    "rm {chromdir}/*.vcf {chrom}.files && rmdir {chromdir};  {log} "
 )
