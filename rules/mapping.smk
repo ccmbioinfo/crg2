@@ -55,7 +55,8 @@ rule recalibrate_base_qualities:
         bam = get_recal_input(),
         bai = get_recal_input(bai=True),
         ref = config["ref"]["genome"],
-        known = config["ref"]["known-variants"]
+        known = config["ref"]["known-variants"],
+        bed = "mapped/{sample}-{unit}-callable.bed",
     output:
         bam = protected("recal/{sample}-{unit}.bam")
     params:
@@ -68,42 +69,106 @@ rule recalibrate_base_qualities:
 
 rule realignertargetcreator:
     input:
-        bam = get_recal_input(),
-        bai = get_recal_input(bai=True),
+        bam = "mapped/{sample}-{unit}.sorted.bam",
+        bai = "mapped/{sample}-{unit}.sorted.bam.bai",
         ref = config["ref"]["genome"],
         known = config["ref"]["known-variants"]
     output:
-        intervals="recal/gatk3/{sample}-{unit}.intervals",
-        java_temp=temp(directory("gatk3_indelrealigner/{sample}-{unit}")),
+        intervals="recal/gatk3/realignertargetcreator/{sample}-{unit}.intervals",
     log:
         "logs/gatk3/realignertargetcreator/{sample}-{unit}.log"
     params:
         extra = get_regions_param() + config["params"]["gatk3"]["RealignerTargetCreator"],
         jar = config["params"]["gatk3"]["jar"],
         java_opts = config["params"]["gatk"]["java_opts"],
+    threads: 8
+    #resources: #cannot access threads here; fix later
+     #   mem=lambda wildcards, threads: {threads} * 3
+     #using already installed haplotypecaller conda-env, otherwise conda takes forever; 
+     #todo: change to a common gatk3.yaml instead of seperate conda for sub-commands
+    conda: 
+        "../wrappers/gatk3/haplotypecaller/environment.yaml"
     wrapper:
         get_wrapper_path("gatk3", "realignertargetcreator")
 
 rule indelrealigner:
     input:
-        bam = get_recal_input(),
-        bai = get_recal_input(bai=True),
+        bam = "mapped/{sample}-{unit}.sorted.bam",
+        bai = "mapped/{sample}-{unit}.sorted.bam.bai",
         ref = config["ref"]["genome"],
         known = config["ref"]["known-variants"],
-        target_intervals="recal/gatk3/{sample}-{unit}.intervals",
+        target_intervals="recal/gatk3/realignertargetcreator/{sample}-{unit}.intervals",
     output:
-        bam = protected("recal/gatk3/{sample}-{unit}.bam"),
-        java_temp=temp(directory("/tmp/gatk3_indelrealigner/{sample}-{unit}")),
+        bam = protected("recal/gatk3/indelrealigner/{sample}-{unit}-realign.bam"),
     log:
         "logs/gatk3/indelrealigner/{sample}-{unit}.log"
     params:
         extra = get_regions_param() + config["params"]["gatk3"]["IndelRealigner"],
         jar = config["params"]["gatk3"]["jar"],
         java_opts = config["params"]["gatk"]["java_opts"],
+    conda:
+        "../wrappers/gatk3/haplotypecaller/environment.yaml"
     wrapper:
         get_wrapper_path("gatk3", "indelrealigner")
-        
 
+rule mosdepth:
+    input:
+        bam = "mapped/{sample}-{unit}.sorted.bam",
+        bai = "mapped/{sample}-{unit}.sorted.bam.bai",
+    output:
+        qbed = "mapped/{sample}-{unit}.quantized.bed.gz",
+        bed = "mapped/{sample}-{unit}-callable.bed"
+    params:
+        prefix = f"mapped/{{sample}}-{{unit}}",
+        by = config["ref"]["canon_bed"]
+    log:
+        "logs/mosdepth/{sample}-{unit}.log"
+    shell:
+        '''
+        export MOSDEPTH_Q0=NO_COVERAGE;
+        export MOSDEPTH_Q1=LOW_COVERAGE;
+        export MOSDEPTH_Q2=CALLABLE;
+        mosdepth -n -F 1804 -Q 1 --quantize 0:1:4: --by {params.by} {params.prefix} {input.bam} 2> {log}
+        zgrep "CALLABLE" {output.qbed} > {output.bed}
+        '''
+       
+rule baserecalibrator:
+    input:
+        bam = "recal/gatk3/indelrealigner/{sample}-{unit}-realign.bam",
+        bai = "recal/gatk3/indelrealigner/{sample}-{unit}-realign.bam.bai",
+        bed = "mapped/{sample}-{unit}-callable.bed",
+        ref = config["ref"]["genome"],
+        known = config["ref"]["known-variants"]
+    output:
+        "recal/gatk3/baserecalibrator/{sample}-{unit}-recal.grp"
+    params:
+        extra = get_regions_param() + config["params"]["gatk3"]["BaseRecalibrator"],
+        java_opts = config["params"]["gatk"]["java_opts"],
+    log:
+        "logs/gatk3/baserecalibrator/{sample}-{unit}.log"
+    threads: 8
+    conda:
+        "../wrappers/gatk3/haplotypecaller/environment.yaml"
+    wrapper:
+        get_wrapper_path("gatk3", "baserecalibrator")
+
+rule printreads:
+    input:
+        bam = "recal/gatk3/indelrealigner/{sample}-{unit}-realign.bam",
+        bai = "recal/gatk3/indelrealigner/{sample}-{unit}-realign.bam.bai",
+        ref = config["ref"]["genome"],
+        recal_data = "recal/gatk3/baserecalibrator/{sample}-{unit}-recal.grp"
+    output:
+        protected("recal/gatk3/{sample}-{unit}.bam")
+    params:
+        extra = get_regions_param() + config["params"]["gatk3"]["PrintReads"],
+        java_opts = config["params"]["gatk"]["java_opts"],
+    log:
+        "logs/gatk3/printreads/{sample}-{unit}.log"
+    conda:
+        "../wrappers/gatk3/haplotypecaller/environment.yaml"
+    wrapper:
+        get_wrapper_path("gatk3", "printreads")
 
 rule remove_decoy:
     #redirect first samtools command to a temp output file "decoy.bam" 
