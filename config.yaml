@@ -60,12 +60,12 @@ processing:
 
 annotation:
   cre.vcfanno:
-    conf: "crg2/vcfanno/cre.vcfanno.conf"
-    lua_script: "crg2/vcfanno/cre.vcfanno.lua"
+    conf: "~/crg2/vcfanno/cre.vcfanno.conf"
+    lua_script: "~/crg2/vcfanno/cre.vcfanno.lua"
     base_path: "/hpf/largeprojects/ccmbio/naumenko/tools/bcbio/genomes/Hsapiens/GRCh37"
   vcfanno:
-    conf: "~/crg2/crg.vcfanno.conf" 
-    lua_script: "~/crg2/crg.vcfanno.lua"
+    conf: "~/crg2/vcfanno/crg.vcfanno.conf" 
+    lua_script: "~/crg2/vcfanno/crg.vcfanno.lua"
     base_path: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/vcfanno"
   vep:
     dir: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/snakemake/6ea37454/share/ensembl-vep-101.0-0/"
@@ -107,6 +107,8 @@ params:
     annotation: "MappingQualityRankSumTest MappingQualityZero QualByDepth ReadPosRankSumTest RMSMappingQuality BaseQualityRankSumTest FisherStrand GCContent HaplotypeScore HomopolymerRun DepthPerAlleleBySample Coverage ClippingRankSumTest DepthPerSampleHC"
     RealignerTargetCreator: " -l INFO --interval_set_rule INTERSECTION -U LENIENT_VCF_PROCESSING --read_filter BadCigar --read_filter NotPrimaryAlignment "
     IndelRealigner: " -U LENIENT_VCF_PROCESSING --read_filter BadCigar --read_filter NotPrimaryAlignment "
+    BaseRecalibrator: " --interval_set_rule INTERSECTION -U LENIENT_VCF_PROCESSING --read_filter BadCigar --read_filter NotPrimaryAlignment "
+    PrintReads: " -jdk_deflater -jdk_inflater -U LENIENT_VCF_PROCESSING --read_filter BadCigar --read_filter NotPrimaryAlignment "
   picard:
     MarkDuplicates: "REMOVE_DUPLICATES=false"
   qualimap:
