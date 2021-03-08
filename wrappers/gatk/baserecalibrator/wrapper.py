@@ -11,7 +11,7 @@ from snakemake.shell import shell
 
 extra = snakemake.params.get("extra", "")
 java_opts = snakemake.params.get("java_opts", "")
-bed = snakemake.params.get("bed", "")
+bed = snakemake.input.get("bed", "")
 if bed:
     bed = "-L " + bed
 
