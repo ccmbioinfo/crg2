@@ -164,6 +164,7 @@ rule merge_mpileup:
     shell:
         '''
         if [ -f files ]; then rm files; fi;
+        if [ -d samtools ]; then rmdir samtools; fi;
         for i in {input}; do echo $i >> files; done;
         bcftools concat -f files | bcftools sort > {output}
         rm {input}
