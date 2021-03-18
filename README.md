@@ -138,8 +138,12 @@ rule call_variants:
   - as multi-node jobs using: ```qsub dnaseq_cluster.pbs```. Change the value of variables defined inside the above file according to your system 
   Refer `pbs_profile/cluster.md` document for detailed documentation for cluster integration.
   
-The SNV report can be found in the directory: report/all/{PROJECT_ID}/{PROJECT_ID}.*.csv.
-The SV reports can be found in the directory: report/sv/{PROJECt_ID}.wgs.{VER}.{DATE}.tsv.
+The SNV reports can be found in the directories: 
+  - report/coding/{PROJECT_ID}/{PROJECT_ID}.\*wes\*.csv
+  - report/panel/{PROJECT_ID}/{PROJECT_ID}.\*wgs\*.csv
+  - report/panel-flank/{PROJECT_ID}/{PROJECT_ID}.\*wgs\*.csv
+The SV reports can be found in the directory: 
+  - report/sv/{PROJECt_ID}.wgs.{VER}.{DATE}.tsv.
 
 ## Pipeline details
 
