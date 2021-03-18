@@ -56,7 +56,7 @@ rule recalibrate_base_qualities:
         bai = get_recal_input(bai=True),
         ref = config["ref"]["genome"],
         known = config["ref"]["known-variants"],
-        bed = "mapped/{sample}-{unit}-callable.bed",
+        bed = "mapped/{sample}-{unit}-callable.bed" 
     output:
         bam = protected("recal/{sample}-{unit}.bam")
     params:
