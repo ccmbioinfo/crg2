@@ -1,0 +1,33 @@
+bcftools 1.10
+bcftools 1.9
+bedtools 2.29.0
+bowtie2 2.4.1
+bwa 0.7.17
+fastqc 0.11.8
+fastq-screen 0.13.0
+freebayes 1.3.1
+gatk4 4.1.4.1
+htslib 1.10
+manta 1.6.0
+metasv 0.5.4
+multiqc 1.7
+parallel 20190522
+picard 2.18.16
+picard 2.20.1
+picard 2.9.2
+pigz 2.3.4
+platypus-variant 0.8.1.2
+qualimap 
+r-base 3.3.2
+sambamba 0.7.1
+samblaster 0.1.24
+samblaster 0.1.25
+samtools 1.10
+samtools 1.9
+sed 4.7
+smoove 0.2.5
+snpeff 4.3.1t
+vcftools 0.1.16
+verifybamid2==1.0.6 
+vt 2015.11.10
+wham 1.8.0.1.2017.05.03
