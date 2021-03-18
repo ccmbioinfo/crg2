@@ -105,6 +105,6 @@ if __name__ == "__main__":
     filtered_report=filter_report(out_report)
     mkdir(report_dir)
     out_filtered_report="{}/{}.wgs.sv.v{}.{}.tsv".format(report_dir,snakemake.params.project, snakemake.params.PIPELINE_VERSION, date.today().strftime("%Y-%m-%d"))
-    filtered_report.to_csv(out_filtered_report, sep='\t', encoding='utf-8', na_rep='.')
+    filtered_report.to_csv(out_filtered_report, sep='\t', encoding='utf-8', na_rep='.', index=False)
 
     move(out_report, report_dir)

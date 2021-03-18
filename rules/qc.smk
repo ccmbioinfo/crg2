@@ -12,7 +12,7 @@ rule fastqc:
 
 rule samtools_stats:
     input:
-        "recal/{sample}-{unit}.bam"
+        "decoy_rm/{sample}-{unit}.no_decoy_reads.bam"
     output:
         "qc/samtools-stats/{sample}-{unit}.txt"
     log:
@@ -38,8 +38,8 @@ rule fastq_screen:
 
 rule qualimap:
     input: 
-        bam = "mapped/{sample}-{unit}.sorted.bam", 
-        bai = "mapped/{sample}-{unit}.sorted.bam.bai"
+        bam = "decoy_rm/{sample}-{unit}.no_decoy_reads.bam", 
+        bai = "decoy_rm/{sample}-{unit}.no_decoy_reads.bam.bai"
     output:
         "qc/qualimap/{sample}-{unit}/genome_results.txt",
         "qc/qualimap/{sample}-{unit}/qualimapReport.html",
@@ -62,9 +62,9 @@ rule qualimap:
 
 rule verifybamid2:
     input:
-        bam = "mapped/{sample}-{unit}.sorted.bam",
+        bam = "decoy_rm/{sample}-{unit}.no_decoy_reads.bam",
         ref = config["ref"]["no_decoy"],
-        bai = "mapped/{sample}-{unit}.sorted.bam.bai"
+        bai = "decoy_rm/{sample}-{unit}.no_decoy_reads.bam.bai"
     output:
         sm = "qc/verifybamid2/{sample}-{unit}.selfSM",
     log:
@@ -80,17 +80,13 @@ rule verifybamid2:
 rule multiqc:
     input:
         [expand(input_file, u=units.itertuples()) for input_file in ["qc/samtools-stats/{u.sample}-{u.unit}.txt", 
-                                                            "qc/fastqc/{u.sample}-{u.unit}.zip",
-                                                            "qc/fastqc/{u.sample}-{u.unit}.zip", 
-                                                            "qc/dedup/{u.sample}-{u.unit}.metrics.txt", 
                                                             "qc/verifybamid2/{u.sample}-{u.unit}.selfSM", 
                                                             "qc/qualimap/{u.sample}-{u.unit}/genome_results.txt", 
                                                             "qc/qualimap/{u.sample}-{u.unit}/raw_data_qualimapReport/coverage_histogram.txt",
                                                             "qc/qualimap/{u.sample}-{u.unit}/qualimapReport.html", 
                                                             "qc/qualimap/{u.sample}-{u.unit}/raw_data_qualimapReport/genome_fraction_coverage.txt", 
                                                             "qc/qualimap/{u.sample}-{u.unit}/raw_data_qualimapReport/mapped_reads_gc-content_distribution.txt",
-                                                            "qc/qualimap/{u.sample}-{u.unit}/raw_data_qualimapReport/mapped_reads_gc-content_distribution.txt", 
-                                                            "qc/fastq_screen/{u.sample}-{u.unit}_screen.txt"
+                                                            "qc/qualimap/{u.sample}-{u.unit}/raw_data_qualimapReport/mapped_reads_gc-content_distribution.txt"
                                                                     ]]
     params:
     output:

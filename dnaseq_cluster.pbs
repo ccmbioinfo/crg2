@@ -17,4 +17,4 @@ PBS=~/crg2/pbs_profile;
 source /hpf/largeprojects/ccm_dccforge/dccdipg/Common/anaconda3/etc/profile.d/conda.sh
 conda activate snakemake
 
-snakemake --use-conda -s $SF --conda-prefix $CP  --profile $PBS -p  
+snakemake --use-conda -s $SF --conda-prefix $CP  --profile $PBS -p  report/sv

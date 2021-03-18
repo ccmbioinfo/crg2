@@ -1,7 +1,7 @@
 rule manta:
     input:
-        bam = "decoy_rm/{sample}-{unit}.no_decoy_reads.bam",
-        bai = "decoy_rm/{sample}-{unit}.no_decoy_reads.bam.bai",
+        bam = "mapped/{sample}-{unit}.sorted.bam",
+        bai = "mapped/{sample}-{unit}.sorted.bam.bai",
         fasta = config["ref"]["no_decoy"]
     params:
         outdir = directory("sv/manta/{sample}-{unit}/"),
@@ -18,8 +18,8 @@ rule manta:
 
 rule wham:
     input:
-        bam = "decoy_rm/{sample}-{unit}.no_decoy_reads.bam",
-        bai = "decoy_rm/{sample}-{unit}.no_decoy_reads.bam.bai",
+        bam = "mapped/{sample}-{unit}.sorted.bam",
+        bai = "mapped/{sample}-{unit}.sorted.bam.bai",
         fasta = config["ref"]["no_decoy"]
     params:
         include_chroms = ",".join(
@@ -50,17 +50,17 @@ rule smoove:
     #added param for --outdir and use in the shell to delete the intermediary files with 'rm'
     #changed --name param to include only name
     input:
-        bam = "decoy_rm/{sample}-{unit}.no_decoy_reads.bam",
-        bai = "decoy_rm/{sample}-{unit}.no_decoy_reads.bam.bai",
+        bam = "mapped/{sample}-{unit}.sorted.bam",
+        bai = "mapped/{sample}-{unit}.sorted.bam.bai",
         fasta = config["ref"]["no_decoy"]
     params:
-        outdir = "sv/smoove",
+        outdir = "sv/smoove/{sample}-{unit}/",
         name = "{sample}-{unit}",
         exclude_chroms = ",".join([c for c in get_contigs().tolist() if is_nonalt(c) == False])
     threads:
        4
     output:
-        "sv/smoove/{sample}-{unit}-smoove.genotyped.vcf.gz"
+        "sv/smoove/{sample}-{unit}/{sample}-{unit}-smoove.genotyped.vcf.gz"
     log:
         "logs/smoove/{sample}-{unit}.log"
     wrapper:
@@ -68,12 +68,12 @@ rule smoove:
 
 rule metasv:
     input:
-        bam = "decoy_rm/{sample}-{unit}.no_decoy_reads.bam",
-        bai = "decoy_rm/{sample}-{unit}.no_decoy_reads.bam.bai",
+        bam = "mapped/{sample}-{unit}.sorted.bam",
+        bai = "mapped/{sample}-{unit}.sorted.bam.bai",
         fasta = config["ref"]["no_decoy"],
         manta = "sv/manta/{sample}-{unit}/results/variants/diploidSV.vcf.gz",
         wham = "sv/wham/{sample}-{unit}.wham.vcf",
-        lumpy = "sv/smoove/{sample}-{unit}-smoove.genotyped.vcf.gz"
+        lumpy = "sv/smoove/{sample}-{unit}/{sample}-{unit}-smoove.genotyped.vcf.gz"
     params:
         sample = "{sample}-{unit}",
         outdir = "sv/metasv/{sample}-{unit}"
