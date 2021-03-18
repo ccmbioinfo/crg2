@@ -15,7 +15,7 @@ else:
 
 shell(
     "bcftools annotate -a {snakemake.input.annot} -h {snakemake.input.hdr} " 
-    "-c CHROM,POS,REF,ALT,INFO/CALLERS "
+    "-c CHROM,POS,REF,ALT,INFO/CALLERS,INFO/NUMCALLS "
     "--threads {threads} -o {snakemake.output} -O z "
     "{snakemake.input.vcf} {log}"
 )
