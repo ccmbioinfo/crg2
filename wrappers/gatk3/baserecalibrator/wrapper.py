@@ -13,7 +13,7 @@ extra = snakemake.params.get("extra", "")
 input_bam = snakemake.input.bam
 input_known = snakemake.input.known
 input_ref = snakemake.input.ref
-bed = snakemake.params.get("bed", None)
+bed = snakemake.input.get("bed", None)
 if bed is not None:
     bed = "-L " + bed
 else:
