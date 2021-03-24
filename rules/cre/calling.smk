@@ -7,17 +7,25 @@ rule gatk3:
         bai=get_cre_bams(ext="bam.bai"),
         known=config["ref"]["known-variants"],
         ref=config["ref"]["genome"],
-    output:
-        gvcf=protected("called/{project}-gatk3_haplotype.vcf")
+        regions="called/gatk3/{contig}.regions.bed" if config["processing"].get("restrict-regions") else []
+    output: "called/gatk3/{project}-{contig}.vcf"
+        #gvcf=protected("called/{project}-gatk3_haplotype.vcf")
     log:
-        "logs/gatk/{project}.log"
+        "logs/gatk3/{project}-{contig}.log"
     params:
-        #extra=get_call_variants_params,
-        extra=config["params"]["gatk3"]["HaplotypeCaller"],
+        extra=get_call_variants_params,
         annot=config["params"]["gatk3"]["annotation"],
         java_opts=config["params"]["gatk3"]["java_opts"],
     wrapper:
         get_wrapper_path("gatk3", "haplotypecaller")
+
+rule gathervcf:
+    input:
+        vcfs = lambda w: expand("called/gatk3/{project}-{contig}.vcf", project=project, contig=get_canon_contigs()),
+    output:
+        gvcf=protected("called/{project}-gatk3_haplotype.vcf")
+    wrapper:
+        get_wrapper_path("picard","gathervcfs")
 
 
 #duplicating gatk4 rules from crg2/calling.smk for cre file namings 
@@ -104,7 +112,7 @@ rule freebayes:
         samples=get_cre_bams(),
         bai=get_cre_bams(ext="bam.bai"),
         ref=config["ref"]["genome"],
-        #regions="/path/to/region-file.bed"
+        regions=config["ref"]["canon_bed"]
     output:
         "called/{project}-freebayes.vcf"  # either .vcf or .bcf
     log:
@@ -123,7 +131,7 @@ rule platypus:
         bam=get_cre_bams(),
         bai=get_cre_bams(ext="bam.bai"),
         ref=config["ref"]["genome"],
-        #regions="regions.bed" #remove or empty quotes if not using regions
+        regions=config["ref"]["canon_bed"] #remove or empty quotes if not using regions
     output:
 	    "called/{project}-platypus.vcf"
     params: config["params"]["platypus"]
