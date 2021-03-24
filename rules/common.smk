@@ -141,8 +141,8 @@ def get_regions_param(regions=config["processing"].get("restrict-regions"), defa
 
 
 def get_call_variants_params(wildcards, input):
-    return (get_regions_param(regions=input.regions, default="--intervals {}".format(wildcards.contig)) +
-            config["params"]["gatk"]["HaplotypeCaller"])
+    return (get_regions_param(regions=input.regions, default="--intervals {} ".format(wildcards.contig)) +
+            config["params"][gatk]["HaplotypeCaller"])
 
 
 def get_recal_input(bai=False):
