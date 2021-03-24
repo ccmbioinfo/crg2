@@ -99,11 +99,24 @@ if len(get_cre_vcfs()) > 1:
             annot = "isec/sites.caller.txt.gz",
             hdr = "isec/hdr.txt"
         output: 
-            "annotated/{project}-ensemble-decomposed.vcf.gz"
+            "filtered/{project}-numpass1-decomposed.vcf.gz"
         log: 
             "logs/bcftools/annotate/{project}.log"
         wrapper:
             get_wrapper_path("bcftools", "annotate")
+
+    rule ensemble:
+        input: 
+            "filtered/{project}-numpass1-decomposed.vcf.gz"
+        output: 
+            "annotated/{project}-ensemble-decomposed.vcf.gz"
+        log: 
+            "logs/bcftools/filter/{project}-ensemble.log"
+        params: 
+            hard = " -i '(INFO/CALLERS=\"gatk-haplotype\" || INFO/NUMCALLS>=2)' "
+        wrapper:
+            get_wrapper_path("bcftools", "filter")
+            
 
 else:
     rule annot_caller:
