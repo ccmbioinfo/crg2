@@ -23,7 +23,7 @@ annot = snakemake.params.get("annot","")
 if annot:
     extra += " ".join([ " --annotation " + i for i in annot.split(" ") ])
 
-print(extra)
+#print(extra)
 
 log = snakemake.log_fmt_shell(stdout=True, stderr=True)
 shell(
@@ -31,5 +31,5 @@ shell(
     "-R {snakemake.input.ref} "
     "{bams} "
     "{known} "
-    "-o {snakemake.output.gvcf} {log}"
+    "-o {snakemake.output} {log}"
 )
