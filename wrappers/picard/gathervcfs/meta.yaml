@@ -1,0 +1,9 @@
+name: picard MergeVcfs
+description: |
+  Gathers multiple VCF files from a scatter operation into a single VCF file.
+authors:
+  - Johannes Köster
+input:
+  - vcf files
+output:
+  - merged vcf file
