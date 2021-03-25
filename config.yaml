@@ -12,6 +12,7 @@ tools:
   annotsv: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/crg2-non-conda-tools/AnnotSV_2.1"
   cre: "~/cre"
   crg: "~/crg"
+  crg2: "~/crg2"
 
 ref:
   name: GRCh37.75
