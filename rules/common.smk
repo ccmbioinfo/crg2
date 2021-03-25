@@ -164,3 +164,7 @@ def get_annotated_sv_vcf():
 
 def get_wrapper_path(*dirs):
     return "file:%s" % os.path.join(workflow.basedir, "wrappers", *dirs)
+
+def get_eh_json():
+    """Get the EH JSON of all samples."""
+    return ["str/EH/{}-{}.json".format(sample, units.loc[sample].unit[0]) for sample in samples.index]
