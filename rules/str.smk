@@ -20,7 +20,7 @@ rule EH_report:
     output:
         tsv = "str/EH/{project}_EH_str.tsv",
         annot = "str/EH/{project}_EH_str.annot.tsv",
-        xlsx = "str/EH/{project}_EH_v1.1.xlsx"
+        xlsx = "report/str/{project}_EH_v1.1.xlsx"
     log:
         "logs/str/{project}-eh-report.log"
     params:

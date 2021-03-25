@@ -9,6 +9,7 @@ rule all:
         expand("report/{p}", p=["panel", "panel-flank"]) if config["run"]["panel"] else [],
         "report/coding",
         "report/sv",
+        "report/str/{project}_EH_v1.1.xlsx",
         "qc/multiqc/multiqc.html",
         "plots/depths.svg",
         "plots/allele-freqs.svg",
