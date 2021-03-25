@@ -13,3 +13,25 @@ rule EH:
         "logs/str/{sample}-{unit}-EH.log"
     wrapper:
         get_wrapper_path("EH")
+
+rule EH_report:
+    input:
+        json = get_eh_json()
+    output:
+        tsv = "str/EH/{project}_EH_str.tsv",
+        annot = "str/EH/{project}_EH_str.annot.tsv",
+        xlsx = "str/EH/{project}_EH_v1.1.xlsx"
+    log:
+        "logs/str/{project}-eh-report.log"
+    params:
+        trf = config["annotation"]["eh"]["trf"]
+        crg2 = config["tools"]["crg2"]
+        1000g = config["annotation"]["eh"]["1000g"]
+    conda:
+        "../envs/eh-report.yaml"
+    shell:
+        '''
+        python {params.crg2}/scripts/generate_EH_genotype_table.generic.py str/EH > {output} > {log} 2>&1
+        python {params.crg2}/scripts/add_gene+threshold_to_EH_column_headings2.py {output.tsv} {params.trf} > {output.annot} > {log} 2>&1
+        python {params.crg2}/scripts/eh_sample_report.py {output.annot} {params.1000g} {output.xlsx} > {log} 2>&1
+        '''
