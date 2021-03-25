@@ -11,7 +11,17 @@ rule all:
         "report/sv",
         "qc/multiqc/multiqc.html",
         "plots/depths.svg",
-        "plots/allele-freqs.svg"
+        "plots/allele-freqs.svg",
+        "programs-{}.txt".format(PIPELINE_VERSION)
+
+localrules: write_version
+rule write_version:
+    output: "programs-{}.txt".format(PIPELINE_VERSION)
+    params: config["tools"]["crg2"]
+    shell:
+        '''
+        sh {params}/get_dependency.sh {params} {output}
+        '''
 
 ##### Modules #####
 
