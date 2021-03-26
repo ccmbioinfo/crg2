@@ -26,12 +26,12 @@ rule EH_report:
     params:
         trf = config["annotation"]["eh"]["trf"]
         crg2 = config["tools"]["crg2"]
-        1000g = config["annotation"]["eh"]["1000g"]
+        g1000 = config["annotation"]["eh"]["1000g"]
     conda:
         "../envs/eh-report.yaml"
     shell:
         '''
-        python {params.crg2}/scripts/generate_EH_genotype_table.generic.py str/EH > {output} > {log} 2>&1
+        python {params.crg2}/scripts/generate_EH_genotype_table.generic.py str/EH > {output.tsv} > {log} 2>&1
         python {params.crg2}/scripts/add_gene+threshold_to_EH_column_headings2.py {output.tsv} {params.trf} > {output.annot} > {log} 2>&1
-        python {params.crg2}/scripts/eh_sample_report.py {output.annot} {params.1000g} {output.xlsx} > {log} 2>&1
+        python {params.crg2}/scripts/eh_sample_report.py {output.annot} {params.g1000} {output.xlsx} > {log} 2>&1
         '''
