@@ -59,9 +59,9 @@ def setup_directories(family, sample_list, filepath, step):
                 return False
         return True
     
-    #fastq: no directory creations required
+    #fastq: no directory creations required; inputs can be fastq or bam
     if step == "fastq":
-        if len(sample_list) == len([i for i in sample_list if i.fq1 ]):
+        if len(sample_list) == len([i for i in sample_list if i.fq1 ]) or len(sample_list) == len([i for i in sample_list if i.bam ]):
             return True
     
 
