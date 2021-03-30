@@ -5,9 +5,6 @@ properties:
   sample:
     type: string
     description: sample name/id the unit has been sequenced from
-  unit:
-    type: string
-    description: unit id
   platform:
     type: string
     enum: ["CAPILLARY", "LS454", "ILLUMINA", "SOLID", "HELICOS", "IONTORRENT", "ONT", "PACBIO"]
@@ -22,5 +19,4 @@ properties:
     description: path to bam file (fill this in if fastqs are not available)
 required:
   - sample
-  - unit
   - platform
