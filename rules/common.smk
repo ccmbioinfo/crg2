@@ -159,7 +159,7 @@ def get_recal_input(bai=False):
 
 def get_annotated_sv_vcf():
     """Get the annotated MetaSV vcf of given sample."""
-    return ["sv/metasv/{}-{}/variants.snpeff.svscore.vcf".format(sample, units.loc[sample].unit[0]) for sample in samples.index]
+    return ["sv/metasv/{family}_{sample}/variants.snpeff.svscore.vcf".format(sample=sample, family=project) for sample in samples.index]
 
 def get_wrapper_path(*dirs):
     return "file:%s" % os.path.join(workflow.basedir, "wrappers", *dirs)
