@@ -10,8 +10,8 @@ rule all:
         "report/coding/{family}".format(family=config["run"]["project"]),
         "report/sv",
         "qc/multiqc/multiqc.html",
-        "plots/depths.svg",
-        "plots/allele-freqs.svg"
+        #"plots/depths.svg",
+        #"plots/allele-freqs.svg"
 
 ##### Modules #####
 
