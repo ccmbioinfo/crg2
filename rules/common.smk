@@ -143,7 +143,7 @@ def get_call_variants_params(wildcards, input):
 def get_recal_input(bai=False):
     # case 1: no duplicate removal
     f = "mapped/{family}_{sample}.sorted.bam"
-    if config["processing"]["remove-duplicates"]:
+    if config["processing"]["mark-duplicates"]:
         # case 2: remove duplicates
         f = "dedup/{family}_{sample}.bam"
     if bai:
