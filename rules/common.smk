@@ -102,7 +102,7 @@ def is_single_end(sample, unit):
 
 def get_read_group(wildcards):
     """Denote sample name and platform in read group."""
-    return r"-R '@RG\tID:{project}_{sample}\tSM:{project}_{sample}\tPL:{platform}'".format(
+    return r"-R '@RG\tID:{family}_{sample}\tSM:{family}_{sample}\tPL:{platform}'".format(
         family=wildcards.family,
         sample=wildcards.sample,
         platform=units.loc[(wildcards.sample), "platform"])
