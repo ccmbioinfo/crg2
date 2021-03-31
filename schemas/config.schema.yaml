@@ -86,14 +86,14 @@ properties:
   processing:
     type: object
     properties:
-      remove-duplicates:
+      mark-duplicates:
         type: boolean
       restrict-regions:
         type: string
       region-padding:
         type: integer
     required:
-      - remove-duplicates
+      - mark-duplicates
 
   annotation:
     type: object
