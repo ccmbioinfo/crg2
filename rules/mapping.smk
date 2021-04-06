@@ -69,8 +69,8 @@ rule recalibrate_base_qualities:
 
 rule realignertargetcreator:
     input:
-        bam = "mapped/{sample}-{unit}.sorted.bam",
-        bai = "mapped/{sample}-{unit}.sorted.bam.bai",
+        bam = get_recal_input(),
+        bai = get_recal_input(bai=True),
         ref = config["ref"]["genome"],
         known = config["ref"]["known-variants"]
     output:
@@ -92,8 +92,8 @@ rule realignertargetcreator:
 
 rule indelrealigner:
     input:
-        bam = "mapped/{sample}-{unit}.sorted.bam",
-        bai = "mapped/{sample}-{unit}.sorted.bam.bai",
+        bam = get_recal_input(),
+        bai = get_recal_input(bai=True),
         ref = config["ref"]["genome"],
         known = config["ref"]["known-variants"],
         target_intervals="recal/gatk3/realignertargetcreator/{sample}-{unit}.intervals",
@@ -111,8 +111,8 @@ rule indelrealigner:
 
 rule mosdepth:
     input:
-        bam = "mapped/{sample}-{unit}.sorted.bam",
-        bai = "mapped/{sample}-{unit}.sorted.bam.bai",
+        bam = get_recal_input(),
+        bai = get_recal_input(bai=True),
     output:
         qbed = "mapped/{sample}-{unit}.quantized.bed.gz",
         bed = "mapped/{sample}-{unit}-callable.bed"
