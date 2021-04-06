@@ -151,6 +151,18 @@ def get_recal_input(bai=False):
     if config["processing"]["remove-duplicates"]:
         # case 2: remove duplicates
         f = "dedup/{sample}-{unit}.bam"
+    if bai or  config["processing"].get("restrict-regions"):
+            # case 3: need an index because random access is required
+            f += ".bai"
+    return f
+    
+
+def get_recal_input_gatk3(bai=False):
+    # case 1: no duplicate removal
+    f = "mapped/{sample}-{unit}.sorted.bam"
+    if config["processing"]["remove-duplicates"]:
+        # case 2: remove duplicates
+        f = "dedup/{sample}-{unit}.bam"
     if bai:
         if config["processing"].get("restrict-regions"):
             # case 3: need an index because random access is required
