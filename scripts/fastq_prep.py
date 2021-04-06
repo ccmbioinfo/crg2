@@ -59,19 +59,21 @@ def concatenate_fastq(r1, r2, family, sample):
     """
     if len(r1) > 1:  # multiple fastq files per end
         log_message(f"Multiple fastq files per end {sample}")
-        check_fastq(r1, r2)
+        #check_fastq(r1, r2)
         r1_args = " ".join(r1)
         r2_args = " ".join(r2)
         cmd_r1 = [f"cat {r1_args} > fastq/{family}_{sample}_R1.fastq.gz"]
         cmd_r2 = [f"cat {r2_args} > fastq/{family}_{sample}_R2.fastq.gz"]
+        log_message(f"Command: {cmd_r1}")
         subprocess.run(cmd_r1, shell=True)
+        log_message(f"Command: {cmd_r2}")
         subprocess.run(cmd_r2, shell=True)
 
 
     elif ".fastq" in r1[0] or ".fq" in r1[0] and  ".fastq" in r2[0] or ".fq" in r2[0]:
         # one fastq per end; symlink
         log_message(f"Single FASTQ file per end for {sample} ")
-        check_fastq(r1, r2)
+        #check_fastq(r1, r2)
         dest = os.path.join(f"fastq/{family}_{sample}_R1.fastq.gz")
         create_symlink(r1[0], dest)
         dest = os.path.join(f"fastq/{family}_{sample}_R2.fastq.gz")
