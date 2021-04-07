@@ -76,19 +76,6 @@ def is_nonalt(chrom):
     return is_autosomal_or_sex(chrom) or is_mitochondrial(chrom)
 
 
-def get_fastq(wildcards):
-    """Get fastq files of given family-sample."""
-    sample = wildcards.sample
-    family = wildcards.family
-    fastqs = units.loc[(sample), ["fq1", "fq2"]].dropna()
-    if len(fastqs) == 2:
-        return [fastqs.fq1, fastqs.fq2]
-    elif len(fastqs) == 1:
-        return [fastqs.fq1]
-    else:
-        return ["fastq/{family}_{sample}_1.fq".format(sample=sample, family=family), "fastq/{family}_{sample}_2.fq".format(sample=sample, family=family)]
-
-
 def get_bam(wildcards):
     """Get previously aligned bam files of given family-sample."""
     bam_file = units.loc[(wildcards.sample), ["bam"]].dropna()

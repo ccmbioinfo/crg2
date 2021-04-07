@@ -1,6 +1,6 @@
 rule fastqc:
     input:
-        unpack(get_fastq)
+        reads=["fastq/{family}_{sample}_R1.fastq.gz", "fastq/{family}_{sample}_R2.fastq.gz"]
     output:
         html="qc/fastqc/{family}_{sample}.html",
         zip="qc/fastqc/{family}_{sample}.zip"
@@ -23,7 +23,7 @@ rule samtools_stats:
 
 rule fastq_screen:
     input:
-        unpack(get_fastq)
+        reads=["fastq/{family}_{sample}_R1.fastq.gz", "fastq/{family}_{sample}_R2.fastq.gz"]
     output:
         txt="qc/fastq_screen/{family}_{sample}_screen.txt",
         png="qc/fastq_screen/{family}_{sample}_screen.png"
