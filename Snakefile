@@ -3,13 +3,13 @@ PIPELINE_VERSION="0.9.0"
 include: "rules/common.smk"
 
 ##### Target rules #####
-
+import datetime
 rule all:
     input:
         expand("report/{p}/{family}", p=["panel", "panel-flank"], family=config["run"]["project"]) if config["run"]["panel"] else [],
         "report/coding/{family}".format(family=config["run"]["project"]),
         "report/sv",
-        "report/str/{project}_EH_v1.1.xlsx",
+        "report/str/{family}.EH-v1.1.xlsx".format(family=config["run"]["project"]),
         "qc/multiqc/multiqc.html",
         #"plots/depths.svg",
         #"plots/allele-freqs.svg"
