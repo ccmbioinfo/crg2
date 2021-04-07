@@ -24,8 +24,8 @@ rule EH_report:
     log:
         "logs/str/{project}-eh-report.log"
     params:
-        trf = config["annotation"]["eh"]["trf"]
-        crg2 = config["tools"]["crg2"]
+        trf = config["annotation"]["eh"]["trf"],
+        crg2 = config["tools"]["crg2"],
         g1000 = config["annotation"]["eh"]["1000g"]
     conda:
         "../envs/eh-report.yaml"
