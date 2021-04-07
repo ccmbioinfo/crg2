@@ -2,21 +2,21 @@ rule fastqc:
     input:
         unpack(get_fastq)
     output:
-        html="qc/fastqc/{sample}-{unit}.html",
-        zip="qc/fastqc/{sample}-{unit}.zip"
+        html="qc/fastqc/{family}_{sample}.html",
+        zip="qc/fastqc/{family}_{sample}.zip"
     log:
-        "logs/fastqc/{sample}-{unit}.log"
+        "logs/fastqc/{family}_{sample}.log"
     wrapper:
         get_wrapper_path("fastqc")
 
 
 rule samtools_stats:
     input:
-        "recal/{sample}-{unit}.bam"
+        "recal/{family}_{sample}.bam"
     output:
-        "qc/samtools-stats/{sample}-{unit}.txt"
+        "qc/samtools-stats/{family}_{sample}.txt"
     log:
-        "logs/samtools-stats/{sample}-{unit}.log"
+        "logs/samtools-stats/{family}_{sample}.log"
     wrapper:
         get_wrapper_path("samtools", "stats")
 
@@ -25,10 +25,10 @@ rule fastq_screen:
     input:
         unpack(get_fastq)
     output:
-        txt="qc/fastq_screen/{sample}-{unit}_screen.txt",
-        png="qc/fastq_screen/{sample}-{unit}_screen.png"
+        txt="qc/fastq_screen/{family}_{sample}_screen.txt",
+        png="qc/fastq_screen/{family}_{sample}_screen.png"
     log:
-        "logs/fastq_screen/{sample}-{unit}.log"
+        "logs/fastq_screen/{family}_{sample}.log"
     params:
         fastq_screen_config="/hpf/largeprojects/ccm_dccforge/dccdipg/Common/qc/FastQ_Screen_Genomes/fastq_screen.conf", 
         aligner='bowtie2'
@@ -38,16 +38,16 @@ rule fastq_screen:
 
 rule qualimap:
     input: 
-        bam = "mapped/{sample}-{unit}.sorted.bam", 
-        bai = "mapped/{sample}-{unit}.sorted.bam.bai"
+        bam = "mapped/{family}_{sample}.sorted.bam", 
+        bai = "mapped/{family}_{sample}.sorted.bam.bai"
     output:
-        "qc/qualimap/{sample}-{unit}/genome_results.txt",
-        "qc/qualimap/{sample}-{unit}/qualimapReport.html",
-        "qc/qualimap/{sample}-{unit}/raw_data_qualimapReport/genome_fraction_coverage.txt",
-        "qc/qualimap/{sample}-{unit}/raw_data_qualimapReport/mapped_reads_gc-content_distribution.txt",
-        "qc/qualimap/{sample}-{unit}/raw_data_qualimapReport/coverage_histogram.txt"
+        "qc/qualimap/{family}_{sample}/genome_results.txt",
+        "qc/qualimap/{family}_{sample}/qualimapReport.html",
+        "qc/qualimap/{family}_{sample}/raw_data_qualimapReport/genome_fraction_coverage.txt",
+        "qc/qualimap/{family}_{sample}/raw_data_qualimapReport/mapped_reads_gc-content_distribution.txt",
+        "qc/qualimap/{family}_{sample}/raw_data_qualimapReport/coverage_histogram.txt"
     params:
-        out_dir = "qc/qualimap/{sample}-{unit}",
+        out_dir = "qc/qualimap/{family}_{sample}",
         nw = config["params"]["qualimap"]["nw"],
         hm = config["params"]["qualimap"]["hm"],
         c = config["params"]["qualimap"]["c"],
@@ -55,23 +55,23 @@ rule qualimap:
         extra = config["params"]["qualimap"]["extra"]
     threads: 8
     log:
-        "logs/qualimap/{sample}-{unit}.log"
+        "logs/qualimap/{family}_{sample}.log"
     wrapper:
         get_wrapper_path("qualimap")
 
 
 rule verifybamid2:
     input:
-        bam = "mapped/{sample}-{unit}.sorted.bam",
+        bam = "mapped/{family}_{sample}.sorted.bam",
         ref = config["ref"]["no_decoy"],
-        bai = "mapped/{sample}-{unit}.sorted.bam.bai"
+        bai = "mapped/{family}_{sample}.sorted.bam.bai"
     output:
-        sm = "qc/verifybamid2/{sample}-{unit}.selfSM",
+        sm = "qc/verifybamid2/{family}_{sample}.selfSM",
     log:
-        "logs/verifybamid2/{sample}-{unit}.log"
+        "logs/verifybamid2/{family}_{sample}.log"
     params: 
         svd_prefix = config["params"]["verifybamid2"]["svd_prefix"],
-        out_dir = "qc/verifybamid2/{sample}-{unit}" ,
+        out_dir = "qc/verifybamid2/{family}_{sample}" ,
         extra = config["params"]["verifybamid2"]["extra"]
     threads: 4
     wrapper:
@@ -79,18 +79,18 @@ rule verifybamid2:
 
 rule multiqc:
     input:
-        [expand(input_file, u=units.itertuples()) for input_file in ["qc/samtools-stats/{u.sample}-{u.unit}.txt", 
-                                                            "qc/fastqc/{u.sample}-{u.unit}.zip",
-                                                            "qc/fastqc/{u.sample}-{u.unit}.zip", 
-                                                            "qc/dedup/{u.sample}-{u.unit}.metrics.txt", 
-                                                            "qc/verifybamid2/{u.sample}-{u.unit}.selfSM", 
-                                                            "qc/qualimap/{u.sample}-{u.unit}/genome_results.txt", 
-                                                            "qc/qualimap/{u.sample}-{u.unit}/raw_data_qualimapReport/coverage_histogram.txt",
-                                                            "qc/qualimap/{u.sample}-{u.unit}/qualimapReport.html", 
-                                                            "qc/qualimap/{u.sample}-{u.unit}/raw_data_qualimapReport/genome_fraction_coverage.txt", 
-                                                            "qc/qualimap/{u.sample}-{u.unit}/raw_data_qualimapReport/mapped_reads_gc-content_distribution.txt",
-                                                            "qc/qualimap/{u.sample}-{u.unit}/raw_data_qualimapReport/mapped_reads_gc-content_distribution.txt", 
-                                                            "qc/fastq_screen/{u.sample}-{u.unit}_screen.txt"
+        [expand(input_file, sample=samples.index,family=project) for input_file in ["qc/samtools-stats/{family}_{sample}.txt", 
+                                                            "qc/fastqc/{family}_{sample}.zip",
+                                                            "qc/fastqc/{family}_{sample}.zip", 
+                                                            "qc/dedup/{family}_{sample}.metrics.txt", 
+                                                            "qc/verifybamid2/{family}_{sample}.selfSM", 
+                                                            "qc/qualimap/{family}_{sample}/genome_results.txt", 
+                                                            "qc/qualimap/{family}_{sample}/raw_data_qualimapReport/coverage_histogram.txt",
+                                                            "qc/qualimap/{family}_{sample}/qualimapReport.html", 
+                                                            "qc/qualimap/{family}_{sample}/raw_data_qualimapReport/genome_fraction_coverage.txt", 
+                                                            "qc/qualimap/{family}_{sample}/raw_data_qualimapReport/mapped_reads_gc-content_distribution.txt",
+                                                            "qc/qualimap/{family}_{sample}/raw_data_qualimapReport/mapped_reads_gc-content_distribution.txt", 
+                                                            "qc/fastq_screen/{family}_{sample}_screen.txt"
                                                                     ]]
     params:
     output:

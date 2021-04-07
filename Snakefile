@@ -6,13 +6,13 @@ include: "rules/common.smk"
 
 rule all:
     input:
-        expand("report/{p}", p=["panel", "panel-flank"]) if config["run"]["panel"] else [],
-        "report/coding",
+        expand("report/{p}/{family}", p=["panel", "panel-flank"], family=config["run"]["project"]) if config["run"]["panel"] else [],
+        "report/coding/{family}".format(family=config["run"]["project"]),
         "report/sv",
         "report/str/{project}_EH_v1.1.xlsx",
         "qc/multiqc/multiqc.html",
-        "plots/depths.svg",
-        "plots/allele-freqs.svg",
+        #"plots/depths.svg",
+        #"plots/allele-freqs.svg"
         "programs-{}.txt".format(PIPELINE_VERSION)
 
 localrules: write_version
