@@ -3,8 +3,8 @@ run:
   samples: samples.tsv
   units: units.tsv
   ped: "" # leave this string empty if there is no ped
-  panel: "" # leave this string empty if there is no panel
-  hpo: "" # leave this string empty is there are no hpo terms
+  panel: "" # three-column BED file based on hpo file; leave this string empty if there is no panel
+  hpo: "" # five-column TSV with HPO terms; leave this string empty is there are no hpo terms
   flank: 100000
 
 tools:
@@ -12,6 +12,7 @@ tools:
   annotsv: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/crg2-non-conda-tools/AnnotSV_2.1"
   cre: "~/cre"
   crg: "~/crg"
+  crg2: "~/crg2"
 
 ref:
   name: GRCh37.75
@@ -33,7 +34,7 @@ filtering:
       "QD < 2.0 || FS > 200.0 || ReadPosRankSum < -20.0"
 
 processing:
-  remove-duplicates: false
+  mark-duplicates: true
   # Uncomment and point to a bed file with, e.g., captured regions if necessary,
   # see https://gatkforums.broadinstitute.org/gatk/discussion/4133/when-should-i-use-l-to-pass-in-a-list-of-intervals.
   # restrict-regions: captured_regions.bed
@@ -60,7 +61,7 @@ annotation:
   svreport:
     hgmd: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/HGMD_2018/hgmd_pro.db"
     protein_coding_genes: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/grch37.p13.ensembl.sorted.protein.coding.genes.bed"
-    exon_bed: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/grch37.p13.ensembl.protein.coding.genes.exons.fixed.sorted.bed"
+    exon_bed: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/exons/hg19_UCSC_exons_canonical.bed"
     exac: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/ExAC/fordist_cleaned_nonpsych_z_pli_rec_null_data.txt"
     omim: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/OMIM_2020-04-09/genemap2.txt"
     gnomad: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/gnomad_v2_sv.sites.bed"
