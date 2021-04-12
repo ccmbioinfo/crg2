@@ -41,6 +41,37 @@ rule EH_report:
         prefix=`echo {output.xlsx} | awk '{{split($1,a,".xlsx"); print a[1]; }}'`;
         d=`date +%Y-%m-%d`
         outfile="${{prefix}}.${{d}}.xlsx";
-        echo "Copying final report to filaname with timestamp: $outfile" s> {log}
+        echo "Copying final report to filaname with timestamp: $outfile" > {log}
         cp {output.xlsx} $outfile
+        '''
+rule EHdn:
+    input: expand("mapped/{family}_{sample}.sorted.bam",family=config["run"]["project"], sample=samples.index)
+    output:
+        json = "str/EHDN/{family}_EHDN_str.tsv"
+    params:
+        crg = config["tools"]["crg"],
+        # ref = config["ref"]["genome"],
+        # irr_mapq = config["params"]["EHDN"]["irr_mapq"],
+        # anchor_mapq = config["params"]["EHDN"]["anchor_mapq"],
+    log:
+        "logs/str/{family}-EHdn.log"
+    shell:
+        '''
+        sh {params.crg}/crg.ehdn.sh {wildcards.family} crg2
+        '''
+rule EHdn_report:
+    input: "str/EHDN/{family}_EHDN_str.tsv".format(family=config["run"]["project"])
+    output: directory("report/str")
+    log: "logs/str/EHdn_report.log"
+    params:
+        crg = config["tools"]["crg"],
+        family = config["run"]["project"],
+        outdir = "str/EHDN"
+    shell:
+        '''
+        sh {params.crg}/ehdn_report.sh {params.family} {params.outdir}
+        date=`date +%Y-%m-%d`;
+        f={params.outdir}/outliers/{params.family}.EHDN.${{date}}.xlsx;
+        if [ -f $f ]; then mkdir -p report/str; mv $f report/str/ 
+        else exit; fi;
         '''
