@@ -44,13 +44,13 @@ processing:
 
 annotation:
   vcfanno:
-    conf: "~/crg/crg.vcfanno.conf" 
-    lua_script: "~/crg/crg.vcfanno.lua"
-    base_path: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/vcfanno"
+    conf: "~/crg2/vcfanno/crg.vcfanno.conf" 
+    lua_script: "~/crg2/vcfanno/crg.vcfanno.lua"
+    base_path: "/hpf/largeprojects/ccmbio/naumenko/tools/bcbio/genomes/Hsapiens/GRCh37/variation/"
   vep:
-    dir: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/snakemake/6ea37454/share/ensembl-vep-101.0-0/"
-    dir_cache: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/vep-cache"
-    maxentscan: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/snakemake/6ea37454/share/ensembl-vep-101.0-0/maxEntScan"
+    dir: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/snakemake/26de2304/share/ensembl-vep-100.4-0/"
+    dir_cache: "/hpf/largeprojects/ccmbio/naumenko/tools/bcbio/genomes/Hsapiens/GRCh37/vep/"
+    maxentscan: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/snakemake/26de2304/share/ensembl-vep-100.4-0/maxEntScan/"
     human_ancestor_fasta: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/human_ancestor.fa.gz"
   snpeff:
     dataDir: "/hpf/largeprojects/ccmbio/naumenko/tools/bcbio/genomes/Hsapiens/GRCh37/snpeff"
