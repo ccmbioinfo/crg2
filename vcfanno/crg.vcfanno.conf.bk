@@ -1,0 +1,88 @@
+[[annotation]]
+file="gnomad_exome.vcf.gz"
+fields=["AC","Hom","AF_POPMAX","AN"]
+names=["gnomad_ac_es","gnomad_hom_es","gnomad_af_es","gnomad_an_es"]
+ops=["first","first","first","first"]
+
+[[annotation]]
+file="gnomad_genome.normalized.vcf.gz"
+fields=["AC", "Hom","AF_POPMAX","AN"]
+names=["gnomad_ac_gs", "gnomad_hom_gs","gnomad_af_gs","gnomad_an_gs"]
+ops=["self","self","self","self"]
+
+[[postannotation]]
+fields=["gnomad_ac_es","gnomad_ac_gs"]
+op="sum"
+name="gnomad_ac"
+type="Integer"
+
+[[postannotation]]
+fields=["gnomad_hom_es","gnomad_hom_gs"]
+op="sum"
+name="gnomad_hom"
+type="Integer"
+
+[[postannotation]]
+fields=["gnomad_af_es","gnomad_af_gs"]
+op="max"
+name="gnomad_af_popmax"
+type="Float"
+
+[[postannotation]]
+fields=["gnomad_an_es","gnomad_an_gs"]
+op="sum"
+name="gnomad_an"
+type="Integer"
+
+[[postannotation]]
+fields=["gnomad_ac","gnomad_an"]
+op="div2"
+name="gnomad_af"
+type="Float"
+
+[[annotation]]
+file="dbsnp-151.vcf.gz"
+fields=["ID"]
+names=["rs_ids"]
+ops=["concat"]
+
+[[annotation]]
+file="clinvar.vcf.gz"
+fields=["CLNSIG","CLNREVSTAT"]
+names=["clinvar_pathogenic", "clinvar_status"]
+ops=["concat", "concat"]
+                    
+# convert 5 to 'pathogenic', 255 to 'unknown', etc.
+[[postannotation]]
+fields=["clinvar_pathogenic"]
+op="lua:clinvar_sig(clinvar_pathogenic)"
+name="clinvar_sig"
+type="String"
+
+#dbNSFP v3.4
+[[annotation]]
+file = "dbNSFP.txt.gz"
+names = ["CADD_phred","phyloP20way_mammalian","phastCons20way_mammalian","Vest3_score","Revel_score"]
+columns = [79,111,115,58,70]
+ops = ["first","first","first","first","first"]
+
+# gerp intervals
+[[annotation]]
+file = "grch37.gerp.elements.bed.gz"
+columns = [4]
+names = ["Gerp_score"]
+ops = ["self"]
+
+# spliceAI
+[[annotation]]
+file = "spliceai_scores.masked.indel.hg19.vcf.gz"
+fields = ["SpliceAI"]
+names = ["spliceai_score"]
+ops = ["self"]
+
+# spliceAI
+[[annotation]]
+file = "spliceai_scores.masked.snv.hg19.vcf.gz"
+fields = ["SpliceAI"]
+names = ["spliceai_score"]
+ops = ["self"]
