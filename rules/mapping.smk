@@ -35,7 +35,7 @@ rule map_reads:
     input:
         reads = ["fastq/{family}_{sample}_R1.fastq.gz", "fastq/{family}_{sample}_R2.fastq.gz"]
     output:
-        "mapped/{family}_{sample}.sorted.bam"
+        temp("mapped/{family}_{sample}.sorted.bam")
     log:
         "logs/bwa_mem/{family}_{sample}.log"
     params:
