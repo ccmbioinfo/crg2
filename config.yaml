@@ -42,6 +42,11 @@ processing:
   # flanking areas.
   # region-padding: 100
 
+qc:
+  fastq_screen:
+    conf: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/qc/FastQ_Screen_Genomes/fastq_screen.conf"
+  
+
 annotation:
   vcfanno:
     conf: "~/crg/crg.vcfanno.conf" 
@@ -82,7 +87,7 @@ params:
     GenotypeGVCFs: ""
     VariantRecalibrator: ""
   picard:
-    MarkDuplicates: "REMOVE_DUPLICATES=false"
+    MarkDuplicates: "MARK_DUPLICATES=false"
   qualimap:
     mem: "20G"
     nw: 400
