@@ -200,3 +200,20 @@ The pipeline generates 4 reports:
 3. wgs.panel.snv - a report on SNVs within the panel specified bed file with a 100kb flank on each side
 
 4. wgs.sv - a report on SVs across the entire genome
+
+## Benchmarking
+We can test pipeline performance by using the benchmark dataset NA12878 and compare the variants called in our pipeline against the truth calls from GIAB. NA12878 is used for small-variant calls, and default setting assumes the dataset is WGS. Uncomment the following line in `Snakefile` or pass the target name to `snakemake` command to start benchmarking
+
+```
+"validation/{family}".format(family=config["run"]["project"]),
+```
+Performance metrics are summzrized in this file `validation/{family}/summary.txt`. VCFs corresponding to each category (false-positive, true postives) along with files for roc plot are also written to the same directory. 
+
+Since, these truth calls are based on WGS, there will be higher number of false negatives when benchmarking WES datasets. To test on exome dataset, change the params line in "validation.smk" file as below,
+
+```
+rule benchmark:
+  params:
+    eval_bed=config["params"]["rtg-tools"]["vcfeval"]["wes_bed"]
+```
+
