@@ -1,0 +1,7 @@
+channels:
+  - conda-forge
+  - bioconda
+
+dependencies:
+  - tabix =0.2.6
+  - pbgzip =2016.08.04
