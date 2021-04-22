@@ -51,8 +51,8 @@ NA12878
 
 units.tsv
 ```
-sample	unit	platform	fq1	fq2
-NA12878	1	ILLUMINA	/hpf/largeprojects/ccm_dccforge/dccdipg/Common/NA12878/NA12878.bam_1.fq	/hpf/largeprojects/ccm_dccforge/dccdipg/Common/NA12878/NA12878.bam_2.fq
+sample	platform	fq1	fq2
+NA12878	ILLUMINA	/hpf/largeprojects/ccm_dccforge/dccdipg/Common/NA12878/NA12878.bam_1.fq	/hpf/largeprojects/ccm_dccforge/dccdipg/Common/NA12878/NA12878.bam_2.fq
 ```
 
 config.yaml
@@ -142,6 +142,7 @@ The SNV reports can be found in the directories:
   - report/coding/{PROJECT_ID}/{PROJECT_ID}.\*wes\*.csv
   - report/panel/{PROJECT_ID}/{PROJECT_ID}.\*wgs\*.csv
   - report/panel-flank/{PROJECT_ID}/{PROJECT_ID}.\*wgs\*.csv
+
 The SV reports can be found in the directory: 
   - report/sv/{PROJECt_ID}.wgs.{VER}.{DATE}.tsv.
 
