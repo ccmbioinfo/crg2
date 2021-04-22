@@ -12,6 +12,7 @@ rule all:
         "qc/multiqc/multiqc.html",
         #"plots/depths.svg",
         #"plots/allele-freqs.svg"
+        #"validation/{family}".format(family=config["run"]["project"]),
         "programs-{}.txt".format(PIPELINE_VERSION)
 
 localrules: write_version
@@ -34,3 +35,4 @@ include: "rules/annotation.smk"
 include: "rules/snvreport.smk"
 include: "rules/sv.smk"
 include: "rules/svreport.smk"
+include: "rules/validation.smk"
