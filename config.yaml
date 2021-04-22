@@ -96,3 +96,9 @@ params:
     java_opts: "-Xms750m -Xmx20g"
   svscore:
     operations: "max,sum,top5,top10,mean"
+  rtg-tools:
+    java_opts: "-Xmx20g"
+    vcfeval:
+      sdf: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/rtg-tools/GRch37_SDF/"
+      baseline: "/hpf/largeprojects/ccmbio/ccmmarvin_shared/validation/benchmarking/NISTv3.3.2/HG001_truth.vcf.gz"
+      wgs_bed: "/hpf/largeprojects/ccmbio/ccmmarvin_shared/validation/benchmarking/NISTv3.3.2/HG001_truth.bed"
