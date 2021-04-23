@@ -145,6 +145,10 @@ The SNV reports can be found in the directories:
 The SV reports can be found in the directory: 
   - report/sv/{PROJECt_ID}.wgs.{VER}.{DATE}.tsv.
 
+The STR reprots can be found in:
+  - report/str/{PROJECT_ID}.EH.v1.1.{DATE}.xlsx
+  - report/str/{PROJECT_ID}.EHDN.{DATE}.xlsx
+
 ## Pipeline details
 
 ### Pre-calling steps
@@ -182,6 +186,23 @@ The SV reports can be found in the directory:
 
 5. Generate an annotated report using crg
 
+### STR
+
+A. ExpansionHunter: known repeat location
+
+  1. Identify repeat expansions in sample BAM/CRAMs
+  2. Annotate repeats with disease threshold, gene name, repeat sizes from 1000Genome (mean& median) 
+  3. Generate per-family report as Excel file
+
+B. ExpansionHunterDenovo: denovo repeats
+
+  1. Identify denovo repeat in sample BAM/CRAMs
+  2. Combine individual JSONs from current family and 1000Genomes to a multi-sample TSV
+  3. Run DBSCAN clustering to identify outlier repeats
+  4. Annotate with gnoMAD, OMIM, ANNOVAR
+  5. Generate per-family report as Excel file
+
+
 ## Reports
 
 Column descriptions and more info on how variants are filtered can be found here:
@@ -190,7 +211,7 @@ SNV: https://docs.google.com/document/d/1zL4QoINtkUd15a0AK4WzxXoTWp2MRcuQ9l_P9-x
 
 SV: https://docs.google.com/document/d/1o870tr0rcshoae_VkG1ZOoWNSAmorCZlhHDpZuZogYE
 
-The pipeline generates 4 reports:
+The pipeline generates 6 reports:
 
 1. wgs.snv - a report on coding SNVs across the entire genome
 
@@ -199,3 +220,7 @@ The pipeline generates 4 reports:
 3. wgs.panel.snv - a report on SNVs within the panel specified bed file with a 100kb flank on each side
 
 4. wgs.sv - a report on SVs across the entire genome
+
+5. EH - a report on repeat expansions in known locations
+
+6. EHDN - a report on denovo repeats filtered from a case-control outlier analysis
