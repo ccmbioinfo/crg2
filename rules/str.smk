@@ -61,17 +61,21 @@ rule EHdn:
         '''
 rule EHdn_report:
     input: "str/EHDN/{family}_EHDN_str.tsv".format(family=config["run"]["project"])
-    output: directory("report/str")
-    log: "logs/str/EHdn_report.log"
+    output: "report/str/{family}.EHDN.xlsx"
+    log: "logs/str/{family}_EHdn_report.log"
     params:
+        repdir = "report/str",
         crg = config["tools"]["crg"],
         family = config["run"]["project"],
-        outdir = "str/EHDN"
+        outdir = "str/EHDN",
     shell:
         '''
         sh {params.crg}/ehdn_report.sh {params.family} {params.outdir}
         date=`date +%Y-%m-%d`;
         f={params.outdir}/outliers/{params.family}.EHDN.${{date}}.xlsx;
-        if [ -f $f ]; then mkdir -p report/str; mv $f report/str/ 
+        if [ -f $f ]; then 
+	    if [ ! -d {params.repdir} ]; then mkdir -p {params.repdir}; fi;
+    	mv $f {params.repdir}
+	    cp {params.repdir}/{params.family}.EHDN.${{date}}.xlsx {params.repdir}/{params.family}.EHDN.xlsx
         else exit; fi;
         '''
