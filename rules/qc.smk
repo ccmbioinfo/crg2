@@ -30,7 +30,7 @@ rule fastq_screen:
     log:
         "logs/fastq_screen/{family}_{sample}.log"
     params:
-        fastq_screen_config="/hpf/largeprojects/ccm_dccforge/dccdipg/Common/qc/FastQ_Screen_Genomes/fastq_screen.conf", 
+        fastq_screen_config=config["qc"]["fastq_screen"]["conf"], 
         aligner='bowtie2'
     threads: 4
     wrapper:

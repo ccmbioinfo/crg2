@@ -42,6 +42,10 @@ processing:
   # flanking areas.
   # region-padding: 100
 
+qc:
+  fastq_screen:
+    conf: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/qc/FastQ_Screen_Genomes/fastq_screen.conf"
+  
 annotation:
   vcfanno:
     conf: "~/crg2/vcfanno/crg.vcfanno.conf" 
