@@ -38,7 +38,7 @@ Make sure to replace ```~/crg2-conda``` with the path made in step 4. This will 
 - Unpack : ```tar -xzvf AnnotSV_2.1.tar.gz```
 - Set the value of $ANNOTSV in your .bashrc: ```export ANNOTSV=/path_of_AnnotSV_installation/bin```
 - Modify AnnotSV_2.1/configfile:
-  - add path to bedtools executable
+  - set ```-bedtools:              bedtools```
   - set ```-overlap:               50``` 
   - set ```-reciprocal             yes```
   - set ```-svtBEDcol:     4```
