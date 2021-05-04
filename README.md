@@ -33,6 +33,16 @@ Make sure to replace ```~/crg2-conda``` with the path made in step 4. This will 
 
 8. Replace the VEP path's to the VEP directory installed from step 6. Replace the cre path in crg2/config.yaml with the one from step 7.
 
+9. AnnotSV 2.1 is required for SV report generation.
+- Download AnnotSV:  ```wget https://lbgi.fr/AnnotSV/Sources/AnnotSV_2.1.tar.gz```
+- Unpack : ```tar -xzvf AnnotSV_2.1.tar.gz```
+- Set the value of $ANNOTSV in your .bashrc: ```export ANNOTSV=/path_of_AnnotSV_installation/bin```
+- Modify AnnotSV_2.1/configfile:
+  - set ```-bedtools:              bedtools```
+  - set ```-overlap:               50``` 
+  - set ```-reciprocal             yes```
+  - set ```-svtBEDcol:     4```
+
 ## Running the pipeline
 1. Make a folder in a directory with sufficient space. Copy over the template files samples.tsv, units.tsv, config.yaml.
 You may need to re-copy config.yaml and pbs_config.yaml if the files were recently updated in repo from previous crg2 runs. Note that 'pbs_config.yaml' is for submitting each rule as cluster jobs, so ignore this if not running on cluster

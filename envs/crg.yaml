@@ -7,3 +7,5 @@ dependencies:
   - scikit-allel >1.2
   - pybedtools >0.8.0
   - numpy >1.1
+  - bedtools ==2.29.0
+  - bcftools ==1.12
