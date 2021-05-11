@@ -1,3 +1,4 @@
+
 import pandas as pd
 from snakemake.utils import validate
 from snakemake.utils import min_version
@@ -150,3 +151,29 @@ def get_annotated_sv_vcf():
 
 def get_wrapper_path(*dirs):
     return "file:%s" % os.path.join(workflow.basedir, "wrappers", *dirs)
+
+
+def parse_ped_id(individual_id, family):
+    if individual_id != "0":
+        parsed_id = family + "_" + individual_id.replace(family, "")
+    else:
+        parsed_id = "0"
+
+    return parsed_id
+
+def format_pedigree(wildcards):
+    family = wildcards.family
+    ped = pd.read_csv(
+        config["run"]["ped"],
+        sep=" ",
+        header=None,
+        names=["fam_id", "individual_id", "pat_id", "mat_id", "sex", "phenotype"],
+    )
+
+    ped["fam_id"] = family
+    for col in ["individual_id", "pat_id", "mat_id"]:
+        ped[col] = [parse_ped_id(individual_id, family) for individual_id in ped[col].values]
+
+    ped.to_csv(f"{family}.ped", sep=" ", index=False, header=False)
+
+    return f"{family}.ped"
