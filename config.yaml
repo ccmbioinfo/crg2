@@ -103,3 +103,6 @@ params:
       baseline: "/hpf/largeprojects/ccmbio/ccmmarvin_shared/validation/benchmarking/NISTv3.3.2/HG001_truth.vcf.gz"
       wgs_bed: "/hpf/largeprojects/ccmbio/ccmmarvin_shared/validation/benchmarking/NISTv3.3.2/HG001_truth.bed"
       wes_bed: "/hpf/largeprojects/ccmbio/ccmmarvin_shared/validation/benchmarking/NISTv3.3.2/HG001_exome_truth.bed"
+  bcftools:
+    isec:
+      old_vcf: "/hpf/largeprojects/ccmbio/aarthi/proj_CHEO/CRG/1159R/bcbio-small-variants/1159R/1159R_2020-12-14/1159R-ensemble-annotated-decomposed.vcf.gz"
