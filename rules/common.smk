@@ -152,6 +152,9 @@ def get_annotated_sv_vcf():
 def get_wrapper_path(*dirs):
     return "file:%s" % os.path.join(workflow.basedir, "wrappers", *dirs)
 
+def get_eh_json(wildcards):
+    """Get the EH JSON of all samples."""
+    return ["str/EH/{}_{}.json".format(wildcards.family, sample) for sample in samples.index]
 
 def parse_ped_id(individual_id, family):
     if individual_id != "0":
@@ -177,3 +180,4 @@ def format_pedigree(wildcards):
     ped.to_csv(f"{family}.ped", sep=" ", index=False, header=False)
 
     return f"{family}.ped"
+
