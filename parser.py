@@ -48,7 +48,7 @@ def setup_directories(family, sample_list, filepath, step):
             if not os.path.isdir(start_folder):
                 os.mkdir(start_folder)
                 for i in sample_list:
-                    dest = "{}-{}.{}".format(i.sample,i.unit,folder_file_suffix[step])
+                    dest = "{}_{}.{}".format(family,i.sample,folder_file_suffix[step])
                     create_symlink(i.bam, os.path.join(start_folder, dest))
                     if os.path.isfile(i.bam + ".bai"):
                         src = i.bam + ".bai"
@@ -69,10 +69,10 @@ def write_proj_files(sample_list, filepath):
     units, samples = os.path.join(filepath, "units.tsv"), os.path.join(filepath, "samples.tsv")
     with open(units, "w") as u, open(samples, "w") as s:
         s.writelines("sample\n")
-        u.writelines("sample\tunit\tplatform\tfq1\tfq2\tbam\n")
+        u.writelines("sample\tplatform\tfq1\tfq2\tbam\n")
         for i in sample_list:
             s.writelines(f"{i.sample}\n")
-            u.writelines(f"{i.sample}\t{i.unit}\t{i.platform}\t{i.fq1}\t{i.fq2}\t{i.bam}\n")
+            u.writelines(f"{i.sample}\t{i.platform}\t{i.fq1}\t{i.fq2}\t{i.bam}\n")
             
 
 def submit_jobs(directory, family):
@@ -142,54 +142,16 @@ if __name__ == "__main__":
             help="Absolute path where crg2 directory struture will be created under familyID as base directory",
         )
     projects = {}
-    Units = namedtuple("Units", "sample unit platform fq1 fq2 bam")
-    unit, platform = 1, "ILLUMINA"
+    Units = namedtuple("Units", "sample platform fq1 fq2 bam")
+    platform = "ILLUMINA"
     args = parser.parse_args()
     with open(args.file) as f:
         for i in f:
             if not i.startswith("familyID"):
-                family, sample, inp = i.strip().split("\t")
-                bam, fq1, fq2 = "", "", ""
-                if ".bam" in inp:
-                    if os.path.isfile(inp):
-                        bam = inp
-                    else:
-                        print(f"\tBAM: {inp} was not found! Exiting!")
-                        exit()
-                elif any(s in inp for s in [".fastq", ".fq", ".fastq.gz", ".fq.gz"]):
-                    if "," in inp and len(inp.split(",")) == 2:
-                        #pair of fastq
-                        fq = inp.split(",")
-                        for item in fq:
-                            if "R1" in item:
-                                fq1 = item
-                            elif "R2" in item:
-                                fq2 = item
-                            else:
-                                pass
-                        if os.path.isfile(fq1) and os.path.isfile(fq2):
-                            fq1, fq2 = fq1, fq2
-                        else:
-                            print(f"\tFASTQ: {fq1} or {fq2} were not found.")
-                            print(f"\tExpects one FASTQ per end and comma-seperated as the 3rd column")
-                            print(f"\tIf each end is split across multiple file, concatenate them manually")
-                            print(f"\tfirst, and pass the concatenated fastq file pairs here. Exiting!" )
-                            exit()
-                    # else:
-                        # pass
-                        # bpath = os.path.dirname(inp)
-                        # prefix, suffix = os.path.basename(inp).split("_R1")
-                        # r2 = os.path.join(bpath, prefix + "_R2" + suffix)
-                        # if os.path.isfile(r2) and os.path.isfile(inp):
-                        #     fq1, fq2 = inp, r2
-                        # else:
-                        #     print(f"{inp} or {r2} was not found")
-                else:
-                    print("Unhandled input type! Exiting")
-                    exit()
+                family, sample, fq1, fq2, bam = i.strip("\n").split("\t")
                 if not family in projects:
                     projects[family] = []
-                projects[family].append(Units(sample, unit, platform, fq1, fq2, bam))
+                projects[family].append(Units(sample, platform, fq1, fq2, bam))
 
     for i in projects:
         

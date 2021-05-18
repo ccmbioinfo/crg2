@@ -25,6 +25,8 @@ rule allsnvreport:
          cd ../
          if [ {wildcards.p} == "coding" ]; then  
          {params.cre}/cre.sh {project} 
+         elif [ {wildcards.p} == "denovo" ]; then  
+         type=denovo {params.cre}/cre.sh {project} 
          else
          type=wgs {params.cre}/cre.sh {project}
          unset type

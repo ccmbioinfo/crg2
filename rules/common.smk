@@ -1,3 +1,4 @@
+
 import pandas as pd
 from snakemake.utils import validate
 from snakemake.utils import min_version
@@ -74,19 +75,6 @@ def is_nonalt(chrom):
     """Check that a chromosome is on 1-22, X, Y, MT.
     """
     return is_autosomal_or_sex(chrom) or is_mitochondrial(chrom)
-
-
-def get_fastq(wildcards):
-    """Get fastq files of given family-sample."""
-    sample = wildcards.sample
-    family = wildcards.family
-    fastqs = units.loc[(sample), ["fq1", "fq2"]].dropna()
-    if len(fastqs) == 2:
-        return [fastqs.fq1, fastqs.fq2]
-    elif len(fastqs) == 1:
-        return [fastqs.fq1]
-    else:
-        return ["fastq/{family}_{sample}_1.fq".format(sample=sample, family=family), "fastq/{family}_{sample}_2.fq".format(sample=sample, family=family)]
 
 
 def get_bam(wildcards):
@@ -167,3 +155,29 @@ def get_wrapper_path(*dirs):
 def get_eh_json(wildcards):
     """Get the EH JSON of all samples."""
     return ["str/EH/{}_{}.json".format(wildcards.family, sample) for sample in samples.index]
+
+def parse_ped_id(individual_id, family):
+    if individual_id != "0":
+        parsed_id = family + "_" + individual_id.replace(family, "")
+    else:
+        parsed_id = "0"
+
+    return parsed_id
+
+def format_pedigree(wildcards):
+    family = wildcards.family
+    ped = pd.read_csv(
+        config["run"]["ped"],
+        sep=" ",
+        header=None,
+        names=["fam_id", "individual_id", "pat_id", "mat_id", "sex", "phenotype"],
+    )
+
+    ped["fam_id"] = family
+    for col in ["individual_id", "pat_id", "mat_id"]:
+        ped[col] = [parse_ped_id(individual_id, family) for individual_id in ped[col].values]
+
+    ped.to_csv(f"{family}.ped", sep=" ", index=False, header=False)
+
+    return f"{family}.ped"
+

@@ -13,7 +13,7 @@ local-cores: 1
 rerun-incomplete: true  # recommended for cluster submissions
 restart-times: 3
 keep-going: false
-notemp: true
+notemp: false
 immediate-submit: false
 latency-wait: 60
 verbose: true
