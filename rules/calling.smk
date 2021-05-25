@@ -23,7 +23,7 @@ rule call_variants:
         known=config["ref"]["known-variants"],
         regions="called/{contig}.regions.bed" if config["processing"].get("restrict-regions") else []
     output:
-        gvcf=protected("called/{family}_{sample}.{contig}.g.vcf.gz")
+        gvcf=temp("called/{family}_{sample}.{contig}.g.vcf.gz")
     log:
         "logs/gatk/haplotypecaller/{family}_{sample}.{contig}.log"
     params:
@@ -41,7 +41,7 @@ rule combine_calls:
         ref=config["ref"]["genome"],
         gvcfs=expand("called/{{family}}_{sample}.{{contig}}.g.vcf.gz", sample=samples.index)
     output:
-        gvcf="called/{family}.{contig}.g.vcf.gz"
+        gvcf=temp("called/{family}.{contig}.g.vcf.gz")
     params:
         java_opts=config["params"]["gatk"]["java_opts"],
     log:
