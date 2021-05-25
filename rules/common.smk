@@ -166,18 +166,22 @@ def parse_ped_id(individual_id, family):
 
 def format_pedigree(wildcards):
     family = wildcards.family
-    ped = pd.read_csv(
-        config["run"]["ped"],
-        sep=" ",
-        header=None,
-        names=["fam_id", "individual_id", "pat_id", "mat_id", "sex", "phenotype"],
-    )
+    ped = config["run"]["ped"]
+    if ped == "":
+        return None
+    else:
+        ped = pd.read_csv(
+            ped,
+            sep=" ",
+            header=None,
+            names=["fam_id", "individual_id", "pat_id", "mat_id", "sex", "phenotype"],
+        )
 
-    ped["fam_id"] = family
-    for col in ["individual_id", "pat_id", "mat_id"]:
-        ped[col] = [parse_ped_id(individual_id, family) for individual_id in ped[col].values]
+        ped["fam_id"] = family
+        for col in ["individual_id", "pat_id", "mat_id"]:
+            ped[col] = [parse_ped_id(individual_id, family) for individual_id in ped[col].values]
 
-    ped.to_csv(f"{family}.ped", sep=" ", index=False, header=False)
+        ped.to_csv(f"{family}.ped", sep=" ", index=False, header=False)
 
-    return f"{family}.ped"
+        return f"{family}.ped"
 
