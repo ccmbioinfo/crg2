@@ -1,6 +1,8 @@
 def get_filt_vcf(wildcards):
     if wildcards.p == "coding":
         return "filtered/{family}.vcf.gz"
+    elif wildcards.p == "denovo":
+        return "filtered/{family}.vcf.gz"
     else:
         return "filtered/{p}/{family}.{p}.vcf.gz".format(p=wildcards.p,family=project)
 
@@ -74,7 +76,7 @@ rule vcf2db:
     log:
         "logs/vcf2db/{family}.vcf2db.{p}.log"
     params:
-        ped=config["run"]["ped"],
+        ped=format_pedigree
     threads: 1
     resources:
         mem_mb = 20000

@@ -1,4 +1,5 @@
 ruleorder: bamtofastq > fastq_prep
+ruleorder: gzip_fastq > fastq_prep
 
 
 rule bamtofastq:
@@ -8,8 +9,8 @@ rule bamtofastq:
         outdir = temp("fastq/"),
         sort_check = True
     output:
-        fastq1 = temp("fastq/{family}_{sample}_R1.fastq.gz"),
-        fastq2 = temp( "fastq/{family}_{sample}_R2.fastq.gz")
+        fastq1 = temp("fastq/{family}_{sample}_R1.fastq"),
+        fastq2 = temp( "fastq/{family}_{sample}_R2.fastq")
     log:
         "logs/bamtofastq/{family}_{sample}.log"
     threads:
@@ -109,3 +110,13 @@ rule samtools_index:
         "{prefix}.bam.bai"
     wrapper:
         get_wrapper_path("samtools", "index")
+
+rule gzip_fastq:
+    input:
+        "{prefix}.fastq"
+    output:
+        "{prefix}.fastq.gz"
+    shell:
+        """
+        gzip {input}
+        """
