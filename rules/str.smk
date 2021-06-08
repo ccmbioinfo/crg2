@@ -1,14 +1,14 @@
 rule EH:
     input:
-        bam="mapped/{family}_{sample}.sorted.bam",
-        bai="mapped/{family}_{sample}.sorted.bam.bai"
+        bam="decoy_rm/{family}_{sample}.no_decoy_reads.bam",
+        bai="decoy_rm/{family}_{sample}.no_decoy_reads.bam.bai"
     output:
         json = "str/EH/{family}_{sample}.json",
         vcf = "str/EH/{family}_{sample}.vcf",
         bam = "str/EH/{family}_{sample}_realigned.bam"
     params:
         ref = config["ref"]["genome"],
-        sex = lambda w: "`sh {}/scripts/str_helper.sh mapped/{}_{}.sorted.bam`".format(workflow.basedir, w.family, w.sample),
+        sex = lambda w: "`sh {}/scripts/str_helper.sh decoy_rm/{}_{}.no_decoy_reads.bam`".format(workflow.basedir, w.family, w.sample),
         catalog = config["annotation"]["eh"]["catalog"]
     log:
         "logs/str/{family}_{sample}-EH.log"
@@ -45,7 +45,7 @@ rule EH_report:
         cp {output.xlsx} $outfile
         '''
 rule EHdn:
-    input: expand("mapped/{family}_{sample}.sorted.bam",family=config["run"]["project"], sample=samples.index)
+    input: expand("decoy_rm/{family}_{sample}.no_decoy_reads.bam",family=config["run"]["project"], sample=samples.index)
     output:
         json = "str/EHDN/{family}_EHDN_str.tsv"
     params:
