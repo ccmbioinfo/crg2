@@ -7,6 +7,8 @@ import datetime
 rule all:
     input:
         expand("report/{p}/{family}", p=["panel", "panel-flank"], family=config["run"]["project"]) if config["run"]["panel"] else [],
+        expand("report/{p}/{family}", p=["denovo"], family=config["run"]["project"]) if config["run"]["ped"] else [],
+        expand("report/{p}/{family}", p=["panel", "panel-flank", "denovo"], family=config["run"]["project"]) if config["run"]["panel"] and config["run"]["ped"] else [],
         "report/coding/{family}".format(family=config["run"]["project"]),
         "report/sv",
         "report/str/{family}.EH-v1.1.xlsx".format(family=config["run"]["project"]),
