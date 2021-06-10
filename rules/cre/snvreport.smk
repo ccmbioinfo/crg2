@@ -15,10 +15,10 @@ rule allsnvreport:
          ref=config["ref"]["genome"]
     shell:
          '''
-         mkdir -p {output}/{project}
-         cd {output}/{project}
-         ln -s ../../../{input.db} {project}-ensemble.db
-         bgzip ../../../{input.vcf} -c > {project}-gatk-haplotype-annotated-decomposed.vcf.gz
+         mkdir -p {output}
+         cd {output}
+         ln -s ../../{input.db} {project}-ensemble.db
+         bgzip ../../{input.vcf} -c > {project}-gatk-haplotype-annotated-decomposed.vcf.gz
          tabix {project}-gatk-haplotype-annotated-decomposed.vcf.gz
          ln -s {project}-gatk-haplotype-annotated-decomposed.vcf.gz {project}-ensemble-annotated-decomposed.vcf.gz
          ln -s {project}-gatk-haplotype-annotated-decomposed.vcf.gz.tbi {project}-ensemble-annotated-decomposed.vcf.gz.tbi
