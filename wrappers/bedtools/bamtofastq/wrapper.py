@@ -28,9 +28,11 @@ if snakemake.params.sort_check:
         bamtofastq_cmd = (
             " bedtools bamtofastq -i /dev/stdin "
             "-fq {snakemake.output.fastq1} "
-            "-fq2 {snakemake.output.fastq2}"
+            "-fq2 {snakemake.output.fastq2}; "
         )
 
-shell(
-    "(" + sort_cmd + bamtofastq_cmd + ") {log}"
-)
+        fq1_gzip_cmd = " gzip {snakemake.output.fastq1}; "
+
+        fq2_gzip_cmd = " gzip {snakemake.output.fastq2}; "
+
+shell("(" + sort_cmd + bamtofastq_cmd + fq1_gzip_cmd + fq2_gzip_cmd + ") {log}")

@@ -6,7 +6,7 @@ https://snakemake.readthedocs.io/en/v5.1.4/executable.html#profiles
 https://snakemake.readthedocs.io/en/v5.10.0/executing/cluster-cloud.html
 
 ```
-pbs_profile is the profile folder with all the relevant files and settings for PBS job submission.
+crg2/pbs_profile is the profile folder with all the relevant files and settings for PBS job submission.
     |- config.yaml: contains common cluster parameters
     |- pbs_config.yaml: contains default and rule specific cluster settings like memory, nodes, walltime etc.,
     |- pbs_submit.py: script to create the 'qsub' commands for each job

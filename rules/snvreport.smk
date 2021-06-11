@@ -1,13 +1,13 @@
 rule allsnvreport:
     input:
-        db="annotated/{p}/gemini.db",
-        vcf="annotated/{p}/vcfanno/all.{p}.vep.vcfanno.vcf"
+        db="annotated/{p}/{family}-gemini.db",
+        vcf="annotated/{p}/vcfanno/{family}.{p}.vep.vcfanno.vcf"
     output:
-        directory("report/{p}")
+        directory("report/{p}/{family}")
     conda:
         "../envs/cre.yaml"
     log:
-        "logs/report/{p}/cre.log"
+        "logs/report/{p}/{family}.cre.log"
     resources:
          mem_mb=40000
     params:
@@ -15,8 +15,8 @@ rule allsnvreport:
          ref=config["ref"]["genome"]
     shell:
          '''
-         mkdir -p {output}/{project}
-         cd {output}/{project}
+         mkdir -p {output}
+         cd {output}
          ln -s ../../../{input.db} {project}-ensemble.db
          bgzip ../../../{input.vcf} -c > {project}-gatk-haplotype-annotated-decomposed.vcf.gz
          tabix {project}-gatk-haplotype-annotated-decomposed.vcf.gz
@@ -25,6 +25,8 @@ rule allsnvreport:
          cd ../
          if [ {wildcards.p} == "coding" ]; then  
          {params.cre}/cre.sh {project} 
+         elif [ {wildcards.p} == "denovo" ]; then  
+         type=denovo {params.cre}/cre.sh {project} 
          else
          type=wgs {params.cre}/cre.sh {project}
          unset type
@@ -49,13 +51,13 @@ if config["run"]["panel"]:
 
     rule intersect:
         input: 
-            left="filtered/all.vcf.gz",
+            left="filtered/{family}.vcf.gz",
             right=get_bed
         output:
-            vcf="filtered/{p}/all.{p}.vcf.gz"
+            vcf="filtered/{p}/{family}.{p}.vcf.gz"
         params:
             extra="-header"
-        log: "logs/report/bedtools-{p}.log"
+        log: "logs/report/bedtools-{family}-{p}.log"
         wrapper:
             get_wrapper_path("bedtools", "intersect")
             

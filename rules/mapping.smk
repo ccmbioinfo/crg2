@@ -1,3 +1,6 @@
+ruleorder: bamtofastq > fastq_prep
+
+
 rule bamtofastq:
     input:
         bam_file = get_bam
@@ -5,22 +8,36 @@ rule bamtofastq:
         outdir = temp("fastq/"),
         sort_check = True
     output:
-        fastq1 = temp("fastq/{sample}-{unit}_1.fq"),
-        fastq2 = temp("fastq/{sample}-{unit}_2.fq")
+        fastq1 = temp("fastq/{family}_{sample}_R1.fastq.gz"),
+        fastq2 = temp( "fastq/{family}_{sample}_R2.fastq.gz")
     log:
-        "logs/bamtofastq/{sample}-{unit}.log"
+        "logs/bamtofastq/{family}_{sample}.log"
     threads:
         8
     wrapper:
         get_wrapper_path("bedtools", "bamtofastq")
 
+
+rule fastq_prep:
+    input: 
+        units = config["run"]["units"]
+    output:
+        reads = temp(["fastq/{family}_{sample}_R1.fastq.gz", "fastq/{family}_{sample}_R2.fastq.gz"])
+    log:
+         "logs/fastq_prep/{family}_{sample}.log"
+    conda:
+        "../envs/crg.yaml"
+    script:
+        "../scripts/fastq_prep.py"
+
+
 rule map_reads:
     input:
-        reads = get_fastq
+        reads = ["fastq/{family}_{sample}_R1.fastq.gz", "fastq/{family}_{sample}_R2.fastq.gz"]
     output:
-        temp("mapped/{sample}-{unit}.sorted.bam")
+        temp("mapped/{family}_{sample}.sorted.bam")
     log:
-        "logs/bwa_mem/{sample}-{unit}.log"
+        "logs/bwa_mem/{family}_{sample}.log"
     params:
         index = config["ref"]["genome"],
         extra = get_read_group,
@@ -38,12 +55,12 @@ rule map_reads:
 
 rule mark_duplicates:
     input:
-        "mapped/{sample}-{unit}.sorted.bam"
+        "mapped/{family}_{sample}.sorted.bam"
     output:
-        bam = temp("dedup/{sample}-{unit}.bam"),
-        metrics = "qc/dedup/{sample}-{unit}.metrics.txt"
+        bam = temp("dedup/{family}_{sample}.bam"),
+        metrics = "qc/dedup/{family}_{sample}.metrics.txt"
     log:
-        "logs/picard/dedup/{sample}-{unit}.log"
+        "logs/picard/dedup/{family}_{sample}.log"
     params:
         config["params"]["picard"]["MarkDuplicates"]
     wrapper:
@@ -58,12 +75,12 @@ rule recalibrate_base_qualities:
         known = config["ref"]["known-variants"],
         bed = "mapped/{sample}-{unit}-callable.bed" 
     output:
-        bam = protected("recal/{sample}-{unit}.bam")
+        bam = protected("recal/{family}_{sample}.bam")
     params:
         extra = get_regions_param() + config["params"]["gatk"]["BaseRecalibrator"],
         java_opts = config["params"]["gatk"]["java_opts"],
     log:
-        "logs/gatk/bqsr/{sample}-{unit}.log"
+        "logs/gatk/bqsr/{family}_{sample}.log"
     wrapper:
         get_wrapper_path("gatk", "baserecalibrator")
 
@@ -172,12 +189,12 @@ rule remove_decoy:
     #redirect first samtools command to a temp output file "decoy.bam" 
     #otherwise it floods the log file with binary stream of decoy reads
     input:
-        bam = "recal/{sample}-{unit}.bam",
+        bam = "recal/{family}_{sample}.bam",
         canon = config["ref"]["canon_bed"],
     output:
-        out_f = temp("decoy_rm/{sample}-{unit}.no_decoy_reads.bam")
+        out_f = protected("decoy_rm/{family}_{sample}.no_decoy_reads.bam")
     log:
-        "logs/remove_decoys/{sample}-{unit}.log"
+        "logs/remove_decoys/{family}_{sample}.log"
     threads: 8
     resources: mem_mb = 10000
     conda:
@@ -194,3 +211,4 @@ rule samtools_index:
         "{prefix}.bam.bai"
     wrapper:
         get_wrapper_path("samtools", "index")
+

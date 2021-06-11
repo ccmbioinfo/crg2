@@ -3,8 +3,8 @@ run:
   samples: samples.tsv
   units: units.tsv
   ped: "" # leave this string empty if there is no ped
-  panel: "" # leave this string empty if there is no panel
-  hpo: "" # leave this string empty is there are no hpo terms
+  panel: "" # three-column BED file based on hpo file; leave this string empty if there is no panel
+  hpo: "" # five-column TSV with HPO terms; leave this string empty is there are no hpo terms
   flank: 100000
   gatk: "gatk"
 
@@ -50,7 +50,7 @@ filtering:
 
 
 processing:
-  remove-duplicates: false
+  mark-duplicates: true
   # Uncomment and point to a bed file with, e.g., captured regions if necessary,
   # see https://gatkforums.broadinstitute.org/gatk/discussion/4133/when-should-i-use-l-to-pass-in-a-list-of-intervals.
   # restrict-regions: captured_regions.bed
@@ -58,6 +58,10 @@ processing:
   # flanking areas.
   # region-padding: 100
 
+qc:
+  fastq_screen:
+    conf: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/qc/FastQ_Screen_Genomes/fastq_screen.conf"
+  
 annotation:
   cre.vcfanno:
     conf: "~/crg2/vcfanno/cre.vcfanno.conf"
@@ -66,11 +70,11 @@ annotation:
   vcfanno:
     conf: "~/crg2/vcfanno/crg.vcfanno.conf" 
     lua_script: "~/crg2/vcfanno/crg.vcfanno.lua"
-    base_path: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/vcfanno"
+    base_path: "/hpf/largeprojects/ccmbio/naumenko/tools/bcbio/genomes/Hsapiens/GRCh37/variation/"
   vep:
-    dir: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/snakemake/6ea37454/share/ensembl-vep-101.0-0/"
-    dir_cache: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/vep-cache"
-    maxentscan: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/snakemake/6ea37454/share/ensembl-vep-101.0-0/maxEntScan"
+    dir: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/snakemake/6f4af8a1/share/ensembl-vep-104.0-0/"
+    dir_cache: "/hpf/largeprojects/ccmbio/naumenko/tools/bcbio/genomes/Hsapiens/GRCh37/vep/"
+    maxentscan: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/snakemake/6f4af8a1/share/ensembl-vep-104.0-0/maxEntScan/"
     human_ancestor_fasta: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/human_ancestor.fa.gz"
   snpeff:
     dataDir: "/hpf/largeprojects/ccmbio/naumenko/tools/bcbio/genomes/Hsapiens/GRCh37/snpeff"
@@ -81,13 +85,18 @@ annotation:
   svreport:
     hgmd: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/HGMD_2018/hgmd_pro.db"
     protein_coding_genes: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/grch37.p13.ensembl.sorted.protein.coding.genes.bed"
-    exon_bed: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/grch37.p13.ensembl.protein.coding.genes.exons.fixed.sorted.bed"
+    exon_bed: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/exons/hg19_UCSC_exons_canonical.bed"
     exac: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/ExAC/fordist_cleaned_nonpsych_z_pli_rec_null_data.txt"
     omim: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/OMIM_2020-04-09/genemap2.txt"
     gnomad: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/gnomad_v2_sv.sites.bed"
     biomart: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/BioMaRt.GrCh37.75.ensembl.mim.hgnc.entrez.txt"
     mssng_manta_counts: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/MSSNG_COUNTS/Canadian_MSSNG_parent_SVs.Manta.counts.txt"
     mssng_lumpy_counts: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/MSSNG_COUNTS/Canadian_MSSNG_parent_SVs.LUMPY.counts.txt"
+  eh:
+    catalog: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/ExpansionHunter/tandem_repeat_disease_loci_v1.1.hg19.masked.json"
+    trf: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/ExpansionHunter/tandem_repeat_disease_loci_v1.1.tsv"
+    1000g: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/ExpansionHunter/1000G_EH_v1.0.tsv"
+
 
 params:
   bwa:

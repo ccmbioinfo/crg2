@@ -12,9 +12,9 @@ if "restrict-regions" in config["processing"]:
 
 def get_decoy_removed_sample_bams(wildcards):
     """Get all aligned reads of given sample."""
-    return expand("decoy_rm/{sample}-{unit}.no_decoy_reads.bam",
+    return expand("decoy_rm/{family}-{sample}.no_decoy_reads.bam",
                   sample=wildcards.sample,
-                  unit=units.loc[wildcards.sample].unit)
+                  family=wildcards.family)
 
 rule call_variants:
     input:
@@ -23,9 +23,9 @@ rule call_variants:
         known=config["ref"]["known-variants"],
         regions="called/{contig}.regions.bed" if config["processing"].get("restrict-regions") else []
     output:
-        gvcf=protected("called/{sample}.{contig}.g.vcf.gz")
+        gvcf=temp("called/{family}_{sample}.{contig}.g.vcf.gz")
     log:
-        "logs/gatk/haplotypecaller/{sample}.{contig}.log"
+        "logs/gatk/haplotypecaller/{family}_{sample}.{contig}.log"
     params:
         extra=get_call_variants_params,
         java_opts=config["params"]["gatk"]["java_opts"],
@@ -39,13 +39,13 @@ rule call_variants:
 rule combine_calls:
     input:
         ref=config["ref"]["genome"],
-        gvcfs=expand("called/{sample}.{{contig}}.g.vcf.gz", sample=samples.index)
+        gvcfs=expand("called/{{family}}_{sample}.{{contig}}.g.vcf.gz", sample=samples.index)
     output:
-        gvcf="called/all.{contig}.g.vcf.gz"
+        gvcf=temp("called/{family}.{contig}.g.vcf.gz")
     params:
         java_opts=config["params"]["gatk"]["java_opts"],
     log:
-        "logs/gatk/combinegvcfs.{contig}.log"
+        "logs/gatk/combinegvcfs.{family}.{contig}.log"
     group: "gatkcall"
     wrapper:
         get_wrapper_path("gatk", "combinegvcfs")
@@ -54,14 +54,14 @@ rule combine_calls:
 rule genotype_variants:
     input:
         ref=config["ref"]["genome"],
-        gvcf="called/all.{contig}.g.vcf.gz"
+        gvcf="called/{family}.{contig}.g.vcf.gz"
     output:
-        vcf=temp("genotyped/all.{contig}.vcf.gz")
+        vcf=temp("genotyped/{family}.{contig}.vcf.gz")
     params:
         extra=config["params"]["gatk"]["GenotypeGVCFs"],
         java_opts=config["params"]["gatk"]["java_opts"],
     log:
-        "logs/gatk/genotypegvcfs.{contig}.log"
+        "logs/gatk/genotypegvcfs.{family}.{contig}.log"
     group: "gatkcall"
     wrapper:
         get_wrapper_path("gatk", "genotypegvcfs")
@@ -70,12 +70,12 @@ rule genotype_variants:
 rule merge_variants:
     input:
         ref=get_fai(), # fai is needed to calculate aggregation over contigs below
-        vcfs=lambda w: expand("genotyped/all.{contig}.vcf.gz", contig=get_canon_contigs()),
+        vcfs=lambda w: expand("genotyped/{family}.{contig}.vcf.gz", contig=get_canon_contigs(), family=project),
 	## use this to remove repetitive contigs for dag generation
 	#vcfs=lambda w: expand("genotyped/all.{contig}.vcf.gz", contig="GRCh37"), 
     output:
-        vcf="genotyped/all.vcf.gz"
+        vcf="genotyped/{family}.vcf.gz"
     log:
-        "logs/picard/merge-genotyped.log"
+        "logs/picard/{family}.merge-genotyped.log"
     wrapper:
         get_wrapper_path("picard", "mergevcfs")

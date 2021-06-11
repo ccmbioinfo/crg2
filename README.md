@@ -33,12 +33,22 @@ Make sure to replace ```~/crg2-conda``` with the path made in step 4. This will 
 
 8. Replace the VEP path's to the VEP directory installed from step 6. Replace the cre path in crg2/config.yaml with the one from step 7.
 
+9. AnnotSV 2.1 is required for SV report generation.
+- Download AnnotSV:  ```wget https://lbgi.fr/AnnotSV/Sources/AnnotSV_2.1.tar.gz```
+- Unpack : ```tar -xzvf AnnotSV_2.1.tar.gz```
+- Set the value of $ANNOTSV in your .bashrc: ```export ANNOTSV=/path_of_AnnotSV_installation/bin```
+- Modify AnnotSV_2.1/configfile:
+  - set ```-bedtools:              bedtools```
+  - set ```-overlap:               50``` 
+  - set ```-reciprocal             yes```
+  - set ```-svtBEDcol:     4```
+
 ## Running the pipeline
 1. Make a folder in a directory with sufficient space. Copy over the template files samples.tsv, units.tsv, config.yaml.
-You may need to re-copy config.yaml if the file was recently updated in repo for previous crg2 runs.
+You may need to re-copy config.yaml and pbs_config.yaml if the files were recently updated in repo from previous crg2 runs. Note that 'pbs_config.yaml' is for submitting each rule as cluster jobs, so ignore this if not running on cluster
 ```
 mkdir NA12878
-cp crg2/samples.tsv crg2/units.tsv crg2/config.yaml NA12878
+cp crg2/samples.tsv crg2/units.tsv crg2/config.yaml NA12878 crg2/pbs_profile/pbs_config.yaml
 ```
 
 2. Reconfigure the 3 files to reflect project names, sample names, input fastq files, a panel bed file (if any) and a ped file (if any). Inclusion of a panel bed file will generate 2 SNV reports with all variants falling within these regions. Inclusion of a ped file currently does nothing except create a gemini db with the pedigree data stored in it.
@@ -135,12 +145,19 @@ rule call_variants:
 
 5. Run the pipeline
   - as a single job using: ```qsub dnaseq.pbs```. 
-  - as multi-node jobs using: ```qsub dnaseq_cluster.pbs```. Change the value of variables defined inside the above file according to your system and make sure the following in `pbs_profile/config.yaml` is set to absolute path. 
-  ```cluster-config: "/home/<username>/crg2/pbs_profile/pbs_config.yaml"```
-  Refer `pbs_profile/cluster.md` document for detailed description.
+  - as multi-node jobs using: ```qsub dnaseq_cluster.pbs```. Change the value of variables defined inside the above file according to your system 
+  Refer `pbs_profile/cluster.md` document for detailed documentation for cluster integration.
   
-The SNV report can be found in the directory: report/all/{PROJECT_ID}/{PROJECT_ID}.*.csv.
-The SV reports can be found in the directory: report/sv/{PROJECt_ID}.wgs.{VER}.{DATE}.tsv.
+The SNV reports can be found in the directories: 
+  - report/coding/{PROJECT_ID}/{PROJECT_ID}.\*wes\*.csv
+  - report/panel/{PROJECT_ID}/{PROJECT_ID}.\*wgs\*.csv
+  - report/panel-flank/{PROJECT_ID}/{PROJECT_ID}.\*wgs\*.csv
+The SV reports can be found in the directory: 
+  - report/sv/{PROJECt_ID}.wgs.{VER}.{DATE}.tsv.
+
+The STR reprots can be found in:
+  - report/str/{PROJECT_ID}.EH.v1.1.{DATE}.xlsx
+  - report/str/{PROJECT_ID}.EHDN.{DATE}.xlsx
 
 ## Pipeline details
 
@@ -179,6 +196,23 @@ The SV reports can be found in the directory: report/sv/{PROJECt_ID}.wgs.{VER}.{
 
 5. Generate an annotated report using crg
 
+### STR
+
+A. ExpansionHunter: known repeat location
+
+  1. Identify repeat expansions in sample BAM/CRAMs
+  2. Annotate repeats with disease threshold, gene name, repeat sizes from 1000Genome (mean& median) 
+  3. Generate per-family report as Excel file
+
+B. ExpansionHunterDenovo: denovo repeats
+
+  1. Identify denovo repeat in sample BAM/CRAMs
+  2. Combine individual JSONs from current family and 1000Genomes to a multi-sample TSV
+  3. Run DBSCAN clustering to identify outlier repeats
+  4. Annotate with gnoMAD, OMIM, ANNOVAR
+  5. Generate per-family report as Excel file
+
+
 ## Reports
 
 Column descriptions and more info on how variants are filtered can be found here:
@@ -187,7 +221,7 @@ SNV: https://docs.google.com/document/d/1zL4QoINtkUd15a0AK4WzxXoTWp2MRcuQ9l_P9-x
 
 SV: https://docs.google.com/document/d/1o870tr0rcshoae_VkG1ZOoWNSAmorCZlhHDpZuZogYE
 
-The pipeline generates 4 reports:
+The pipeline generates 6 reports:
 
 1. wgs.snv - a report on coding SNVs across the entire genome
 
@@ -196,3 +230,7 @@ The pipeline generates 4 reports:
 3. wgs.panel.snv - a report on SNVs within the panel specified bed file with a 100kb flank on each side
 
 4. wgs.sv - a report on SVs across the entire genome
+
+5. EH - a report on repeat expansions in known locations
+
+6. EHDN - a report on denovo repeats filtered from a case-control outlier analysis
