@@ -20,7 +20,7 @@ if snakemake.threads:
 else:
     threads = 1 
 
-chrom = path.splitext(outfile)[0].split("-")[-1]
+chrom = path.splitext(outfile)[0].split("/")[-1]
 chromdir = path.join("samtools", chrom)
 
 region = path.join(snakemake.params.region, chrom + ".txt")    
