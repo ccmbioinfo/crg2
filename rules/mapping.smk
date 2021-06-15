@@ -73,7 +73,7 @@ rule recalibrate_base_qualities:
         bai = get_recal_input(bai=True),
         ref = config["ref"]["genome"],
         known = config["ref"]["known-variants"],
-        bed = "mapped/{sample}-{unit}-callable.bed" 
+        bed = "mapped/{family}_{sample}-callable.bed" 
     output:
         bam = protected("recal/{family}_{sample}.bam")
     params:
@@ -91,9 +91,9 @@ rule realignertargetcreator:
         ref = config["ref"]["genome"],
         known = config["ref"]["known-variants"]
     output:
-        intervals="recal/gatk3/realignertargetcreator/{sample}-{unit}.intervals",
+        intervals="recal/gatk3/realignertargetcreator/{family}_{sample}.intervals",
     log:
-        "logs/gatk3/realignertargetcreator/{sample}-{unit}.log"
+        "logs/gatk3/realignertargetcreator/{family}_{sample}.log"
     params:
         extra = get_regions_param() + config["params"]["gatk3"]["RealignerTargetCreator"],
         java_opts = config["params"]["gatk"]["java_opts"],
@@ -113,11 +113,11 @@ rule indelrealigner:
         bai = get_recal_input(bai=True),
         ref = config["ref"]["genome"],
         known = config["ref"]["known-variants"],
-        target_intervals="recal/gatk3/realignertargetcreator/{sample}-{unit}.intervals",
+        target_intervals="recal/gatk3/realignertargetcreator/{family}_{sample}.intervals",
     output:
-        bam = protected("recal/gatk3/indelrealigner/{sample}-{unit}-realign.bam"),
+        bam = protected("recal/gatk3/indelrealigner/{family}_{sample}-realign.bam"),
     log:
-        "logs/gatk3/indelrealigner/{sample}-{unit}.log"
+        "logs/gatk3/indelrealigner/{family}_{sample}.log"
     params:
         extra = get_regions_param() + config["params"]["gatk3"]["IndelRealigner"],
         java_opts = config["params"]["gatk"]["java_opts"],
@@ -131,13 +131,13 @@ rule mosdepth:
         bam = get_recal_input(),
         bai = get_recal_input(bai=True),
     output:
-        qbed = "mapped/{sample}-{unit}.quantized.bed.gz",
-        bed = "mapped/{sample}-{unit}-callable.bed"
+        qbed = "mapped/{family}_{sample}.quantized.bed.gz",
+        bed = "mapped/{family}_{sample}-callable.bed"
     params:
-        prefix = f"mapped/{{sample}}-{{unit}}",
+        prefix = f"mapped/{{family}}_{{sample}}",
         by = config["ref"]["canon_bed"]
     log:
-        "logs/mosdepth/{sample}-{unit}.log"
+        "logs/mosdepth/{family}_{sample}.log"
     shell:
         '''
         export MOSDEPTH_Q0=NO_COVERAGE;
@@ -149,18 +149,18 @@ rule mosdepth:
        
 rule baserecalibrator:
     input:
-        bam = "recal/gatk3/indelrealigner/{sample}-{unit}-realign.bam",
-        bai = "recal/gatk3/indelrealigner/{sample}-{unit}-realign.bam.bai",
-        bed = "mapped/{sample}-{unit}-callable.bed",
+        bam = "recal/gatk3/indelrealigner/{family}_{sample}-realign.bam",
+        bai = "recal/gatk3/indelrealigner/{family}_{sample}-realign.bam.bai",
+        bed = "mapped/{family}_{sample}-callable.bed",
         ref = config["ref"]["genome"],
         known = config["ref"]["known-variants"]
     output:
-        "recal/gatk3/baserecalibrator/{sample}-{unit}-recal.grp"
+        "recal/gatk3/baserecalibrator/{family}_{sample}-recal.grp"
     params:
         extra = get_regions_param() + config["params"]["gatk3"]["BaseRecalibrator"],
         java_opts = config["params"]["gatk"]["java_opts"],
     log:
-        "logs/gatk3/baserecalibrator/{sample}-{unit}.log"
+        "logs/gatk3/baserecalibrator/{family}_{sample}.log"
     threads: 8
     conda:
         "../wrappers/gatk3/haplotypecaller/environment.yaml"
@@ -169,17 +169,17 @@ rule baserecalibrator:
 
 rule printreads:
     input:
-        bam = "recal/gatk3/indelrealigner/{sample}-{unit}-realign.bam",
-        bai = "recal/gatk3/indelrealigner/{sample}-{unit}-realign.bam.bai",
+        bam = "recal/gatk3/indelrealigner/{family}_{sample}-realign.bam",
+        bai = "recal/gatk3/indelrealigner/{family}_{sample}-realign.bam.bai",
         ref = config["ref"]["genome"],
-        recal_data = "recal/gatk3/baserecalibrator/{sample}-{unit}-recal.grp"
+        recal_data = "recal/gatk3/baserecalibrator/{family}_{sample}-recal.grp"
     output:
-        protected("recal/gatk3/{sample}-{unit}.bam")
+        protected("recal/gatk3/{family}_{sample}.bam")
     params:
         extra = get_regions_param() + config["params"]["gatk3"]["PrintReads"],
         java_opts = config["params"]["gatk"]["java_opts"],
     log:
-        "logs/gatk3/printreads/{sample}-{unit}.log"
+        "logs/gatk3/printreads/{family}_{sample}.log"
     conda:
         "../wrappers/gatk3/haplotypecaller/environment.yaml"
     wrapper:

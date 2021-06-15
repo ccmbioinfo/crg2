@@ -1,5 +1,8 @@
 def get_cre_bams(ext="bam"):
-    return ["recal/{}-{}.{}".format(s,units.loc[s].unit[0],ext) if gatk=="gatk" else "recal/gatk3/{}-{}.{}".format(s,units.loc[s].unit[0],ext) for s in samples.index]
+    if gatk == "gatk3":
+        return expand("recal/gatk3/{family}_{sample}.{ext}", family=project, sample=samples.index, ext=ext)
+    return expand("recal/{family}_{sample}.{ext}", family=project, sample=samples.index, ext=ext)
+
 
 rule gatk3:
     input:
@@ -8,10 +11,9 @@ rule gatk3:
         known=config["ref"]["known-variants"],
         ref=config["ref"]["genome"],
         regions="called/gatk3/{contig}.regions.bed" if config["processing"].get("restrict-regions") else []
-    output: "called/gatk3/{project}-{contig}.vcf"
-        #gvcf=protected("called/{project}-gatk3_haplotype.vcf")
+    output: "gatk3/called/{family}-{contig}.vcf"
     log:
-        "logs/gatk3/{project}-{contig}.log"
+        "logs/gatk3/{family}-{contig}.log"
     params:
         extra=get_call_variants_params,
         annot=config["params"]["gatk3"]["annotation"],
@@ -21,9 +23,9 @@ rule gatk3:
 
 rule gathervcf:
     input:
-        vcfs = lambda w: expand("called/gatk3/{project}-{contig}.vcf", project=project, contig=get_canon_contigs()),
+        vcfs = lambda w: expand("gatk3/called/{family}-{contig}.vcf", family=project, contig=get_canon_contigs()),
     output:
-        gvcf=protected("called/{project}-gatk3_haplotype.vcf")
+        gvcf=protected("called/{family}-gatk3_haplotype.vcf")
     wrapper:
         get_wrapper_path("picard","gathervcfs")
 
@@ -33,13 +35,14 @@ rule gathervcf:
 rule call_variants:
     input:
         bam=get_sample_bams,
+        #bam=get_cre_bams(),
         ref=config["ref"]["genome"],
         known=config["ref"]["known-variants"],
         regions="called/gatk/{contig}.regions.bed" if config["processing"].get("restrict-regions") else []
     output:
-        gvcf=temp("called/gatk/{sample}.{contig}.g.vcf.gz")
+        gvcf=temp("gatk/called/{family}_{sample}.{contig}.g.vcf.gz")
     log:
-        "logs/gatk/haplotypecaller/{sample}.{contig}.log"
+        "logs/gatk/haplotypecaller/{family}_{sample}.{contig}.log"
     params:
         extra=get_call_variants_params,
         java_opts=config["params"]["gatk"]["java_opts"],
@@ -53,13 +56,13 @@ rule call_variants:
 rule combine_calls:
     input:
         ref=config["ref"]["genome"],
-        gvcfs=expand("called/gatk/{sample}.{{contig}}.g.vcf.gz", sample=samples.index)
+        gvcfs=expand("gatk/called/{{family}}_{sample}.{{contig}}.g.vcf.gz", sample=samples.index)
     output:
-        gvcf=temp("called/gatk/all.{contig}.g.vcf.gz")
+        gvcf=temp("gatk/called/{family}.{contig}.g.vcf.gz")
     params:
         java_opts=config["params"]["gatk"]["java_opts"],
     log:
-        "logs/gatk/combinegvcfs.{contig}.log"
+        "logs/gatk/{family}.combinegvcfs.{contig}.log"
     group: "gatkcall"
     wrapper:
         get_wrapper_path("gatk", "combinegvcfs")
@@ -68,14 +71,14 @@ rule combine_calls:
 rule genotype_variants:
     input:
         ref=config["ref"]["genome"],
-        gvcf="called/gatk/all.{contig}.g.vcf.gz"
+        gvcf="gatk/called/{family}.{contig}.g.vcf.gz"
     output:
-        vcf=temp("called/gatk/genotype/all.{contig}.vcf.gz")
+        vcf=temp("gatk/genotyped/{family}.{contig}.vcf.gz")
     params:
         extra=config["params"]["gatk"]["GenotypeGVCFs"],
         java_opts=config["params"]["gatk"]["java_opts"],
     log:
-        "logs/gatk/genotypegvcfs.{contig}.log"
+        "logs/gatk/{family}.genotypegvcfs.{contig}.log"
     group: "gatkcall"
     wrapper:
         get_wrapper_path("gatk", "genotypegvcfs")
@@ -84,23 +87,23 @@ rule genotype_variants:
 rule merge_variants:
     input:
         ref=get_fai(), # fai is needed to calculate aggregation over contigs below
-        vcfs=lambda w: expand("called/gatk/genotype/all.{contig}.vcf.gz", contig=get_canon_contigs()),
+        vcfs=lambda w: expand("gatk/genotyped/{{family}}.{contig}.vcf.gz", contig=get_canon_contigs()),
 	## use this to remove repetitive contigs for dag generation
 	#vcfs=lambda w: expand("genotyped/all.{contig}.vcf.gz", contig="GRCh37"), 
     output:
-        vcf="called/gatk/all.vcf.gz"
+        vcf="gatk/genotyped/{family}.vcf.gz"
     log:
-        "logs/picard/merge-genotyped.log"
+        "logs/picard/{family}-merge-genotyped.log"
     wrapper:
         get_wrapper_path("picard", "mergevcfs")
 
 rule gatk4:
     input: 
-        "called/gatk/all.vcf.gz"
+        "gatk/genotyped/{family}.vcf.gz".format(family=project)
     output:
-        gvcf=protected("called/{project}-gatk_haplotype.vcf")
+        gvcf=protected("called/{family}-gatk_haplotype.vcf")
     log:
-        "logs/gatk/{project}.log"
+        "logs/gatk/{family}.log"
     shell:
         '''
         gunzip -c -d {input} > {output}
@@ -114,9 +117,9 @@ rule freebayes:
         ref=config["ref"]["genome"],
         regions=config["ref"]["canon_bed"]
     output:
-        "called/{project}-freebayes.vcf"  # either .vcf or .bcf
+        "called/{family}-freebayes.vcf"  # either .vcf or .bcf
     log:
-        "logs/freebayes/{project}.log"
+        "logs/freebayes/{family}.log"
     params:
         extra=config["params"]["freebayes"],         # optional parameters
         chunksize=100000  # reference genome chunk size for parallelization (default: 100000)
@@ -133,13 +136,13 @@ rule platypus:
         ref=config["ref"]["genome"],
         regions=config["ref"]["canon_bed"] #remove or empty quotes if not using regions
     output:
-	    "called/{project}-platypus.vcf"
+	    "called/{family}-platypus.vcf"
     params: config["params"]["platypus"]
     threads: 16
     resources:
         mem=lambda wildcards, threads: threads * 4
     log:
-        "logs/platypus/{project}.log"
+        "logs/platypus/{family}.log"
     wrapper:
        get_wrapper_path("platypus")
 
@@ -150,11 +153,11 @@ rule samtools_call:
         bai=get_cre_bams(ext="bam.bai"),
         #regions="regions.bed" #remove or empty quotes if not using regions
     output:
-	    "called/samtools-{contig}.vcf"
+	    "samtools/called/{contig}.vcf"
     params:
         mpileup = config["params"]["samtools"]["mpileup"],
         call = config["params"]["bcftools"]["call"],
-        region = config["ref"]["split_genome"]
+        region = config["ref"]["split_genome"],
     threads: 8
     resources:
         mem=lambda wildcards, threads: threads * 4
@@ -165,18 +168,19 @@ rule samtools_call:
 
 rule merge_mpileup:
     input:
-        vcfs =lambda w: expand("called/samtools-{contig}.vcf", contig = get_canon_contigs())
+        vcfs =lambda w: expand("samtools/called/{contig}.vcf", contig = get_canon_contigs())
         #vcfs =lambda w: expand("called/samtools-{contig}.vcf", contig = "GRCh37d5")
     output:
-        "called/{project}-samtools.vcf"
+        "called/{family}-samtools.vcf"
     shell:
         '''
         if [ -f files ]; then rm files; fi;
-        if [ -d samtools ]; then rmdir samtools; fi;
         for i in {input}; do echo $i >> files; done;
         bcftools concat -f files | bcftools sort > {output}
-        rm {input}
+        
         '''
+#if [ -d samtools ]; then rmdir samtools; fi;
+#rm {input}
  
 rule bgzip:
     input:
