@@ -1,30 +1,31 @@
 rule allsnvreport:
     input:
-        db="annotated/{project}-gemini.db",
-        vcf="annotated/vcfanno/{project}-ensemble-decomposed.vep.vcfanno.vcf"
+        db="annotated/{family}-gemini.db",
+        vcf="annotated/vcfanno/{family}-ensemble-decomposed.vep.vcfanno.vcf"
     output:
-        directory("report/{project}")
+        directory("report/{family}")
     conda:
         "../../envs/cre.yaml"
     log:
-        "logs/report/{project}/cre.log"
+        "logs/report/{family}/cre.log"
     resources:
          mem_mb=40000
     params:
          cre=config["tools"]["cre"],
-         ref=config["ref"]["genome"]
+         ref=config["ref"]["genome"],
+         family = config["run"]["project"]
     shell:
          '''
          mkdir -p {output}
          cd {output}
-         ln -s ../../{input.db} {project}-ensemble.db
-         bgzip ../../{input.vcf} -c > {project}-gatk-haplotype-annotated-decomposed.vcf.gz
-         tabix {project}-gatk-haplotype-annotated-decomposed.vcf.gz
-         ln -s {project}-gatk-haplotype-annotated-decomposed.vcf.gz {project}-ensemble-annotated-decomposed.vcf.gz
-         ln -s {project}-gatk-haplotype-annotated-decomposed.vcf.gz.tbi {project}-ensemble-annotated-decomposed.vcf.gz.tbi
+         ln -s ../../{input.db} {params.family}-ensemble.db
+         bgzip ../../{input.vcf} -c > {params.family}-gatk-haplotype-annotated-decomposed.vcf.gz
+         tabix {params.family}-gatk-haplotype-annotated-decomposed.vcf.gz
+         ln -s {params.family}-gatk-haplotype-annotated-decomposed.vcf.gz {params.family}-ensemble-annotated-decomposed.vcf.gz
+         ln -s {params.family}-gatk-haplotype-annotated-decomposed.vcf.gz.tbi {params.family}-ensemble-annotated-decomposed.vcf.gz.tbi
          cd ../
-         {params.cre}/cre.sh {project} 
-         type=wes.synonymous {params.cre}/cre.sh {project}
+         {params.cre}/cre.sh {params.family} 
+         type=wes.synonymous {params.cre}/cre.sh {params.family}
          unset type
          '''
             

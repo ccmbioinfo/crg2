@@ -1,11 +1,11 @@
 rule vep:
     input:
-        "annotated/{project}-ensemble-decomposed.vcf.gz",
+        "annotated/{family}-ensemble-decomposed.vcf.gz",
     output:
-        #temp("annotated/vep/{project}-ensemble-decomposed.vep.vcf"),
-        "annotated/vep/{project}-ensemble-decomposed.vep.vcf",
+        #temp("annotated/vep/{family}-ensemble-decomposed.vep.vcf"),
+        "annotated/vep/{family}-ensemble-decomposed.vep.vcf",
     log:
-        "logs/vep/vep.{project}.log"
+        "logs/vep/vep.{family}.log"
     threads: 10
     resources:
         mem_mb = 30000
@@ -20,11 +20,11 @@ rule vep:
 
 rule vcfanno:
     input:
-        "annotated/vep/{project}-ensemble-decomposed.vep.vcf"
+        "annotated/vep/{family}-ensemble-decomposed.vep.vcf"
     output:
-        "annotated/vcfanno/{project}-ensemble-decomposed.vep.vcfanno.vcf"
+        "annotated/vcfanno/{family}-ensemble-decomposed.vep.vcfanno.vcf"
     log:
-        "logs/vcfanno/vcfanno.{project}.log"
+        "logs/vcfanno/vcfanno.{family}.log"
     threads: 10
     resources:
         mem_mb = 20000
@@ -39,11 +39,11 @@ rule vcfanno:
 
 rule vcf2db:
     input:
-        "annotated/vcfanno/{project}-ensemble-decomposed.vep.vcfanno.vcf"
+        "annotated/vcfanno/{family}-ensemble-decomposed.vep.vcfanno.vcf".format(family=project)
     output:
-         db = "annotated/{project}-gemini.db",
+         db = "annotated/{family}-gemini.db",
     log:
-        "logs/vcf2db/vcf2db.{project}.log"
+        "logs/vcf2db/vcf2db.{family}.log"
     params:
         ped = config["run"]["ped"],
     threads: 1

@@ -2,10 +2,10 @@
 callers = [ gatk + "_haplotype", "samtools", "freebayes", "platypus" ] 
 #callers = [ gatk + "_haplotype" ]
 def get_cre_vcfs():    
-    return ["filtered/{}-{}-vt-sf-pass.vcf.gz".format(config["run"]["project"],i) for i in callers ]
+    return ["filtered/{family}-{caller}-vt-sf-pass.vcf.gz".format(family=project,caller=i) for i in callers ]
 
 def get_cre_vcf_tbi():
-    return ["filtered/{}-{}-vt-sf-pass.vcf.gz.tbi".format(config["run"]["project"],i) for i in callers ]
+    return ["filtered/{family}-{caller}-vt-sf-pass.vcf.gz.tbi".format(family=project,caller=i) for i in callers ]
     
 
 rule vt:
@@ -67,11 +67,11 @@ if len(get_cre_vcfs()) > 1:
         input:
             vcf = expand("isec/000{index}.vcf.gz", index=range(len(get_cre_vcfs())))
         output: 
-            "filtered/{project}-vt-sf-pass-intersect.vcf.gz"
+            "filtered/{family}-vt-sf-pass-intersect.vcf.gz"
         params: 
             "-a -d none"
         log: 
-            "logs/bcftools/concat/{project}.log"
+            "logs/bcftools/concat/{family}.log"
         threads: 8
         wrapper:
             get_wrapper_path("bcftools", "concat")
@@ -95,23 +95,23 @@ if len(get_cre_vcfs()) > 1:
 
     rule vcf_annotate:
         input: 
-            vcf = "filtered/{project}-vt-sf-pass-intersect.vcf.gz",
+            vcf = "filtered/{family}-vt-sf-pass-intersect.vcf.gz",
             annot = "isec/sites.caller.txt.gz",
             hdr = "isec/hdr.txt"
         output: 
-            "filtered/{project}-numpass1-decomposed.vcf.gz"
+            "filtered/{family}-numpass1-decomposed.vcf.gz"
         log: 
-            "logs/bcftools/annotate/{project}.log"
+            "logs/bcftools/annotate/{family}.log"
         wrapper:
             get_wrapper_path("bcftools", "annotate")
 
     rule ensemble:
         input: 
-            "filtered/{project}-numpass1-decomposed.vcf.gz"
+            "filtered/{family}-numpass1-decomposed.vcf.gz".format(family=project)
         output: 
-            "annotated/{project}-ensemble-decomposed.vcf.gz"
+            "annotated/{family}-ensemble-decomposed.vcf.gz"
         log: 
-            "logs/bcftools/filter/{project}-ensemble.log"
+            "logs/bcftools/filter/{family}-ensemble.log"
         params: 
             hard = " -i '(INFO/CALLERS=\"gatk-haplotype\" || INFO/NUMCALLS>=2)' "
         wrapper:
@@ -140,9 +140,9 @@ else:
             annot = "isec/sites.caller.txt.gz",
             hdr = "isec/hdr.txt"
         output: 
-            "annotated/{project}-ensemble-decomposed.vcf.gz"
+            "annotated/{family}-ensemble-decomposed.vcf.gz"
         log: 
-            "logs/bcftools/annotate/{project}.log"
+            "logs/bcftools/annotate/{family}.log"
         wrapper:
             get_wrapper_path("bcftools", "annotate")
 
