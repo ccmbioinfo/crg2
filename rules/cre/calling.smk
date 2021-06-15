@@ -177,10 +177,8 @@ rule merge_mpileup:
         if [ -f files ]; then rm files; fi;
         for i in {input}; do echo $i >> files; done;
         bcftools concat -f files | bcftools sort > {output}
-        
+        rm {input}       
         '''
-#if [ -d samtools ]; then rmdir samtools; fi;
-#rm {input}
  
 rule bgzip:
     input:
