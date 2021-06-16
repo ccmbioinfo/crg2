@@ -1,11 +1,11 @@
 # crg2
-Clinical research pipeline for exploring variants in whole genome sequencing data
+Clinical research pipeline for exploring variants in whole genome and exome sequencing data
 
 <div align="center">
     <img src="/crg2logolarge.png" width="800px"</img> 
 </div>
 
-crg2 is a research pipeline aimed at discovering clinically relevant variants (SNVs, SVs) in whole genome sequencing data.
+crg2 is a research pipeline aimed at discovering clinically relevant variants (SNVs, SVs) in whole genome and exome sequencing data.
 It aims to provide reproducible results, be computationally efficient, and transparent in it's workflow.
 
 crg2 uses Snakemake and Conda to manage jobs and software dependencies.
@@ -144,8 +144,10 @@ rule call_variants:
 ```
 
 5. Run the pipeline
-  - as a single job using: ```qsub dnaseq.pbs```. 
-  - as multi-node jobs using: ```qsub dnaseq_cluster.pbs```. Change the value of variables defined inside the above file according to your system 
+  
+  You can invoke exome or genome pipeline by passing ```-v pipeline=wgs|wes``` to the PBS script.
+  - as a single job using: ```qsub dnaseq.pbs -v pipeline=wes```. 
+  - as multi-node jobs using: ```qsub dnaseq_cluster.pbs -v pipeline=wgs```. Change the value of variables defined inside the above file according to your system 
   Refer `pbs_profile/cluster.md` document for detailed documentation for cluster integration.
   
 The SNV reports can be found in the directories: 
@@ -158,6 +160,7 @@ The SV reports can be found in the directory:
 The STR reprots can be found in:
   - report/str/{PROJECT_ID}.EH.v1.1.{DATE}.xlsx
   - report/str/{PROJECT_ID}.EHDN.{DATE}.xlsx
+
 
 ## Pipeline details
 
