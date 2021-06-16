@@ -11,7 +11,7 @@
 #usage: qsub dnaseq_cluster.pbs -F "wgs"
 #please change the following three variables according to your settings, as the recent crg2 repo is not copied over here
 
-if [ -z $pipeline ]; pipeline=$1; fi;
+if [ -z $pipeline ]; then pipeline=$1; fi;
 
 if [ $pipeline = "wes" ]; then
 	SF=~/crg2/cre.Snakefile; 
