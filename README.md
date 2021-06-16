@@ -1,5 +1,5 @@
 # crg2
-Clinical research pipeline for exploring variants in whole genome and exome sequencing data
+Clinical research pipeline for exploring variants in whole genome (WGS) and exome (WES) sequencing data
 
 <div align="center">
     <img src="/crg2logolarge.png" width="800px"</img> 
@@ -21,10 +21,16 @@ mkdir ~/crg2-conda
 ```
 
 5. Navigate to the crg2 directory. Install all software dependencies using:
-```
-cd crg2
-snakemake --use-conda -s Snakefile --conda-prefix ~/crg2-conda --create-envs-only
-```
+- WGS:
+  ```
+  cd crg2
+  snakemake --use-conda -s Snakefile --conda-prefix ~/crg2-conda --create-envs-only
+  ```
+- WES: This will install additional tools like freebayes, platypus, mosdepth and gatk3.
+  ```
+  cd crg2
+  snkamake --use-conda -s cre.Snakefile --conda-prefix ~/crg2-conda --create-envs-only
+  ```
 Make sure to replace ```~/crg2-conda``` with the path made in step 4. This will take a while.
 
 6. Install these plugins for VEP: ```LoF, MaxEntScan, SpliceRegion```. Refer to this page for installation instructions: https://useast.ensembl.org/info/docs/tools/vep/script/vep_plugins.html. The INSTALL.pl script has been renamed to vep_install in the VEP's Conda build. It is located in the conda environment directory, under ```share/ensembl-vep-99.2-0/vep_install```. Therefore, your command should be similar to: ```fb5f2eb3/share/ensembl-vep-99.2-0/vep_install -a p --PLUGINS LoF,MaxEntScan,SpliceRegion```
@@ -61,8 +67,8 @@ NA12878
 
 units.tsv
 ```
-sample	unit	platform	fq1	fq2
-NA12878	1	ILLUMINA	/hpf/largeprojects/ccm_dccforge/dccdipg/Common/NA12878/NA12878.bam_1.fq	/hpf/largeprojects/ccm_dccforge/dccdipg/Common/NA12878/NA12878.bam_2.fq
+sample	platform	fq1	fq2
+NA12878	ILLUMINA	/hpf/largeprojects/ccm_dccforge/dccdipg/Common/NA12878/NA12878.bam_1.fq	/hpf/largeprojects/ccm_dccforge/dccdipg/Common/NA12878/NA12878.bam_2.fq
 ```
 
 config.yaml
@@ -173,7 +179,7 @@ The STR reprots can be found in:
 
 4. Remove reads mapped to decoy chromosomes
 
-### SNV
+### WGS: SNV
 1. Call SNV's and generate gVCFs
 
 2. Merge gVCF's and perform joint genotyping
@@ -181,6 +187,21 @@ The STR reprots can be found in:
 3. Filter against GATK best practices filters
 
 4. Decompose multiallelics, sort and uniq the filtered VCF using vt
+
+5. Annotate using vcfanno and VEP
+
+6. Generate a gemini db using vcf2db.py
+
+7. Generate a cre report using cre.sh
+
+### WES: SNV
+1. Call variants using GATK, Freebayes, Platypus, and SAMTools
+
+2. Apply caller specific filters and retain PASS variants
+
+3. Decompose multiallelics, sort and uniq filtered VCF using vt
+
+4. Retain variants called by GATK or 2 other callers; Annotate caller info in VCF with INFO/CALLER and INFO/NUMCALLS.
 
 5. Annotate using vcfanno and VEP
 
@@ -224,7 +245,7 @@ SNV: https://docs.google.com/document/d/1zL4QoINtkUd15a0AK4WzxXoTWp2MRcuQ9l_P9-x
 
 SV: https://docs.google.com/document/d/1o870tr0rcshoae_VkG1ZOoWNSAmorCZlhHDpZuZogYE
 
-The pipeline generates 6 reports:
+The WGS pipeline generates 6 reports:
 
 1. wgs.snv - a report on coding SNVs across the entire genome
 
@@ -237,3 +258,14 @@ The pipeline generates 6 reports:
 5. EH - a report on repeat expansions in known locations
 
 6. EHDN - a report on denovo repeats filtered from a case-control outlier analysis
+
+The WES pipeline generates 4 reports for SNV:
+
+1. clinical.wes.regular - report on coding SNVs in exonice regions using clinical filters as decribed [here](https://docs.google.com/document/d/1zL4QoINtkUd15a0AK4WzxXoTWp2MRcuQ9l_P9-xSlS4/edit#heading=h.e4whjtn15ybp) 
+
+2. clinical.wes.synonymous - report on synonymous SNVs in exonic regions using clinical filters as decribed in [here](https://docs.google.com/document/d/1zL4QoINtkUd15a0AK4WzxXoTWp2MRcuQ9l_P9-xSlS4/edit#heading=h.e4whjtn15ybp) 
+
+3. wes.regular - report on coding SNVs in exonic regions
+
+4. wes.synonymous - report on synonymous SNVs in exonic regions
+
