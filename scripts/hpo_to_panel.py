@@ -24,7 +24,7 @@ def query_alias(aliases, gene):
         return False
 
 
-def main(hpo, ensembl, refseq, hgnc):
+def main(family, hpo, ensembl, refseq, hgnc):
     logfile = "logs/hpo_to_panel/genes.log"
     logging.basicConfig(
         filename=logfile,
@@ -98,13 +98,16 @@ def main(hpo, ensembl, refseq, hgnc):
     bed = bed.sort().merge()
     bed_df = bed.to_dataframe()
     log_message("Outputting sorted and merged bed file")
-    bed_df.to_csv("genes/genes.bed", sep="\t", header=False, index=False)
+    if not os.path.isdir("genes"):
+        os.mkdir("genes")
+    bed_df.to_csv(f"genes/{family}.bed", sep="\t", header=False, index=False)
     os.remove("genes/temp.bed")
 
 
 if __name__ == "__main__":
+    family = snakemake.wildcards.family
     hpo = snakemake.input.hpo
     ensembl = snakemake.input.ensembl
     refseq = snakemake.input.refseq
     hgnc = snakemake.input.hgnc
-    main(hpo, ensembl, refseq, hgnc)
+    main(family, hpo, ensembl, refseq, hgnc)

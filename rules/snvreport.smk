@@ -36,13 +36,16 @@ if config["run"]["hpo"]:
 
     def get_panel(wildcards):
         if not config["run"]["panel"]:
-            return "genes/genes.bed"
+            if wildcards.p == "panel":
+                return "genes/{family}.bed"
+            else:
+                return "genes/{family}_{p}.bed"
         return config["run"]["panel"]
 
-    def get_bed(wildcards):
-        if wildcards.p == "panel-flank":
-            return "{}-flank-{}k.bed".format(config["run"]["project"], int(config["run"]["flank"]/1000))
-        return get_panel()
+    # def get_bed(wildcards):
+    #     if wildcards.p == "panel-flank":
+    #         return "genes/{family}_{p}.bed"
+    #     return get_panel()
 
 
     rule hpo_to_panel:
@@ -55,16 +58,15 @@ if config["run"]["hpo"]:
             crg2=config["tools"]["crg2"],
             cre=config["tools"]["cre"]
         output: 
-            genes="genes/genes.bed"
+            genes="genes/{family}.bed"
         conda: "../envs/hpo_to_panel.yaml"
-        log:
-            "logs/hpo_to_panel/genes.log"
+        log: "logs/hpo_to_panel/{family}.log"
         script:
             "../scripts/hpo_to_panel.py"
 
     rule add_flank:
-        input: config["run"]["panel"]
-        output: "{}-flank-{}k.bed".format(config["run"]["project"], int(config["run"]["flank"]/1000))
+        input: "genes/{family}.bed"
+        output: "genes/{family}_{p}.bed"
         params: config["run"]["flank"]
         shell:
             '''
@@ -74,7 +76,7 @@ if config["run"]["hpo"]:
     rule intersect:
         input: 
             left="filtered/{family}.vcf.gz",
-            right=get_bed
+            right=get_panel
         output:
             vcf="filtered/{p}/{family}.{p}.vcf.gz"
         params:
