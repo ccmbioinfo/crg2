@@ -32,13 +32,35 @@ rule allsnvreport:
          unset type
          fi;
          '''
-if config["run"]["panel"]:
+if config["run"]["hpo"]:
+
+    def get_panel(wildcards):
+        if not config["run"]["panel"]:
+            return "genes/genes.bed"
+        return config["run"]["panel"]
 
     def get_bed(wildcards):
         if wildcards.p == "panel-flank":
             return "{}-flank-{}k.bed".format(config["run"]["project"], int(config["run"]["flank"]/1000))
-        else:
-            return config["run"]["panel"]
+        return get_panel()
+
+
+    rule hpo_to_panel:
+        input: 
+            hpo=config["run"]["hpo"],
+            ensembl=config["genes"]["ensembl"],
+            refseq=config["genes"]["refseq"],
+            hgnc=config["genes"]["hgnc"]
+        params: 
+            crg2=config["tools"]["crg2"],
+            cre=config["tools"]["cre"]
+        output: 
+            genes="genes/genes.bed"
+        conda: "../envs/hpo_to_panel.yaml"
+        log:
+            "logs/hpo_to_panel/genes.log"
+        script:
+            "../scripts/hpo_to_panel.py"
 
     rule add_flank:
         input: config["run"]["panel"]

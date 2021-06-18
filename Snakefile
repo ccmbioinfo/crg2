@@ -15,6 +15,7 @@ rule all:
         "qc/multiqc/multiqc.html",
         #"plots/depths.svg",
         #"plots/allele-freqs.svg"
+        "genes/genes.bed" if config["run"]["hpo"] else [],
         "programs-{}.txt".format(PIPELINE_VERSION)
 
 localrules: write_version
