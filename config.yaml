@@ -7,6 +7,11 @@ run:
   hpo: "" # five-column TSV with HPO terms; leave this string empty is there are no hpo terms
   flank: 100000
 
+genes:
+  ensembl: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/Homo_sapiens.GRCh37.87.gtf_subset.csv"
+  refseq: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/GRCh37_latest_genomic.gff_subset.csv" 
+  hgnc: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/HGNC_20210617.txt"
+
 tools:
   svscore_script: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/crg2-non-conda-tools/SVScore/svscore.pl"
   annotsv: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/crg2-non-conda-tools/AnnotSV_2.1"

@@ -43,6 +43,13 @@ Make sure to replace ```~/crg2-conda``` with the path made in step 4. This will 
   - set ```-reciprocal             yes```
   - set ```-svtBEDcol:     4```
 
+10. To generate a gene panel from an HPO text file exported from PhenomeCentral or G4RD, add the HPO filepath to config["run"]["hpo"]. You will also need to generate Ensembl and RefSeq gene files as well as an HGNC gene mapping file.
+- Download and unzip Ensembl gtf: ```wget -qO- http://ftp.ensembl.org/pub/grch37/current/gtf/homo_sapiens/Homo_sapiens.GRCh37.87.gtf.gz  | gunzip -c > Homo_sapiens.GRCh37.87.gtf```
+- Download and unzip RefSeq gff: ```wget https://ftp.ncbi.nlm.nih.gov/refseq/H_sapiens/annotation/GRCh37_latest/refseq_identifiers/GRCh37_latest_genomic.gff.gz | gunzip -c > GRCh37_latest_genomic.gff```
+- Download RefSeq chromosome mapping file: ```wget https://ftp.ncbi.nlm.nih.gov/refseq/H_sapiens/annotation/GRCh37_latest/refseq_identifiers/GRCh37_latest_assembly_report.txt```
+- Run script to parse the above files: ```python scripts/clean_gtf.py --ensembl_gtf /path/to/Homo_sapiens.GRCh37.87.gtf --refseq_gff3 /path/to/GRCh37_latest_genomic.gff --refseq_assembly /path/to/GRCh37_latest_assembly_report.txt```
+- Add the paths to the output files, Homo_sapiens.GRCh37.87.gtf_subset.csv and GRCh37_latest_genomic.gff_subset.csv, to the config["gene"]["ensembl"] and config["gene"]["refseq"] fields.
+- You will also need the HGNC alias file: download this from https://www.genenames.org/download/custom/ using the default fields. Add the path this file to config["gene"]["hgnc"].
 ## Running the pipeline
 1. Make a folder in a directory with sufficient space. Copy over the template files samples.tsv, units.tsv, config.yaml.
 You may need to re-copy config.yaml and pbs_config.yaml if the files were recently updated in repo from previous crg2 runs. Note that 'pbs_config.yaml' is for submitting each rule as cluster jobs, so ignore this if not running on cluster
