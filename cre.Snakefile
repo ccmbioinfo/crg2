@@ -10,7 +10,7 @@ project=config["run"]["project"]
 
 rule all:
     input:
-        "report/{}".format(project)
+        "report/coding/{}".format(project)
         
         
 

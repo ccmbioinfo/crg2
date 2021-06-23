@@ -109,7 +109,7 @@ if len(get_cre_vcfs()) > 1:
         input: 
             "filtered/{family}-numpass1-decomposed.vcf.gz".format(family=project)
         output: 
-            "annotated/{family}-ensemble-decomposed.vcf.gz"
+            "annotated/coding/{family}-ensemble-decomposed.vcf.gz"
         log: 
             "logs/bcftools/filter/{family}-ensemble.log"
         params: 
@@ -140,7 +140,7 @@ else:
             annot = "isec/sites.caller.txt.gz",
             hdr = "isec/hdr.txt"
         output: 
-            "annotated/{family}-ensemble-decomposed.vcf.gz"
+            "annotated/coding/{family}-ensemble-decomposed.vcf.gz"
         log: 
             "logs/bcftools/annotate/{family}.log"
         wrapper:
