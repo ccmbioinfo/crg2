@@ -97,6 +97,8 @@ annotation:
     trf: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/ExpansionHunter/tandem_repeat_disease_loci_v1.1.tsv"
     1000g: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/ExpansionHunter/1000G_EH_v1.0.tsv"
 
+validation:
+  benchmark: "benchmark.tsv"
 
 params:
   bwa:
@@ -140,4 +142,8 @@ params:
     call: " -m -v "
   freebayes: " --genotype-qualities --strict-vcf --ploidy 1 --no-partial-observations --min-repeat-entropy 1 "
   platypus: "--filterDuplicates=0"
+  rtg-tools:
+    java_opts: "-Xmx20g"
+    vcfeval:
+      sdf: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/rtg-tools/GRch37_SDF/"
 

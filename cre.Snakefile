@@ -21,5 +21,6 @@ include: "rules/cre/calling.smk"
 include: "rules/cre/filtering.smk"
 include: "rules/cre/annotation.smk"
 include: "rules/cre/snvreport.smk"
+include: "rules/cre/validation.smk"
 
 
