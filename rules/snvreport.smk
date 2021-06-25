@@ -86,3 +86,43 @@ if config["run"]["hpo"]:
             get_wrapper_path("bedtools", "intersect")
             
         
+    rule annotate_hpo:
+        input:
+            reports=expand("report/{p}/{family}",p=["coding", "panel", "panel-flank"], family=project),
+            hpo=config["run"]["hpo"]
+        output: 
+            directory("report/hpo_annotated")
+        conda: 
+            "../envs/hpo_to_panel.yaml"
+        params: 
+            crg2 = config["tools"]["crg2"]
+        log: 
+            "logs/hpo_annotation.log"
+        shell:
+            '''
+                if [ ! -d {output} ]; then mkdir -p {output}; fi;
+                for i in {input.reports}; do 
+                    echo "dir: ${{i}}" >> {log};                
+                    if [[ "${{i}}" =~ .*"panel-flank".* ]]; then 
+                        j=`find ${{i}} -name  "*.wgs.[0-9]*.csv" | grep -v "clinical"`;
+                        rename=`echo ${{j}} | sed 's/wgs/wgs.panel-flank100k/g'`;
+                        if [ ! -f ${{rename}} ]; then
+                            ln -s `basename ${{j}}` ${{rename}};
+                        else
+                            echo "${{j}} found panel-flank"  >> {log};
+                        fi;
+                    elif [[ "${{i}}" =~ .*"panel".* ]]; then 
+                        j=`find ${{i}} -name "*.wgs.[0-9]*.csv" | grep -v "clinical"`;
+                        rename=`echo ${{j}} | sed 's/wgs/wgs.panel/g'`;
+                        if [ ! -f ${{rename}} ]; then
+                            ln -s `basename ${{j}}` ${{rename}};
+                        else
+                            echo "${{j}} found panel"  >> {log};
+                        fi;
+                    else 
+                        rename=`find ${{i}} -name "*.wes*.[0-9]*.csv" | grep -v "clinical"`;
+                        echo "${{rename}} found wes"  >> {log};
+                    fi;
+                    python {params.crg2}/scripts/add_hpo_terms_to_wes.py {input.hpo} ${{rename}} {output} >> {log} 2>&1
+                done;
+            '''
