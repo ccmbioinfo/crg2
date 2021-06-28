@@ -49,15 +49,22 @@ Make sure to replace ```~/crg2-conda``` with the path made in step 4. This will 
   - set ```-reciprocal             yes```
   - set ```-svtBEDcol:     4```
 
+10. To generate a gene panel from an HPO text file exported from PhenomeCentral or G4RD, add the HPO filepath to config["run"]["hpo"]. You will also need to generate Ensembl and RefSeq gene files as well as an HGNC gene mapping file.
+- Download and unzip Ensembl gtf: ```wget -qO- http://ftp.ensembl.org/pub/grch37/current/gtf/homo_sapiens/Homo_sapiens.GRCh37.87.gtf.gz  | gunzip -c > Homo_sapiens.GRCh37.87.gtf```
+- Download and unzip RefSeq gff: ```wget https://ftp.ncbi.nlm.nih.gov/refseq/H_sapiens/annotation/GRCh37_latest/refseq_identifiers/GRCh37_latest_genomic.gff.gz | gunzip -c > GRCh37_latest_genomic.gff```
+- Download RefSeq chromosome mapping file: ```wget https://ftp.ncbi.nlm.nih.gov/refseq/H_sapiens/annotation/GRCh37_latest/refseq_identifiers/GRCh37_latest_assembly_report.txt```
+- Run script to parse the above files: ```python scripts/clean_gtf.py --ensembl_gtf /path/to/Homo_sapiens.GRCh37.87.gtf --refseq_gff3 /path/to/GRCh37_latest_genomic.gff --refseq_assembly /path/to/GRCh37_latest_assembly_report.txt```
+- Add the paths to the output files, Homo_sapiens.GRCh37.87.gtf_subset.csv and GRCh37_latest_genomic.gff_subset.csv, to the config["gene"]["ensembl"] and config["gene"]["refseq"] fields.
+- You will also need the HGNC alias file: download this from https://www.genenames.org/download/custom/ using the default fields. Add the path this file to config["gene"]["hgnc"].
 ## Running the pipeline
-1. Make a folder in a directory with sufficient space. Copy over the template files samples.tsv, units.tsv, config.yaml.
+1. Make a folder in a directory with sufficient space. Copy over the template files samples.tsv, units.tsv, config.yaml, pbs_profile/pbs_config.yaml.
 You may need to re-copy config.yaml and pbs_config.yaml if the files were recently updated in repo from previous crg2 runs. Note that 'pbs_config.yaml' is for submitting each rule as cluster jobs, so ignore this if not running on cluster
 ```
 mkdir NA12878
-cp crg2/samples.tsv crg2/units.tsv crg2/config.yaml NA12878 crg2/pbs_profile/pbs_config.yaml
+cp crg2/samples.tsv crg2/units.tsv crg2/config.yaml crg2/pbs_profile/pbs_config.yaml NA12878
 ```
 
-2. Reconfigure the 3 files to reflect project names, sample names, input fastq files, a panel bed file (if any) and a ped file (if any). Inclusion of a panel bed file will generate 2 SNV reports with all variants falling within these regions. Inclusion of a ped file currently does nothing except create a gemini db with the pedigree data stored in it.
+2. Reconfigure the 3 files to reflect project names, sample names, input fastq or bam files, a panel bed file (if any) or hpo file (if any) and a ped file (if any). Inclusion of a panel bed file or hpofile will generate 2 SNV reports with all variants falling within these regions. Inclusion of a ped file with unaffacted parents and an affected proband will allow generation of a de novo report. Note that the default input file type specified in the config is fastq; change this to bam if the inputs are bam files. If there are multiple fastqs per read end, these must be comma-delimited within the units.tsv file. At the moment, the pipeline does not support a mix of fastqs and bam files within a project/family. 
 
 samples.tsv
 ```
@@ -80,6 +87,7 @@ run:
   ped: "" # leave this line blank if there is no ped
   panel: "/hpf/largeprojects/ccmbio/dennis.kao/NA12878/panel.bed" # remove this line entirely if there is no panel bed file
   flank: "100000"
+  input: "fastq" # default fastq; specify bam if input is bam
   
 cre: /hpf/largeprojects/ccm_dccforge/dccdipg/Common/pipelines/cre
 
@@ -89,7 +97,7 @@ ref:
 ...
 ```
 
-3. Active the conda environment with Snakemake 5.10.0
+3. Activate the conda environment with Snakemake 5.10.0
 
 ```
 (base) [dennis.kao@qlogin5 crg2]$ conda activate snakemake

@@ -1,4 +1,4 @@
-import sys, os, subprocess
+import sys, os, subprocess, glob
 from collections import namedtuple
 import argparse
 
@@ -39,6 +39,30 @@ def setup_directories(family, sample_list, filepath, step):
     pbs = os.path.join(d,"dnaseq_cluster.pbs")
     if os.path.isfile(pbs):
         cmd = ["sed", "-i", replace, pbs]
+        subprocess.check_call(cmd)
+
+    #glob hpo
+    hpo_path = os.path.expanduser('~/gene_data/HPO')
+    hpo = glob.glob(('{}/{}_HPO.txt').format(hpo_path, family))
+    if len(hpo) > 1:
+        print(f"Multiple HPO files found: {hpo}. Exiting!")
+        exit()
+    if len(hpo) == 1 and os.path.isfile(config):
+        hpo = hpo[0]
+        replace = 's+hpo: ""+hpo: "{}"+'.format(hpo)
+        cmd = ["sed", "-i", replace, config]
+        subprocess.check_call(cmd)
+
+    #glob ped
+    ped_path = os.path.expanduser('~/gene_data/pedigrees')
+    ped = glob.glob(('{}/{}*ped').format(ped_path, family))
+    if len(ped) > 1:
+        print(f"Multiple ped files found: {ped}. Exiting!")
+        exit()
+    if len(ped) == 1 and os.path.isfile(config):
+        ped = ped[0]
+        replace = 's+ped: ""+ped: "{}"+'.format(ped)
+        cmd = ["sed", "-i", replace, config]
         subprocess.check_call(cmd)
 
     #bam: start after folder creation and symlink for step
