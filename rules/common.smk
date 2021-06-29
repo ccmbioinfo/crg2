@@ -13,9 +13,11 @@ configfile: "config.yaml"
 validate(config, schema="../schemas/config.schema.yaml")
 
 samples = pd.read_table(config["run"]["samples"]).set_index("sample", drop=False)
+samples.index = samples.index.map(str)
 validate(samples, schema="../schemas/samples.schema.yaml")
 
 units = pd.read_table(config["run"]["units"], dtype=str).set_index(["sample"], drop=False)
+units.index = units.index.map(str)
 
 validate(units, schema="../schemas/units.schema.yaml")
 
