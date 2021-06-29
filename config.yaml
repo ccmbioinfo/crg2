@@ -6,6 +6,7 @@ run:
   panel: "" # three-column BED file based on hpo file; leave this string empty if there is no panel
   hpo: "" # five-column TSV with HPO terms; leave this string empty is there are no hpo terms
   flank: 100000
+  input: "fastq"
 
 genes:
   ensembl: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/Homo_sapiens.GRCh37.87.gtf_subset.csv"

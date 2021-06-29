@@ -1,34 +1,33 @@
-ruleorder: bamtofastq > fastq_prep
 
+if config["run"]["input"] == "fastq":
+    rule fastq_prep:
+        input: 
+            units=config["run"]["units"]
+        output:
+            reads = temp(["fastq/{family}_{sample}_R1.fastq.gz", "fastq/{family}_{sample}_R2.fastq.gz"]) 
+        log:
+            "logs/fastq_prep/{family}_{sample}.log"
+        conda:
+            "../envs/crg.yaml" 
+        script:
+            "../scripts/fastq_prep.py"
+else:
+    rule bamtofastq:
+        input:
+            bam_file = get_bam
+        params:
+            outdir = temp("fastq/"),
+            sort_check = True
+        output:
+            fastq1 = temp("fastq/{family}_{sample}_R1.fastq.gz"),
+            fastq2 = temp( "fastq/{family}_{sample}_R2.fastq.gz")
+        log:
+            "logs/bamtofastq/{family}_{sample}.log"
+        threads:
+            4
+        wrapper:
+            get_wrapper_path("bedtools", "bamtofastq")
 
-rule bamtofastq:
-    input:
-        bam_file = get_bam
-    params:
-        outdir = temp("fastq/"),
-        sort_check = True
-    output:
-        fastq1 = temp("fastq/{family}_{sample}_R1.fastq.gz"),
-        fastq2 = temp( "fastq/{family}_{sample}_R2.fastq.gz")
-    log:
-        "logs/bamtofastq/{family}_{sample}.log"
-    threads:
-        4
-    wrapper:
-        get_wrapper_path("bedtools", "bamtofastq")
-
-
-rule fastq_prep:
-    input: 
-        units = config["run"]["units"]
-    output:
-        reads = temp(["fastq/{family}_{sample}_R1.fastq.gz", "fastq/{family}_{sample}_R2.fastq.gz"])
-    log:
-         "logs/fastq_prep/{family}_{sample}.log"
-    conda:
-        "../envs/crg.yaml"
-    script:
-        "../scripts/fastq_prep.py"
 
 
 rule map_reads:
