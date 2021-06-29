@@ -242,3 +242,14 @@ The pipeline generates 6 reports:
 5. EH - a report on repeat expansions in known locations
 
 6. EHDN - a report on denovo repeats filtered from a case-control outlier analysis
+
+## Extra targets
+
+The following targets are not included in the main Snakefile and can be requested in `snakemake` command-line.
+
+1. HPO annotated reports: 
+  Reports from coding, panel and panel-flank can be annotated with HPO terms whenever HPO file is available with us. This is done mainly for monthly GenomeRounds. HPO annotated files are placed in directory: `report/hpo_annotated` using the following command:
+
+  `snakemake --use-conda -s $SF --conda-prefix $CP --profile ${PBS} -p report/hpo_annotated` 
+  The reason to not include this in Snakefile is because there is currently no way to schedule `rule annotate_hpo` after 
+  `rule allsnvreport`. `rule allsnvreport` output is defined as directory, whereas the `rule annotate_hpo` requires actual reports created inside the directory.
