@@ -10,7 +10,7 @@ properties:
     project:
       type: string
     samples:
-      type: string
+      type: ["number", "string"] 
     units:
       type: string
     ped:
