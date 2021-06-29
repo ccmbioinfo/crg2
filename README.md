@@ -253,3 +253,13 @@ The following targets are not included in the main Snakefile and can be requeste
   `snakemake --use-conda -s $SF --conda-prefix $CP --profile ${PBS} -p report/hpo_annotated` 
   The reason to not include this in Snakefile is because there is currently no way to schedule `rule annotate_hpo` after 
   `rule allsnvreport`. `rule allsnvreport` output is defined as directory, whereas the `rule annotate_hpo` requires actual reports created inside the directory.
+
+## Pipeline benchmarking
+
+We used [NA12878](https://ftp-trace.ncbi.nlm.nih.gov/giab/ftp/release/NA12878_HG001/latest/GRCh37/) version 3.3.2 variant calls from Genome in a Bottle Consortium [GIAB](https://www.nist.gov/programs-projects/genome-bottle) to compare the performance of crg2 <insert version here> and bcbio pipeline.
+
+Pipeline | GATK version | TP-baseline | TP-call | False-positive | False-negative | Precision | Sensitivity | F-measure
+-- | -- | -- | -- | -- | -- | -- | -- | --
+4.0.12.0​ | 3674980 | 3705541 | 9497 | 15881 | 0.9974 | 0.9957 | 0.9966
+4.1.4.1​ | 3668827 | 3700717 | 8648 | 22034 | 0.9977 | 0.9940 | 0.9958
+
