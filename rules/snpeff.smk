@@ -10,6 +10,6 @@ rule snpeff:
     params:
         reference=config["ref"]["name"],
         extra="-Xmx6g",
-	data_dir="/hpf/largeprojects/ccmbio/naumenko/tools/bcbio/genomes/Hsapiens/GRCh37/snpeff",
+	data_dir=config["annotation"]["snpeff"]["dataDir"],
     wrapper:
         get_wrapper_path("snpeff")
