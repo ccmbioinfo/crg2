@@ -134,17 +134,12 @@ rule mosdepth:
         bed = "mapped/{family}_{sample}-callable.bed"
     params:
         prefix = f"mapped/{{family}}_{{sample}}",
-        by = config["ref"]["canon_bed"]
+        by = config["ref"]["canon_bed"],
+        quantiles = "0:1:4:"
     log:
         "logs/mosdepth/{family}_{sample}.log"
-    shell:
-        '''
-        export MOSDEPTH_Q0=NO_COVERAGE;
-        export MOSDEPTH_Q1=LOW_COVERAGE;
-        export MOSDEPTH_Q2=CALLABLE;
-        mosdepth -n -F 1804 -Q 1 --quantize 0:1:4: --by {params.by} {params.prefix} {input.bam} 2> {log}
-        zgrep "CALLABLE" {output.qbed} > {output.bed}
-        '''
+    wrapper:
+        get_wrapper_path("mosdepth")
        
 rule baserecalibrator:
     input:
