@@ -245,11 +245,21 @@ The pipeline generates 6 reports:
 
 ## Extra targets
 
-The following targets are not included in the main Snakefile and can be requested in `snakemake` command-line.
+The following output files are not included in the main Snakefile and can be requested in `snakemake` command-line.
 
 1. HPO annotated reports: 
-  Reports from coding, panel and panel-flank can be annotated with HPO terms whenever HPO file is available with us. This is done mainly for monthly GenomeRounds. HPO annotated files are placed in directory: `report/hpo_annotated` using the following command:
+  Reports from coding, panel and panel-flank can be annotated with HPO terms whenever HPO file is available with us. This is done mainly for monthly GenomeRounds. HPO annotated TSV files are created in directory: `report/hpo_annotated` using the following command:
 
   `snakemake --use-conda -s $SF --conda-prefix $CP --profile ${PBS} -p report/hpo_annotated` 
-  The reason to not include this in Snakefile is because there is currently no way to schedule `rule annotate_hpo` after 
-  `rule allsnvreport`. `rule allsnvreport` output is defined as directory, whereas the `rule annotate_hpo` requires actual reports created inside the directory.
+  
+ The reason to not include this output in Snakefile is that the output of `rule allsnvreport` is a directory and hence snakemake will not check for the creation of final csv reports. So, users are required to make sure the csv reports are created in the three folders above, and then request for the output of `rule annotate_hpo` separately on command-line (or append to the dnaseq_cluster.pbs).
+  
+## Other outputs
+CNV and SV comparison outputs are not yet part of the pipeline. Please follow the steps 7 & 8 in [crg](https://github.com/ccmbioinfo/crg#7-cnv-report) to generate the following three TSVs (this is also required for GenomeRounds)
+1. <FAMILYID>.<DATE>.cnv.withSVoverlaps.tsv
+2. <FAMILYID>.unfiltered.wgs.sv.<VER>.<DATE>.withCNVoverlaps.tsv
+3. <FAMILYID>.wgs.sv.<VER>.<DATE>.withCNVoverlaps.tsv
+
+
+  
+
