@@ -19,8 +19,8 @@ else:
             outdir = temp("fastq/"),
             sort_check = True
         output:
-            fastq1 = "fastq/{family}_{sample}_R1.fastq.gz",
-            fastq2 = "fastq/{family}_{sample}_R2.fastq.gz"
+            fastq1 = temp("fastq/{family}_{sample}_R1.fastq.gz"),
+            fastq2 = temp( "fastq/{family}_{sample}_R2.fastq.gz")
         log:
             "logs/bamtofastq/{family}_{sample}.log"
         threads:
