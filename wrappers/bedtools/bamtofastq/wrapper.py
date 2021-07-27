@@ -5,13 +5,13 @@ log = snakemake.log_fmt_shell(stdout=True, stderr=True)
 
 sort_cmd = ""
 
-fq1=snakemake.output.fastq1. split(".gz")[0]
-fq2=snakemake.output.fastq2. split(".gz")[0]
+fq1=snakemake.output.fastq1.split(".gz")[0]
+fq2=snakemake.output.fastq2.split(".gz")[0]
 
 bamtofastq_cmd = (
     " bedtools bamtofastq -i {snakemake.input.bam_file} "
-    "-fq {snakemake.output.fastq1} "
-    "-fq2 {snakemake.output.fastq2}"
+    "-fq {fq1} "
+    "-fq2 {fq2}"
 )
 
 # if bam is not sorted by query name, it must be re-sorted
