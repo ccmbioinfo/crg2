@@ -28,7 +28,10 @@ def main(protein_coding_genes, exon_bed, hgmd_db, hpo, exac, omim, biomart, gnom
     protein_coding_ENSG = make_exon_gene_set(protein_coding_genes)
 
     print("Grouping like structural variants ...")
-    sv_records = SVGrouper(vcfs, ann_fields=SVScore_cols + [MetaSV_col])
+    try:
+        sv_records = SVGrouper(vcfs, ann_fields=SVScore_cols + [MetaSV_col])
+    except KeyError:
+        sv_records = SVGrouper(vcfs, ann_fields=SVScore_cols)
     sample_cols = [ col for col in sv_records.df.columns if col != MetaSV_col ]
     sample_genotype_cols = [col for col in sample_cols if col.endswith('_GENOTYPE')]
 
@@ -55,6 +58,8 @@ def main(protein_coding_genes, exon_bed, hgmd_db, hpo, exac, omim, biomart, gnom
             sv_records.df[col] = "na"
 
     # format and rearrange the columns
+    if MetaSV_col not in sv_records.df.columns:
+        sv_records.df['variants/NUM_SVTOOLS'] = '1'
     sv_records.df = sv_records.df[ [col for col in sample_cols if col not in set(SVScore_cols + sample_genotype_cols + ['N_SAMPLES', 'Ensembl Gene ID']) ] + \
     [ 'variants/SVLEN', ] + \
     [ MetaSV_col ] + \
@@ -95,16 +100,30 @@ def main(protein_coding_genes, exon_bed, hgmd_db, hpo, exac, omim, biomart, gnom
 if __name__ == "__main__":
 
     report_dir=snakemake.output[0]
+    metasv = [vcf for vcf in snakemake.input if "metasv" in vcf]
+    manta = [vcf for vcf in snakemake.input if "manta" in vcf]
 
+    # create unfiltered SV report
     out_report="{}.unfiltered.wgs.sv.v{}.{}.tsv".format(snakemake.params.project, snakemake.params.PIPELINE_VERSION, date.today().strftime("%Y-%m-%d"))
+
     main(snakemake.params.protein_coding_genes, snakemake.params.exon_bed, snakemake.params.hgmd, snakemake.params.hpo, snakemake.params.exac, \
          snakemake.params.omim, snakemake.params.biomart, snakemake.params.gnomad, \
          [snakemake.params.mssng_manta_counts, snakemake.params.mssng_lumpy_counts], \
-         out_report, snakemake.input)
+         out_report, metasv)
          
+    # create filtered SV report
     filtered_report=filter_report(out_report)
     mkdir(report_dir)
     out_filtered_report="{}/{}.wgs.sv.v{}.{}.tsv".format(report_dir,snakemake.params.project, snakemake.params.PIPELINE_VERSION, date.today().strftime("%Y-%m-%d"))
     filtered_report.to_csv(out_filtered_report, sep='\t', encoding='utf-8', na_rep='.', index=False)
 
+    # create manta BND report
+    bnd_report="{}/{}.BND.wgs.sv.v{}.{}.tsv".format(report_dir,snakemake.params.project, snakemake.params.PIPELINE_VERSION, date.today().strftime("%Y-%m-%d"))
+
+    main(snakemake.params.protein_coding_genes, snakemake.params.exon_bed, snakemake.params.hgmd, snakemake.params.hpo, snakemake.params.exac, \
+        snakemake.params.omim, snakemake.params.biomart, snakemake.params.gnomad, \
+        [snakemake.params.mssng_manta_counts, snakemake.params.mssng_lumpy_counts], \
+        bnd_report, manta)
+
     move(out_report, report_dir)
+

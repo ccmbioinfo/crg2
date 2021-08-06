@@ -2,7 +2,6 @@ from snakemake.shell import shell
 
 log = snakemake.log_fmt_shell(stdout=True, stderr=True)
 
-
 shell(
 
     "(configManta.py "
@@ -14,5 +13,6 @@ shell(
     "./runWorkflow.py "
     "--quiet "
     "-m local "
-    "-j {snakemake.threads}) {log}"
+    "-j {snakemake.threads});"
+    "mv {snakemake.params.outdir}/results/variants/diploidSV.vcf.gz {snakemake.output} {log}"
 )
