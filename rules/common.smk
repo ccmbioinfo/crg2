@@ -164,9 +164,12 @@ def get_recal_input_gatk3(bai=False):
         return f
 
 def get_annotated_sv_vcf():
-    """Get the annotated MetaSV vcf of given sample."""
-    return ["sv/metasv/{family}_{sample}/variants.snpeff.svscore.vcf".format(sample=sample, family=project) for sample in samples.index]
-
+    """Get the annotated MetaSV and Manta vcf of given sample."""
+    metasv = ["sv/metasv/{family}_{sample}/variants.snpeff.svscore.vcf".format(sample=sample, family=project) for sample in samples.index]
+    manta = ["sv/manta/{family}_{sample}/variants.snpeff.svscore.vcf".format(sample=sample, family=project) for sample in samples.index]
+    vcfs = metasv + manta
+    return vcfs
+    
 def get_wrapper_path(*dirs):
     return "file:%s" % os.path.join(workflow.basedir, "wrappers", *dirs)
 
