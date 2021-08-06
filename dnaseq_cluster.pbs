@@ -7,18 +7,10 @@
 #PBS -N crg2_pbs
 
 
-#usage: qsub dnaseq_cluster.pbs -v pipeline=wes 
-#usage: qsub dnaseq_cluster.pbs -F "wgs"
 #please change the following three variables according to your settings, as the recent crg2 repo is not copied over here
 
-if [ -z $pipeline ]; then pipeline=$1; fi;
 
-if [ $pipeline = "wes" ]; then
-	SF=~/crg2/cre.Snakefile; 
-else
-	SF=~/crg2/Snakefile
-fi;
-
+SF=~/crg2/Snakefile; 
 CP="/hpf/largeprojects/ccm_dccforge/dccdipg/Common/snakemake";
 PBS=~/crg2/pbs_profile;
 
