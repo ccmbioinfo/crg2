@@ -8,6 +8,7 @@ run:
   flank: 100000
   gatk: "gatk"
   input: "fastq"
+  pipeline: "wes" #either wes (exomes) or wgs (genomes)
 
 genes:
   ensembl: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/Homo_sapiens.GRCh37.87.gtf_subset.csv"
