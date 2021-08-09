@@ -11,7 +11,7 @@ fq2=snakemake.output.fastq2.split(".gz")[0]
 bamtofastq_cmd = (
     " bedtools bamtofastq -i {snakemake.input.bam_file} "
     "-fq {fq1} "
-    "-fq2 {fq2}"
+    "-fq2 {fq2}; "
 )
 
 # if bam is not sorted by query name, it must be re-sorted
@@ -34,8 +34,8 @@ if snakemake.params.sort_check:
             "-fq2 {fq2}; "
         )
 
-        fq1_gzip_cmd = " gzip {fq1}; "
+fq1_gzip_cmd = " gzip {fq1}; "
 
-        fq2_gzip_cmd = " gzip {fq2}; "
+fq2_gzip_cmd = " gzip {fq2}; "
 
 shell("(" + sort_cmd + bamtofastq_cmd + fq1_gzip_cmd + fq2_gzip_cmd + ") {log}")
