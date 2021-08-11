@@ -10,7 +10,8 @@ rule gatk3:
         bai=get_cre_bams(ext="bam.bai"),
         known=config["ref"]["known-variants"],
         ref=config["ref"]["genome"],
-        regions="called/gatk3/{contig}.regions.bed" if config["processing"].get("restrict-regions") else []
+        regions="mapped/bed/{family}-sort-callable-{contig}.bed",
+        #regions="called/gatk3/{contig}.regions.bed" if config["processing"].get("restrict-regions") else []
     output: "gatk3/called/{family}-{contig}.vcf"
     log:
         "logs/gatk3/{family}-{contig}.log"
@@ -38,7 +39,8 @@ rule call_variants:
         #bam=get_cre_bams(),
         ref=config["ref"]["genome"],
         known=config["ref"]["known-variants"],
-        regions="called/gatk/{contig}.regions.bed" if config["processing"].get("restrict-regions") else []
+        regions="mapped/bed/{family}-sort-callable-{contig}.bed",
+        #regions="called/gatk/{contig}.regions.bed" if config["processing"].get("restrict-regions") else []
     output:
         gvcf=temp("gatk/called/{family}_{sample}.{contig}.g.vcf.gz")
     log:
