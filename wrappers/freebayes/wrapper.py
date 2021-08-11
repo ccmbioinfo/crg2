@@ -12,6 +12,8 @@ if snakemake.output[0].endswith(".bcf"):
 
 if snakemake.threads == 1:
     freebayes = "freebayes"
+    if snakemake.input.get("regions", ""):
+        freebayes = "{} --targets {} ".format(freebayes,snakemake.input.get("regions"))
 else:
     chunksize = snakemake.params.get("chunksize", 100000)
     regions = "<(fasta_generate_regions.py {snakemake.input.ref}.fai {chunksize})".format(

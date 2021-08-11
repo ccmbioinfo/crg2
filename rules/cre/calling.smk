@@ -126,9 +126,9 @@ rule freebayes:
     params:
         extra=config["params"]["freebayes"],         # optional parameters
         chunksize=100000  # reference genome chunk size for parallelization (default: 100000)
-    threads: 16
+    threads: 1
     resources:
-        mem=lambda wildcards, threads: threads * 4
+        mem=lambda wildcards, threads: threads * 4 if threads > 1 else 20
     wrapper:
         get_wrapper_path("freebayes")
 
