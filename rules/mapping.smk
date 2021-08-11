@@ -206,3 +206,38 @@ rule samtools_index:
     wrapper:
         get_wrapper_path("samtools", "index")
 
+
+rule concatenate_callable_bed:
+    input:
+        expand("mapped/{family}_{sample}-callable.bed",family=project,sample=samples.index)
+    output: 
+        "mapped/{family}-concat-sort.bed"
+    log:
+        "logs/bash/{family}-callable-concat.log"
+    shell:
+        '''
+            cat {input} | sort -k1,1 -k2,2n > {output} 2>{log}
+        '''
+    
+rule merge_bed:
+    input: 
+        "mapped/{family}-concat-sort.bed"
+    output:
+        "mapped/{family}-sort-callable.bed"
+    log:
+        "logs/bedtools/{family}-callable-merge.log"
+    wrapper:
+        get_wrapper_path("bedtools", "merge")
+
+rule contigwise_bed:
+    input:
+        "mapped/{family}-sort-callable.bed"
+    output:
+        "mapped/bed/{family}-sort-callable-{contig}.bed"
+    log:
+        "logs/bash/{family}.{contig}.log"    
+    shell:
+        """
+            awk '{{ if($1=={wildcards.contig}) print $0; }}' {input} > {output} 2>{log}
+        """
+    
