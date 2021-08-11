@@ -117,11 +117,12 @@ rule freebayes:
         samples=get_cre_bams(),
         bai=get_cre_bams(ext="bam.bai"),
         ref=config["ref"]["genome"],
-        regions=config["ref"]["canon_bed"]
+        regions="mapped/bed/{family}-sort-callable-{{contig}}.bed".format(family=project)
+        #regions=config["ref"]["canon_bed"]
     output:
-        "called/{family}-freebayes.vcf"  # either .vcf or .bcf
+        "freebayes/{contig}.vcf"  # either .vcf or .bcf
     log:
-        "logs/freebayes/{family}.log"
+        "logs/freebayes/{contig}.log"
     params:
         extra=config["params"]["freebayes"],         # optional parameters
         chunksize=100000  # reference genome chunk size for parallelization (default: 100000)
@@ -131,12 +132,25 @@ rule freebayes:
     wrapper:
         get_wrapper_path("freebayes")
 
+rule merge_freebayes:
+    input:
+        expand("freebayes/{contig}.vcf",contig = get_canon_contigs())
+    output:
+        "called/{family}-freebayes.vcf"
+    log:
+        "logs/freebayes/{family}-merge.log"
+    shell:
+        '''
+        bcftools concat {input} | bcftools sort > {output}  
+        '''
+    
+
 rule platypus:
     input:
         bam=get_cre_bams(),
         bai=get_cre_bams(ext="bam.bai"),
         ref=config["ref"]["genome"],
-        regions=config["ref"]["canon_bed"] #remove or empty quotes if not using regions
+        regions="mapped/{family}-sort-callable.bed"
     output:
 	    "called/{family}-platypus.vcf"
     params: config["params"]["platypus"]
