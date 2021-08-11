@@ -238,6 +238,6 @@ rule contigwise_bed:
         "logs/bash/{family}.{contig}.log"    
     shell:
         """
-            awk '{{ if($1=={wildcards.contig}) print $0; }}' {input} > {output} 2>{log}
+            awk '{{ if($1=="{wildcards.contig}") print $0; }}' {input} > {output} 2>{log}
         """
     
