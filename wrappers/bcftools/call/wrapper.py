@@ -20,21 +20,22 @@ if snakemake.threads:
 else:
     threads = 1 
 
-chrom = path.splitext(outfile)[0].split("/")[-1]
-chromdir = path.join("samtools", chrom)
 
-region = path.join(snakemake.params.region, chrom + ".txt")    
+chrom = snakemake.params.contig
+
+#use callable bed file instead of whole genome
+region = snakemake.input.region
+
 
 ref = snakemake.input.ref
 bams = snakemake.input.samples
-popen("mkdir -p " + chromdir)
-command = '"samtools mpileup -t AD -t DP -u -g -f {} {} -r {{}} --BCF --uncompressed | bcftools call -m -v {} > {}/{{}}.vcf "'.format(ref, bams, out_format, chromdir)
-#command = '"bcftools mpileup -a AD -a DP -f {} {} -r {{}}   | bcftools call -m -v {} > {}/{{}}.vcf "'.format(ref, bams,out_format, chrom)
 
-shell(
-    "cat {region} | parallel -k -j {threads} {command} && "
-    "ls {chromdir}/*.vcf > {chrom}.files && "
-    "bcftools concat -f {chrom}.files | "
-    "bcftools sort > {outfile} && "   
-    "rm {chromdir}/*.vcf {chrom}.files && rmdir {chromdir};  {log} "
-)
+
+##command string for using -r
+#command = '"samtools mpileup -t AD -t DP -u -g -f {} {} -r {{}} --BCF --uncompressed | bcftools call -m -v {} > {}/{{}}.vcf "'.format(ref, bams, out_format, chromdir)
+##command string for bcftools mpileup with -r
+#command = '"bcftools mpileup -a AD -a DP -f {} {} -r {{}}   | bcftools call -m -v {} > {}/{{}}.vcf "'.format(ref, bams,out_format, chrom)
+##command string for -l bed option (tried parallelizing over each interval in bed, which creates ~100K files causing process to quit!)
+command = "samtools mpileup -t AD -t DP -u -g -f {} {} -l {} --BCF --uncompressed | bcftools call -m -v {} | bcftools sort {} -o {}".format(ref, bams,region, out_format, out_format, outfile)
+    
+shell ("{command}; {log}")

@@ -153,13 +153,13 @@ rule samtools_call:
         samples=get_cre_bams(),
         ref=config["ref"]["genome"],
         bai=get_cre_bams(ext="bam.bai"),
-        #regions="regions.bed" #remove or empty quotes if not using regions
+        region="mapped/bed/{family}-sort-callable-{{contig}}.bed".format(family=project)
     output:
 	    "samtools/called/{contig}.vcf"
     params:
         mpileup = config["params"]["samtools"]["mpileup"],
         call = config["params"]["bcftools"]["call"],
-        region = config["ref"]["split_genome"],
+        contig = lambda w: w.contig
     threads: 8
     resources:
         mem=lambda wildcards, threads: threads * 4
