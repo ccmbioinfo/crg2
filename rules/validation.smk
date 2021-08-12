@@ -9,7 +9,7 @@ rule benchmark:
         "logs/benchmark/{family}-vcfeval.log"
     params:
         java_opts=config["params"]["rtg-tools"]["java_opts"],
-        pipeline="wgs",
+        pipeline=config["run"]["pipeline"],
         sdf = config["params"]["rtg-tools"]["vcfeval"]["sdf"]
     resources:
         mem=30

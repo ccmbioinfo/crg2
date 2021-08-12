@@ -39,6 +39,7 @@ rule write_version:
 include: "rules/mapping.smk"
 include: "rules/stats.smk"
 include: "rules/qc.smk"
+include: "rules/validation.smk"
 
 if config["run"]["pipeline"] == "wes":
     base = "rules/cre/"
