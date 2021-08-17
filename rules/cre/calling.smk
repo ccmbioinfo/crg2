@@ -188,6 +188,8 @@ rule merge_mpileup:
         #vcfs =lambda w: expand("called/samtools-{contig}.vcf", contig = "GRCh37d5")
     output:
         "called/{family}-samtools.vcf"
+    conda:
+        "../../envs/common.yaml"
     shell:
         '''
         if [ -f files ]; then rm files; fi;
@@ -201,6 +203,9 @@ rule bgzip:
         "{prefix}.vcf"
     output:
         "{prefix}.vcf.gz"
+    conda:
+        "../../envs/common.yaml"
+
     shell:
         '''
         bgzip -c {input} > {output}
@@ -213,5 +218,7 @@ rule tabix:
         "{prefix}.vcf.gz.tbi"
     log: 
         "logs/{prefix}.log"
+    conda:
+           "../../envs/common.yaml"
     wrapper:
         get_wrapper_path("tabix")

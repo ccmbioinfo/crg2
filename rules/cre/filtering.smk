@@ -84,7 +84,8 @@ if len(get_cre_vcfs()) > 1:
             hdr = "isec/hdr.txt"
         params:
             crg2 = config["tools"]["crg2"]
-        
+        conda:
+            "../../envs/common.yaml"
         shell:
             '''
             cat {input} | parallel -k -j 16  {params.crg2}/scripts/annotate-caller.sh {{}} >> {output.txt}
@@ -125,6 +126,8 @@ else:
             txt = "isec/sites.caller.txt",
             bz = "isec/sites.caller.txt.gz",
             hdr = "isec/hdr.txt"
+        conda:
+            "../../envs/common.yaml"
         shell:
             '''
             mkdir -p isec
