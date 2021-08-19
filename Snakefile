@@ -11,7 +11,7 @@ rule all:
         expand("report/{p}/{family}", p=["panel", "panel-flank", "denovo"], family=config["run"]["project"]) if (config["run"]["hpo"] or config["run"]["panel"]) and config["run"]["ped"] else [],
         "report/coding/{family}".format(family=config["run"]["project"]),
         "report/sv",
-        "report/str/{family}.EH-v1.1.xlsx".format(family=config["run"]["project"]),
+        expand("report/str/{family}.{report_name}.xlsx",family=config["run"]["project"],report_name=["EH-v1.1","EHDN"]),
         "qc/multiqc/multiqc.html",
         #"plots/depths.svg",
         #"plots/allele-freqs.svg"
