@@ -166,6 +166,28 @@ The SV reports can be found in the directory:
 The STR reprots can be found in:
   - report/str/{PROJECT_ID}.EH.v1.1.{DATE}.xlsx
   - report/str/{PROJECT_ID}.EHDN.{DATE}.xlsx
+## Automatic pipeline submission
+`parser.py` script can be used to automate the above process for a batch of genomes. 
+
+```
+usage: parser.py [-h] -f FILE -s {fastq,mapped,recal,decoy_rm} -d path
+Reads sample info from TSV file (-f) and creates directory (-d) necessary to start crg2 from step (-s) requested.
+optional arguments:
+  -h, --help            show this help message and exit
+  -f FILE, --file FILE  Five column TAB-seperated sample info file; template sample file: crg2/sample_info.tsv
+  -s {fastq,mapped,recal,decoy_rm}, --step {fastq,mapped,recal,decoy_rm}
+                        start running from this folder creation(step)
+  -d path, --dir path   Absolute path where crg2 directory struture will be created under familyID as base directory
+```
+The script performs the following operations for each familyID present in the sample info file
+  - create run folder: \<familyID\>
+  - copy the following files to run folder and update settings where applicable:
+    - config.yaml: update run name, input type, panel and ped (if avaialble in /hpf/largeprojects/ccmbio/dennis.kao/gene_data/{HPO,Pedigrees})
+    - units.tsv: add sample name, and input file paths
+    - samples.tsv: add sample names
+    - dnaseq_cluser.pbs: rename job (#PBS -N \<familyID\>)
+    - pbs_config.yaml
+  - submit Snakemake job 
 
 ## Pipeline details
 
