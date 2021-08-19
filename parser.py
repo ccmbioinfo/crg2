@@ -4,7 +4,7 @@ import argparse
 
 '''
 Usage: python parser.py -f <input_sample.tsv> -d <absolute path to create directories> -s [mapped|recal|fastq|decoy_rm]
-Parse three-column(family,sample,file-path) TSV file (1st argument) and sets up necessary directories (under 2nd argument), files as below:
+Parse five-column(family,sample,fq1,fq2,bam) TSV file (1st argument) and sets up necessary directories (under 2nd argument), files as below:
 1. create family and directory passed as "-s"
 2. symlink BAM files if "-s" is not fastq
 3. copy config.yaml, pbs_config.yaml and dnaseq_cluster.pbs from crg2 repo and replace necessary string
@@ -84,8 +84,16 @@ def setup_directories(family, sample_list, filepath, step):
         return True
     
     #fastq: no directory creations required; inputs can be fastq or bam
+    #set input: bam or fastq(default) in config.yaml
     if step == "fastq":
-        if len(sample_list) == len([i for i in sample_list if i.fq1 ]) or len(sample_list) == len([i for i in sample_list if i.bam ]):
+        if len(sample_list) == len([i for i in sample_list if i.bam ]):
+            replace = 's/input: "fastq"/input: "bam"/g'
+            config = os.path.join(d,"config.yaml")
+            if os.path.isfile(config):
+                cmd = ["sed", "-i", replace, config]
+                subprocess.check_call(cmd)
+            return True
+        if len(sample_list) == len([i for i in sample_list if i.fq1 ]): 
             return True
     
 
@@ -147,7 +155,7 @@ if __name__ == "__main__":
             "--file",
             type=valid_file,
             required=True,
-            help="Three column TAB-seperated sample info file",
+            help="Five column TAB-seperated sample info file",
         )
     parser.add_argument(
             "-s",
