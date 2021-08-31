@@ -1,6 +1,11 @@
 
 callers = [ gatk + "_haplotype", "samtools", "freebayes", "platypus" ] 
 #callers = [ gatk + "_haplotype" ]
+
+#list used for annotating VCFs with INFO/CALLERS
+if len(callers) > 1:
+    caller_annotation = [ "gatk-haplotype", "samtools", "freebayes", "platypus" ] 
+
 def get_cre_vcfs():    
     return ["filtered/{family}-{caller}-vt-sf-pass.vcf.gz".format(family=project,caller=i) for i in callers ]
 
@@ -63,11 +68,36 @@ if len(get_cre_vcfs()) > 1:
         wrapper:
             get_wrapper_path("bcftools","isec")
 
+
+    rule annot_caller:
+        input: 
+            all_sites = "isec/sites.txt",
+            isec_vcf = expand("isec/000{index}.vcf.gz", index=range(len(get_cre_vcfs())))
+        output: 
+            all_sites = "isec/sites.caller.txt",
+            callerwise_sites = expand("isec/{caller}.annot.{ext}", caller=caller_annotation,ext=["txt","txt.gz","txt.gz.tbi"]),
+            callerwise_vcf = expand("isec/{caller}.annot.vcf.gz",caller=caller_annotation),
+            hdr = "isec/hdr.txt"
+        params:
+            crg2 = config["tools"]["crg2"],
+            callers = caller_annotation
+        conda:
+            "../../envs/common.yaml"
+        shell:
+            '''
+            cat {input.all_sites} | parallel -k -j 16  {params.crg2}/scripts/annotate-caller.sh {{}} >> {output.all_sites}
+            echo -e '##INFO=<ID=CALLERS,Number=.,Type=String,Description="Variant called by"\\n##INFO=<ID=NUMCALLS,Number=1,Type=Integer,Description="Number of callers at this location">' > {output.hdr}
+            for i in {params.callers}; do 
+                sh {params.crg2}/scripts/callerwise_annotation.sh ${{i}} {output.all_sites} isec isec/${{i}}.annot.vcf.gz
+            done;
+            '''
     rule vcf_concat:
         input:
-            vcf = expand("isec/000{index}.vcf.gz", index=range(len(get_cre_vcfs())))
+            vcf = expand("isec/{caller}.annot.vcf.gz",caller=caller_annotation),
+            tbi = expand("isec/{caller}.annot.vcf.gz.tbi",caller=caller_annotation)
+
         output: 
-            "filtered/{family}-vt-sf-pass-intersect.vcf.gz"
+            "filtered/{family}-numpass1-decomposed.vcf.gz"
         params: 
             "-a -d none"
         log: 
@@ -75,36 +105,6 @@ if len(get_cre_vcfs()) > 1:
         threads: 8
         wrapper:
             get_wrapper_path("bcftools", "concat")
-
-    rule annot_caller:
-        input: "isec/sites.txt"
-        output: 
-            txt = "isec/sites.caller.txt",
-            bz = "isec/sites.caller.txt.gz",
-            hdr = "isec/hdr.txt"
-        params:
-            crg2 = config["tools"]["crg2"]
-        conda:
-            "../../envs/common.yaml"
-        shell:
-            '''
-            cat {input} | parallel -k -j 16  {params.crg2}/scripts/annotate-caller.sh {{}} >> {output.txt}
-            bgzip -c {output.txt} > {output.bz}
-            tabix -s1 -b2 -e2 {output.bz}
-            echo -e '##INFO=<ID=CALLERS,Number=.,Type=String,Description="Variant called by"\\n##INFO=<ID=NUMCALLS,Number=1,Type=Integer,Description="Number of callers at this location">' > {output.hdr}
-            '''
-
-    rule vcf_annotate:
-        input: 
-            vcf = "filtered/{family}-vt-sf-pass-intersect.vcf.gz",
-            annot = "isec/sites.caller.txt.gz",
-            hdr = "isec/hdr.txt"
-        output: 
-            "filtered/{family}-numpass1-decomposed.vcf.gz"
-        log: 
-            "logs/bcftools/annotate/{family}.log"
-        wrapper:
-            get_wrapper_path("bcftools", "annotate")
 
     rule ensemble:
         input: 
