@@ -82,6 +82,16 @@ rule recalibrate_base_qualities:
     wrapper:
         get_wrapper_path("gatk", "baserecalibrator")
 
+rule md5:
+    input: 
+        bam = "recal/{family}_{sample}.bam"
+    output:
+        md5 = "recal/{family}_{sample}.bam.md5"
+    shell:
+        """
+        md5sum {input.bam} > {output.md5}
+        """
+
 rule remove_decoy:
     #redirect first samtools command to a temp output file "decoy.bam" 
     #otherwise it floods the log file with binary stream of decoy reads

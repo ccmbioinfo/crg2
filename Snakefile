@@ -15,8 +15,8 @@ rule all:
         "qc/multiqc/multiqc.html",
         #"plots/depths.svg",
         #"plots/allele-freqs.svg"
-        "programs-{}.txt".format(PIPELINE_VERSION)
-
+        "programs-{}.txt".format(PIPELINE_VERSION),
+        expand("recal/{family}_{sample}.bam.md5".format(family=config["run"]["project"], sample=config["run"]["project"]))
 localrules: write_version
 rule write_version:
     output: "programs-{}.txt".format(PIPELINE_VERSION)
