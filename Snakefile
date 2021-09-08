@@ -2,6 +2,8 @@ PIPELINE_VERSION="0.9.0"
 
 include: "rules/common.smk"
 
+samples = pd.read_table(config["run"]["samples"]).set_index("sample", drop=False)
+
 ##### Target rules #####
 import datetime
 rule all:
@@ -16,7 +18,7 @@ rule all:
         #"plots/depths.svg",
         #"plots/allele-freqs.svg"
         "programs-{}.txt".format(PIPELINE_VERSION),
-        expand("recal/{family}_{sample}.bam.md5".format(family=config["run"]["project"], sample=config["run"]["project"]))
+	[expand("recal/{family}_{sample}.bam.md5".format(family=config["run"]["project"], sample=s)) for s in samples.index]
 localrules: write_version
 rule write_version:
     output: "programs-{}.txt".format(PIPELINE_VERSION)
