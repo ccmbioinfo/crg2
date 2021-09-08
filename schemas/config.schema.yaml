@@ -8,9 +8,9 @@ properties:
   run:
     type: object
     project:
-      type: string
+      type: ["number", "string"]
     samples:
-      type: string
+      type: ["number", "string"]
     units:
       type: string
     ped:
