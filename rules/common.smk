@@ -12,7 +12,7 @@ report: "../report/workflow.rst"
 configfile: "config.yaml"
 validate(config, schema="../schemas/config.schema.yaml")
 
-samples = pd.read_table(config["run"]["samples"]).set_index("sample", drop=False)
+samples = pd.read_table(config["run"]["samples"], dtype=str).set_index("sample", drop=False)
 validate(samples, schema="../schemas/samples.schema.yaml")
 
 units = pd.read_table(config["run"]["units"], dtype=str).set_index(["sample"], drop=False)
