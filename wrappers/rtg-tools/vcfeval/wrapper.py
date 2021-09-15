@@ -11,7 +11,10 @@ from snakemake.shell import shell
 benchmark = pd.read_table(snakemake.input.benchmark, dtype=str).set_index(["pipeline"], drop=False)
 pipeline = snakemake.params.get("pipeline", "wes")
 baseline = benchmark.loc[pipeline,'baseline_vcf']
-eval_bed = benchmark.loc[pipeline,'high_conf_bed']
+if snakemake.input.get("eval_bed", ""):
+    eval_bed = snakemake.input.eval_bed
+else:
+    eval_bed = benchmark.loc[pipeline,'high_conf_bed']
 java_opts = snakemake.params.get("java_opts", "-Xmx10g")
 sdf = snakemake.params.sdf
 
