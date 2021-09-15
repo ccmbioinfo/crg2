@@ -121,7 +121,7 @@ params:
     VariantRecalibrator: ""
   gatk3:
     java_opts: "-Xms500m -Xmx9555m"
-    HaplotypeCaller: "-drf DuplicateRead --interval_set_rule INTERSECTION --pair_hmm_implementation VECTOR_LOGLESS_CACHING -ploidy 1 -U LENIENT_VCF_PROCESSING --read_filter BadCigar --read_filter NotPrimaryAlignment"
+    HaplotypeCaller: "-drf DuplicateRead --interval_set_rule INTERSECTION --pair_hmm_implementation VECTOR_LOGLESS_CACHING -ploidy 2 -U LENIENT_VCF_PROCESSING --read_filter BadCigar --read_filter NotPrimaryAlignment"
     annotation: "MappingQualityRankSumTest MappingQualityZero QualByDepth ReadPosRankSumTest RMSMappingQuality BaseQualityRankSumTest FisherStrand GCContent HaplotypeScore HomopolymerRun DepthPerAlleleBySample Coverage ClippingRankSumTest DepthPerSampleHC"
     RealignerTargetCreator: " -l INFO --interval_set_rule INTERSECTION -U LENIENT_VCF_PROCESSING --read_filter BadCigar --read_filter NotPrimaryAlignment "
     IndelRealigner: " -U LENIENT_VCF_PROCESSING --read_filter BadCigar --read_filter NotPrimaryAlignment "
@@ -147,7 +147,7 @@ params:
   bcftools:
     mpileup: "-a DP -a AD "
     call: " -m -v "
-  freebayes: " --genotype-qualities --strict-vcf --ploidy 1 --no-partial-observations --min-repeat-entropy 1 "
+  freebayes: " --genotype-qualities --strict-vcf --ploidy 2 --no-partial-observations --min-repeat-entropy 1 "
   platypus: "--filterDuplicates=0"
   rtg-tools:
     java_opts: "-Xmx20g"
