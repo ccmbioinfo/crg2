@@ -14,7 +14,7 @@ crg2 uses Snakemake and Conda to manage jobs and software dependencies.
 
 1. Download and setup Anaconda: https://docs.conda.io/projects/conda/en/latest/user-guide/install/linux.html
 2. Install Snakemake 5.10.0 via Conda: https://snakemake.readthedocs.io/en/stable/getting_started/installation.html
-3. Git clone this repo
+3. Git clone this repo, [crg](https://github.com/ccmbioinfo/crg), and [cre](https://github.com/ccmbioinfo/cre). crg2 uses various scripts from other two repos to generate final reports
 4. Make a directory for Conda to install all it's environments and executables in, for example:
 ```
 mkdir ~/crg2-conda
@@ -174,6 +174,28 @@ The SV reports can be found in the directory:
 The STR reprots can be found in:
   - report/str/{PROJECT_ID}.EH.v1.1.{DATE}.xlsx
   - report/str/{PROJECT_ID}.EHDN.{DATE}.xlsx
+## Automatic pipeline submission
+`parser.py` script can be used to automate the above process for a batch of genomes. 
+
+```
+usage: parser.py [-h] -f FILE -s {fastq,mapped,recal,decoy_rm} -d path
+Reads sample info from TSV file (-f) and creates directory (-d) necessary to start crg2 from step (-s) requested.
+optional arguments:
+  -h, --help            show this help message and exit
+  -f FILE, --file FILE  Five column TAB-seperated sample info file; template sample file: crg2/sample_info.tsv
+  -s {fastq,mapped,recal,decoy_rm}, --step {fastq,mapped,recal,decoy_rm}
+                        start running from this folder creation(step)
+  -d path, --dir path   Absolute path where crg2 directory struture will be created under familyID as base directory
+```
+The script performs the following operations for each familyID present in the sample info file
+  - create run folder: \<familyID\>
+  - copy the following files to run folder and update settings where applicable:
+    - config.yaml: update run name, input type, panel and ped (if avaialble in /hpf/largeprojects/ccmbio/dennis.kao/gene_data/{HPO,Pedigrees})
+    - units.tsv: add sample name, and input file paths
+    - samples.tsv: add sample names
+    - dnaseq_cluser.pbs: rename job (#PBS -N \<familyID\>)
+    - pbs_config.yaml
+  - submit Snakemake job 
 
 
 ## Pipeline details
@@ -276,4 +298,23 @@ The WES pipeline generates 4 reports for SNV:
 3. wes.regular - report on coding SNVs in exonic regions
 
 4. wes.synonymous - report on synonymous SNVs in exonic regions
+## Extra targets
+
+The following output files are not included in the main Snakefile and can be requested in `snakemake` command-line.
+
+1. HPO annotated reports: 
+  Reports from coding, panel and panel-flank can be annotated with HPO terms whenever HPO file is available with us. This is done mainly for monthly GenomeRounds. HPO annotated TSV files are created in directory: `report/hpo_annotated` using the following command:
+
+  `snakemake --use-conda -s $SF --conda-prefix $CP --profile ${PBS} -p report/hpo_annotated` 
+  
+ The reason to not include this output in Snakefile is that the output of `rule allsnvreport` is a directory and hence snakemake will not check for the creation of final csv reports. So, users are required to make sure the csv reports are created in the three folders above, and then request for the output of `rule annotate_hpo` separately on command-line (or append to the dnaseq_cluster.pbs).
+  
+## Other outputs
+CNV and SV comparison outputs are not yet part of the pipeline. Please follow the steps 7 & 8 in [crg](https://github.com/ccmbioinfo/crg#7-cnv-report) to generate the following three TSVs (this is also required for GenomeRounds)
+1. <FAMILYID>.<DATE>.cnv.withSVoverlaps.tsv
+2. <FAMILYID>.unfiltered.wgs.sv.<VER>.<DATE>.withCNVoverlaps.tsv
+3. <FAMILYID>.wgs.sv.<VER>.<DATE>.withCNVoverlaps.tsv
+
+
+  
 

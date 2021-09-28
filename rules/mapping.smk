@@ -178,6 +178,15 @@ rule printreads:
         "../wrappers/gatk3/haplotypecaller/environment.yaml"
     wrapper:
         get_wrapper_path("gatk3", "printreads")
+rule md5:
+    input: 
+        bam = "recal/{family}_{sample}.bam"
+    output:
+        md5 = "recal/{family}_{sample}.bam.md5"
+    shell:
+        """
+        md5sum {input.bam} > {output.md5}
+        """
 
 rule remove_decoy:
     #redirect first samtools command to a temp output file "decoy.bam" 
