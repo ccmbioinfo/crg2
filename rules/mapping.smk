@@ -100,7 +100,7 @@ rule remove_decoy:
         bam = "recal/{family}_{sample}.bam",
         canon = config["ref"]["canon_bed"],
     output:
-        out_f = protected("decoy_rm/{family}_{sample}.no_decoy_reads.bam")
+        out_f = temp("decoy_rm/{family}_{sample}.no_decoy_reads.bam")
     log:
         "logs/remove_decoys/{family}_{sample}.log"
     threads: 8
