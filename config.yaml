@@ -129,6 +129,7 @@ params:
     PrintReads: " -jdk_deflater -jdk_inflater -U LENIENT_VCF_PROCESSING --read_filter BadCigar --read_filter NotPrimaryAlignment "
   picard:
     MarkDuplicates: "REMOVE_DUPLICATES=false"
+    java_opts: "-Xmx2g"
   qualimap:
     mem: "20G"
     nw: 400

@@ -61,7 +61,8 @@ rule mark_duplicates:
     log:
         "logs/picard/dedup/{family}_{sample}.log"
     params:
-        config["params"]["picard"]["MarkDuplicates"]
+        markDuplicates = config["params"]["picard"]["MarkDuplicates"],
+        java_opts = config["params"]["picard"]["java_opts"],
     wrapper:
         get_wrapper_path("picard", "markduplicates")
 
