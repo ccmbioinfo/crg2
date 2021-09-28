@@ -98,6 +98,7 @@ params:
     VariantRecalibrator: ""
   picard:
     MarkDuplicates: "REMOVE_DUPLICATES=false"
+    java_opts: "-Xmx2g"
   qualimap:
     mem: "20G"
     nw: 400
