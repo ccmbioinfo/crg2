@@ -27,10 +27,8 @@ rule allsnvreport:
             caller=`basename ${{i}} .vcf.gz | cut -d "-" -f2`;
             ln -s ../../../${{i}} {params.family}-${{caller}}-annotated-decomposed.vcf.gz;
          done
-         bgzip ../../../{input.vcf} -c > {params.family}-gatk-haplotype-annotated-decomposed.vcf.gz
-         tabix {params.family}-gatk-haplotype-annotated-decomposed.vcf.gz
-         ln -s {params.family}-gatk-haplotype-annotated-decomposed.vcf.gz {params.family}-ensemble-annotated-decomposed.vcf.gz
-         ln -s {params.family}-gatk-haplotype-annotated-decomposed.vcf.gz.tbi {params.family}-ensemble-annotated-decomposed.vcf.gz.tbi
+         bgzip ../../../{input.vcf} -c > {params.family}-ensemble-annotated-decomposed.vcf.gz
+         tabix {params.family}-ensemble-annotated-decomposed.vcf.gz
          cd ../
          {params.cre}/cre.sh {params.family} 
          type=wes.synonymous {params.cre}/cre.sh {params.family}
