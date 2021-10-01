@@ -74,7 +74,7 @@ rule merge_variants:
 	## use this to remove repetitive contigs for dag generation
 	#vcfs=lambda w: expand("genotyped/all.{contig}.vcf.gz", contig="GRCh37"), 
     output:
-        vcf="genotyped/{family}.vcf.gz"
+        vcf=protected("genotyped/{family}.vcf.gz")
     log:
         "logs/picard/{family}.merge-genotyped.log"
     wrapper:
