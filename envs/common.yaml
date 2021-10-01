@@ -1,0 +1,7 @@
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - tabix ==0.2.6
+  - bcftools ==1.9
+  - parallel==20190522

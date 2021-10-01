@@ -1,7 +1,7 @@
 rule allsnvreport:
     input:
         db="annotated/{p}/{family}-gemini.db",
-        vcf="annotated/{p}/vcfanno/{family}.{p}.vep.vcfanno.vcf"
+        vcf="annotated/{p}/vcfanno/{family}.{p}.vep.vcfanno.vcf.gz"
     output:
         directory("report/{p}/{family}")
     conda:
@@ -18,7 +18,8 @@ rule allsnvreport:
          mkdir -p {output}
          cd {output}
          ln -s ../../../{input.db} {project}-ensemble.db
-         bgzip ../../../{input.vcf} -c > {project}-gatk-haplotype-annotated-decomposed.vcf.gz
+         #bgzip ../../../{input.vcf} -c > {project}-gatk-haplotype-annotated-decomposed.vcf.gz
+         ln -s ../../../{input.vcf} {project}-gatk-haplotype-annotated-decomposed.vcf.gz
          tabix {project}-gatk-haplotype-annotated-decomposed.vcf.gz
          ln -s {project}-gatk-haplotype-annotated-decomposed.vcf.gz {project}-ensemble-annotated-decomposed.vcf.gz
          ln -s {project}-gatk-haplotype-annotated-decomposed.vcf.gz.tbi {project}-ensemble-annotated-decomposed.vcf.gz.tbi
