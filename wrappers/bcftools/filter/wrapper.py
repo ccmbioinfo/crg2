@@ -27,19 +27,24 @@ if hard:
     command = hard + " " + snakemake.input[0]
 elif soft:
     if "freebayes" in vcf:
-        filter = soft["freebayes"]
-        command = "--soft-filter FBQualDepth -e '{}'  -m + {} ".format(filter, snakemake.input[0])
+        filter = soft["freebayes"]["filter"]
+        name = soft["freebayes"]["name"]
+        command = f"--soft-filter {name} -e '{filter}'  -m + {snakemake.input[0]} "
     elif "samtools" in vcf:
-        filter = soft["samtools"]
-        command = "--soft-filter stQualDepth -e '{}'  -m + {} ".format(filter, snakemake.input[0])
+        filter = soft["samtools"]["filter"]
+        name = soft["samtools"]["name"]
+        command = f"--soft-filter {name} -e '{filter}'  -m + {snakemake.input[0]} "
     elif "platypus" in vcf:
-        filter = soft["platypus"]
-        command = " --soft-filter PlatQualDepth -e '{}'  -m + {} ".format(filter, snakemake.input[0])
+        filter = soft["platypus"]["filter"]
+        name = soft["platypus"]["name"]
+        command = f"--soft-filter {name} -e '{filter}'  -m + {snakemake.input[0]} "
     elif "gatk" in vcf:
-        snvfilter = soft["gatk"]["snvs"]
-        indelfilter = soft["gatk"]["indel"]
-        command = "--soft-filter GATKCutoffSNP -e '{}'  -m + {} ".format(snvfilter, snakemake.input[0])
-        command += " | bcftools filter --soft-filter GATKCutoffIndel -e '{}'  -m + ".format(indelfilter) 
+        snvfilter = soft["gatk"]["snvs"]["filter"]
+        snvfilter_name = soft["gatk"]["snvs"]["name"]
+        indelfilter = soft["gatk"]["indel"]["filter"]
+        indelfilter_name = soft["gatk"]["indel"]["name"]
+        command = f"--soft-filter {snvfilter_name} -e '{snvfilter}'  -m + {snakemake.input[0]} "
+        command += f" | bcftools filter --soft-filter {indelfilter_name} -e '{indelfilter}'  -m + "
 
     else:
         command = ""
