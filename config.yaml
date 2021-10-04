@@ -44,16 +44,21 @@ filtering:
       "QD < 2.0 || FS > 200.0 || ReadPosRankSum < -20.0"
   soft:
     platypus:
-      '(FR[0] <= 0.5 && TC < 4 && %QUAL < 20) || (TC < 13 && %QUAL < 10) || (FR[0] > 0.5 && TC < 4 && %QUAL < 50)'
+      name: 'PlatQualDepth'
+      filter: '(FR[0] <= 0.5 && TC < 4 && %QUAL < 20) || (TC < 13 && %QUAL < 10) || (FR[0] > 0.5 && TC < 4 && %QUAL < 50)'
     freebayes:
-      '(AF[0] <= 0.5 && (max(FORMAT/DP) < 4 || (max(FORMAT/DP) < 13 && %QUAL < 10))) || (AF[0] > 0.5 && (max(FORMAT/DP) < 4 && %QUAL < 50))'
+      name: 'FBQualDepth'
+      filter: '(AF[0] <= 0.5 && (max(FORMAT/DP) < 4 || (max(FORMAT/DP) < 13 && %QUAL < 10))) || (AF[0] > 0.5 && (max(FORMAT/DP) < 4 && %QUAL < 50))'
     samtools:
-      '((AC[0] / AN) <= 0.5 && max(FORMAT/DP) < 4 && %QUAL < 20) || (max(FORMAT/DP) < 13 && %QUAL < 10) || ((AC[0] / AN) > 0.5 && max(format/DP) < 4 && %QUAL < 50)'
+      name: 'stQualDepth'
+      filter: '((AC[0] / AN) <= 0.5 && max(FORMAT/DP) < 4 && %QUAL < 20) || (max(FORMAT/DP) < 13 && %QUAL < 10) || ((AC[0] / AN) > 0.5 && max(format/DP) < 4 && %QUAL < 50)'
     gatk:
       snvs:
-        'TYPE="snp" && (MQRankSum < -12.5 || ReadPosRankSum < -8.0 || QD < 2.0 || FS > 60.0 || (QD < 10.0 && AD[0:1] / (AD[0:1] + AD[0:0]) < 0.25 && ReadPosRankSum < 0.0) || MQ < 30.0)'
+        name: 'GATKCutoffSNP'
+        filter: 'TYPE="snp" && (MQRankSum < -12.5 || ReadPosRankSum < -8.0 || QD < 2.0 || FS > 60.0 || (QD < 10.0 && AD[0:1] / (AD[0:1] + AD[0:0]) < 0.25 && ReadPosRankSum < 0.0) || MQ < 30.0)'
       indel:
-        'TYPE="indel" && (ReadPosRankSum < -20.0 || QD < 2.0 || FS > 200.0 || SOR > 10.0 || (QD < 10.0 && AD[0:1] / (AD[0:1] + AD[0:0]) < 0.25 && ReadPosRankSum < 0.0))'
+        name: 'GATKCutoffIndel'
+        filter: 'TYPE="indel" && (ReadPosRankSum < -20.0 || QD < 2.0 || FS > 200.0 || SOR > 10.0 || (QD < 10.0 && AD[0:1] / (AD[0:1] + AD[0:0]) < 0.25 && ReadPosRankSum < 0.0))'
 
 
 processing:
