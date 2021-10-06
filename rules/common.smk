@@ -158,6 +158,7 @@ def get_eh_json(wildcards):
 
 def parse_ped_id(individual_id, family):
     if individual_id != "0":
+        individual_id = str(individual_id)
         parsed_id = family + "_" + individual_id.replace(family, "")
     else:
         parsed_id = "0"
