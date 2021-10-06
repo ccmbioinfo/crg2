@@ -19,6 +19,7 @@ tools:
   cre: "~/cre"
   crg: "~/crg"
   crg2: "~/crg2"
+  eh: "module load ExpansionHunter/5.0.0 "
 
 ref:
   name: GRCh37.75

@@ -9,7 +9,9 @@ rule EH:
     params:
         ref = config["ref"]["genome"],
         sex = lambda w: "`sh {}/scripts/str_helper.sh decoy_rm/{}_{}.no_decoy_reads.bam`".format(workflow.basedir, w.family, w.sample),
-        catalog = config["annotation"]["eh"]["catalog"]
+        catalog = config["annotation"]["eh"]["catalog"],
+        module = config["tools"]["eh"]
+    threads: 4
     log:
         "logs/str/{family}_{sample}-EH.log"
     wrapper:
