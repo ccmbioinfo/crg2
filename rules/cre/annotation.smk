@@ -1,11 +1,10 @@
 rule vep:
     input:
-        "annotated/coding/{family}-ensemble-decomposed.vcf.gz",
+        "annotated/coding/{family}.ensemble.decomposed.vcf.gz",
     output:
-        #temp("annotated/vep/{family}-ensemble-decomposed.vep.vcf"),
-        "annotated/coding/vep/{family}-ensemble-decomposed.vep.vcf",
+        temp("annotated/coding/vep/{family}.coding.vep.vcf")
     log:
-        "logs/vep/vep.{family}.log"
+        "logs/vep/{family}.vep.coding.log"
     threads: 10
     resources:
         mem_mb = 30000
@@ -20,11 +19,11 @@ rule vep:
 
 rule vcfanno:
     input:
-        "annotated/coding/vep/{family}-ensemble-decomposed.vep.vcf"
+        "annotated/coding/vep/{family}.coding.vep.vcf"
     output:
-        "annotated/coding/vcfanno/{family}-ensemble-decomposed.vep.vcfanno.vcf"
+        "annotated/coding/vcfanno/{family}.coding.vep.vcfanno.vcf"
     log:
-        "logs/vcfanno/vcfanno.{family}.log"
+        "logs/vcfanno/{family}.vcfanno.coding.log"
     threads: 10
     resources:
         mem_mb = 20000
@@ -39,7 +38,7 @@ rule vcfanno:
 
 rule vcf2db:
     input:
-        "annotated/coding/vcfanno/{family}-ensemble-decomposed.vep.vcfanno.vcf".format(family=project)
+        "annotated/coding/vcfanno/{family}.coding.vep.vcfanno.vcf".format(family=project)
     output:
          db = "annotated/coding/{family}-gemini.db",
     log:

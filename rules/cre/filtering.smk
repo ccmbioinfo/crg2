@@ -7,17 +7,17 @@ if len(callers) > 1:
     caller_annotation = [ "gatk-haplotype", "samtools", "freebayes", "platypus" ] 
 
 def get_cre_vcfs():    
-    return ["filtered/{family}-{caller}-vt-sf-pass.vcf.gz".format(family=project,caller=i) for i in callers ]
+    return ["filtered/{family}-{caller}.uniq.normalized.decomposed.pass.vcf.gz".format(family=project,caller=i) for i in callers ]
 
 def get_cre_vcf_tbi():
-    return ["filtered/{family}-{caller}-vt-sf-pass.vcf.gz.tbi".format(family=project,caller=i) for i in callers ]
+    return ["filtered/{family}-{caller}.uniq.normalized.decomposed.pass.vcf.gz.tbi".format(family=project,caller=i) for i in callers ]
     
 
 rule vt:
     input:
-        "called/{prefix}.vcf.gz", "called/{prefix}.vcf.gz.tbi"
+        "genotyped/{prefix}.vcf.gz", "genotyped/{prefix}.vcf.gz.tbi"
     output:
-        "filtered/{prefix}-vt.vcf"  
+        "filtered/{prefix}.uniq.normalized.decomposed.vcf"  
     params:
         ref=config["ref"]["genome"],
     log:
@@ -27,9 +27,9 @@ rule vt:
 
 rule soft_filter:
     input: 
-        "filtered/{prefix}-vt.vcf.gz", "filtered/{prefix}-vt.vcf.gz.tbi" 
+        "filtered/{prefix}.uniq.normalized.decomposed.vcf.gz", "filtered/{prefix}.uniq.normalized.decomposed.vcf.gz.tbi" 
     output:
-        "filtered/{prefix}-vt-sf.vcf.gz" 
+        "filtered/{prefix}.uniq.normalized.decomposed.softfiltered.vcf.gz" 
     params: 
         soft = config["filtering"]["soft"],
     log:
@@ -39,9 +39,9 @@ rule soft_filter:
 
 rule pass:
     input:
-        "filtered/{prefix}-vt-sf.vcf.gz", "filtered/{prefix}-vt-sf.vcf.gz.tbi"
+        "filtered/{prefix}.uniq.normalized.decomposed.softfiltered.vcf.gz", "filtered/{prefix}.uniq.normalized.decomposed.softfiltered.vcf.gz.tbi"
     output:
-        "filtered/{prefix}-vt-sf-pass.vcf.gz"
+        "filtered/{prefix}.uniq.normalized.decomposed.pass.vcf.gz"
     threads: 6
     resources:
         mem=lambda wildcards, threads: threads * 2
@@ -97,7 +97,7 @@ if len(get_cre_vcfs()) > 1:
             tbi = expand("isec/{caller}.annot.vcf.gz.tbi",caller=caller_annotation)
 
         output: 
-            "filtered/{family}-numpass1-decomposed.vcf.gz"
+            "filtered/{family}.numpass1.uniq.normalized.decomposed.vcf.gz"
         params: 
             "-a -d none"
         log: 
@@ -108,11 +108,11 @@ if len(get_cre_vcfs()) > 1:
 
     rule ensemble:
         input: 
-            "filtered/{family}-numpass1-decomposed.vcf.gz".format(family=project)
+            "filtered/{family}.numpass1.uniq.normalized.decomposed.vcf.gz".format(family=project)
         output: 
-            "annotated/coding/{family}-ensemble-decomposed.vcf.gz"
+            "annotated/coding/{family}.ensemble.decomposed.vcf.gz"
         log: 
-            "logs/bcftools/filter/{family}-ensemble.log"
+            "logs/bcftools/filter/{family}.ensemble.log"
         params: 
             hard = " -i '(INFO/CALLERS=\"gatk-haplotype\" || INFO/NUMCALLS>=2)' "
         wrapper:
@@ -143,7 +143,7 @@ else:
             annot = "isec/sites.caller.txt.gz",
             hdr = "isec/hdr.txt"
         output: 
-            "annotated/coding/{family}-ensemble-decomposed.vcf.gz"
+            "annotated/coding/{family}.ensemble.decomposed.vcf.gz"
         log: 
             "logs/bcftools/annotate/{family}.log"
         wrapper:

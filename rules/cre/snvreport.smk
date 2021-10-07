@@ -4,8 +4,8 @@ callers = [ "samtools", "freebayes", "platypus" ]
 rule allsnvreport:
     input:
         db="annotated/coding/{family}-gemini.db",
-        vcf="annotated/coding/vcfanno/{family}-ensemble-decomposed.vep.vcfanno.vcf",
-        caller_vcfs = expand("filtered/{family}-{caller}-vt-sf-pass.vcf.gz", family=project, caller=callers)
+        vcf="annotated/coding/vcfanno/{family}.coding.vep.vcfanno.vcf",
+        caller_vcfs = expand("filtered/{family}-{caller}.uniq.normalized.decomposed.pass.vcf.gz", family=project, caller=callers)
     output:
         directory("report/coding/{family}")
     conda:

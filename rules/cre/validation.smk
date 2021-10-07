@@ -1,7 +1,7 @@
 rule benchmark:
     input: 
-        vcf="annotated/coding/{family}-ensemble-decomposed.vcf.gz",
-        tbi="annotated/coding/{family}-ensemble-decomposed.vcf.gz.tbi",
+        vcf="annotated/coding/{family}.ensemble.decomposed.vcf.gz",
+        tbi="annotated/coding/{family}.ensemble.decomposed.vcf.gz.tbi",
         benchmark = config["validation"]["benchmark"],
         eval_bed = "{family}-callable-highconf.bed"
     output: 

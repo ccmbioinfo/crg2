@@ -12,7 +12,7 @@ rule gatk3:
         ref=config["ref"]["genome"],
         regions="mapped/bed/{family}-sort-callable-{contig}.bed",
         #regions="called/gatk3/{contig}.regions.bed" if config["processing"].get("restrict-regions") else []
-    output: "gatk3/called/{family}-{contig}.vcf"
+    output: "called/gatk3/{family}-{contig}.vcf"
     log:
         "logs/gatk3/{family}-{contig}.log"
     params:
@@ -24,9 +24,9 @@ rule gatk3:
 
 rule gathervcf:
     input:
-        vcfs = lambda w: expand("gatk3/called/{family}-{contig}.vcf", family=project, contig=get_canon_contigs()),
+        vcfs = lambda w: expand("called/gatk3/{family}-{contig}.vcf", family=project, contig=get_canon_contigs()),
     output:
-        gvcf=protected("called/{family}-gatk3_haplotype.vcf")
+        gvcf=protected("genotyped/{family}-gatk3_haplotype.vcf")
     wrapper:
         get_wrapper_path("picard","gathervcfs")
 
@@ -42,7 +42,7 @@ rule call_variants:
         regions="mapped/bed/{family}-sort-callable-{contig}.bed",
         #regions="called/gatk/{contig}.regions.bed" if config["processing"].get("restrict-regions") else []
     output:
-        gvcf=temp("gatk/called/{family}_{sample}.{contig}.g.vcf.gz")
+        gvcf=temp("called/gatk/{family}_{sample}.{contig}.g.vcf.gz")
     log:
         "logs/gatk/haplotypecaller/{family}_{sample}.{contig}.log"
     params:
@@ -58,9 +58,9 @@ rule call_variants:
 rule combine_calls:
     input:
         ref=config["ref"]["genome"],
-        gvcfs=expand("gatk/called/{{family}}_{sample}.{{contig}}.g.vcf.gz", sample=samples.index)
+        gvcfs=expand("called/gatk/{{family}}_{sample}.{{contig}}.g.vcf.gz", sample=samples.index)
     output:
-        gvcf=temp("gatk/called/{family}.{contig}.g.vcf.gz")
+        gvcf=temp("called/gatk/{family}.{contig}.g.vcf.gz")
     params:
         java_opts=config["params"]["gatk"]["java_opts"],
     log:
@@ -73,9 +73,9 @@ rule combine_calls:
 rule genotype_variants:
     input:
         ref=config["ref"]["genome"],
-        gvcf="gatk/called/{family}.{contig}.g.vcf.gz"
+        gvcf="called/gatk/{family}.{contig}.g.vcf.gz"
     output:
-        vcf=temp("gatk/genotyped/{family}.{contig}.vcf.gz")
+        vcf=temp("genotyped/gatk/{family}.{contig}.vcf.gz")
     params:
         extra=config["params"]["gatk"]["GenotypeGVCFs"],
         java_opts=config["params"]["gatk"]["java_opts"],
@@ -89,11 +89,11 @@ rule genotype_variants:
 rule merge_variants:
     input:
         ref=get_fai(), # fai is needed to calculate aggregation over contigs below
-        vcfs=lambda w: expand("gatk/genotyped/{{family}}.{contig}.vcf.gz", contig=get_canon_contigs()),
+        vcfs=lambda w: expand("genotyped/gatk/{{family}}.{contig}.vcf.gz", contig=get_canon_contigs()),
 	## use this to remove repetitive contigs for dag generation
 	#vcfs=lambda w: expand("genotyped/all.{contig}.vcf.gz", contig="GRCh37"), 
     output:
-        vcf="gatk/genotyped/{family}.vcf.gz"
+        vcf="genotyped/gatk/{family}.vcf.gz"
     log:
         "logs/picard/{family}-merge-genotyped.log"
     wrapper:
@@ -101,9 +101,9 @@ rule merge_variants:
 
 rule gatk4:
     input: 
-        "gatk/genotyped/{family}.vcf.gz".format(family=project)
+        "genotyped/gatk/{family}.vcf.gz".format(family=project)
     output:
-        gvcf=protected("called/{family}-gatk_haplotype.vcf")
+        gvcf=protected("genotyped/{family}-gatk_haplotype.vcf")
     log:
         "logs/gatk/{family}.log"
     shell:
@@ -120,7 +120,7 @@ rule freebayes:
         regions="mapped/bed/{family}-sort-callable-{{contig}}.bed".format(family=project)
         #regions=config["ref"]["canon_bed"]
     output:
-        "freebayes/{contig}.vcf"  # either .vcf or .bcf
+        temp("called/freebayes/{contig}.vcf")  # either .vcf or .bcf
     log:
         "logs/freebayes/{contig}.log"
     params:
@@ -134,9 +134,9 @@ rule freebayes:
 
 rule merge_freebayes:
     input:
-        expand("freebayes/{contig}.vcf",contig = get_canon_contigs())
+        expand("called/freebayes/{contig}.vcf",contig = get_canon_contigs())
     output:
-        "called/{family}-freebayes.vcf"
+        protected("genotyped/{family}-freebayes.vcf")
     log:
         "logs/freebayes/{family}-merge.log"
     shell:
@@ -152,7 +152,7 @@ rule platypus:
         ref=config["ref"]["genome"],
         regions="mapped/{family}-sort-callable.bed"
     output:
-	    "called/{family}-platypus.vcf"
+	    protected("genotyped/{family}-platypus.vcf")
     params: config["params"]["platypus"]
     threads: 16
     resources:
@@ -169,7 +169,7 @@ rule samtools_call:
         bai=get_cre_bams(ext="bam.bai"),
         region="mapped/bed/{family}-sort-callable-{{contig}}.bed".format(family=project)
     output:
-	    "samtools/called/{contig}.vcf"
+	    temp("called/samtools/{contig}.vcf")
     params:
         mpileup = config["params"]["samtools"]["mpileup"],
         call = config["params"]["bcftools"]["call"],
@@ -184,10 +184,10 @@ rule samtools_call:
 
 rule merge_mpileup:
     input:
-        vcfs =lambda w: expand("samtools/called/{contig}.vcf", contig = get_canon_contigs())
+        vcfs =lambda w: expand("called/samtools/{contig}.vcf", contig = get_canon_contigs())
         #vcfs =lambda w: expand("called/samtools-{contig}.vcf", contig = "GRCh37d5")
     output:
-        "called/{family}-samtools.vcf"
+        protected("genotyped/{family}-samtools.vcf")
     conda:
         "../../envs/common.yaml"
     shell:
