@@ -140,17 +140,6 @@ function setid(...)
 	end
 	return table.concat(res, ";")
 end
-function mean(vals)
-    local sum=0
-	for i=1,#vals do
-		sum = sum + vals[i]
-	end
-	return sum / #vals
-end
-
-function loc(chrom, start, stop)
-    return chrom .. ":" .. start .. "-" .. stop
-end
 
 function check_population_aaf(max_aaf_all, aaf_cutoff)
     -- didn't find an aaf for this so can't be common
