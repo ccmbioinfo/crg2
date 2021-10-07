@@ -38,6 +38,7 @@ elif soft:
         filter = soft["platypus"]["filter"]
         name = soft["platypus"]["name"]
         command = f"--soft-filter {name} -e '{filter}'  -m + {snakemake.input[0]} "
+        command += f" | bcftools filter --soft-filter PASS -i '{filter}' -m + " 
     elif "gatk" in vcf:
         snvfilter = soft["gatk"]["snvs"]["filter"]
         snvfilter_name = soft["gatk"]["snvs"]["name"]
