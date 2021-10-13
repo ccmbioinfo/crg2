@@ -1,5 +1,5 @@
 #gatk VCF is missing because it is symlinked to ensemble VCF
-callers = [ "samtools", "freebayes", "platypus" ] 
+callers = [ gatk + "_haplotype", "samtools", "freebayes", "platypus" ] 
 
 rule allsnvreport:
     input:
@@ -25,6 +25,9 @@ rule allsnvreport:
          ln -s ../../../{input.db} {params.family}-ensemble.db
          for i in {input.caller_vcfs}; do
             caller=`basename ${{i}} .vcf.gz | cut -d "." -f1 | cut -d "-" -f2`;
+            if [[ "${{caller}}" == "gatk3_haplotype" ]] || [[ "${{caller}}" == "gatk_haplotype" ]]; then
+                caller="gatk-haplotype";
+            fi;
             ln -s ../../../${{i}} {params.family}-${{caller}}-annotated-decomposed.vcf.gz;
          done
          ln -s ../../../{input.vcf} {params.family}-ensemble-annotated-decomposed.vcf.gz
