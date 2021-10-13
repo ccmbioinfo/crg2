@@ -140,21 +140,3 @@ function setid(...)
 	end
 	return table.concat(res, ";")
 end
-
-function check_population_aaf(max_aaf_all, aaf_cutoff)
-    -- didn't find an aaf for this so can't be common
-    if max_aaf_all == nil then
-        return false
-    end
-    if type(max_aaf_all) ~= "table" then
-        return max_aaf_all > aaf_cutoff
-    end
-    for i, aaf in pairs(max_aaf_all) do
-        if aaf > aaf_cutoff then
-            return true
-        end
-    end
-    return false
-end
-
-
