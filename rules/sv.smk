@@ -10,11 +10,14 @@ rule manta:
     threads:
         4
     output:
-        "sv/manta/{family}_{sample}/variants.vcf.gz"
+        sv = "sv/manta/{family}_{sample}/results/variants/diploidSV.vcf.gz",
+        bnd = "sv/manta/{family}_{sample}/variants.vcf.gz"
     log:
         "logs/manta/{family}_{sample}.log"
     wrapper:
         get_wrapper_path("manta")
+
+
 
 rule wham:
     input:
@@ -71,7 +74,7 @@ rule metasv:
         bam = "decoy_rm/{family}_{sample}.no_decoy_reads.bam",
         bai = "decoy_rm/{family}_{sample}.no_decoy_reads.bam.bai",
         fasta = config["ref"]["no_decoy"],
-        manta = "sv/manta/{family}_{sample}/variants.vcf.gz",
+        manta = "sv/manta/{family}_{sample}/results/variants/diploidSV.vcf.gz",
         wham = "sv/wham/{family}_{sample}.wham.vcf",
         lumpy = "sv/smoove/{family}_{sample}/{family}_{sample}-smoove.genotyped.vcf.gz"
     params:

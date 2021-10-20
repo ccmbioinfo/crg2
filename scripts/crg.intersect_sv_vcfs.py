@@ -5,10 +5,6 @@ from pathlib import Path
 from datetime import date
 import sys
 
-# crg_path = snakemake.config["tools"]["crg"]
-# if "~" in crg_path:
-#     crg_path = path.expanduser(crg_path)
-# sys.path.insert(0, crg_path)
 from SVRecords import SVGrouper, SVAnnotator
 
 
@@ -76,7 +72,6 @@ def main(
         sv_records.df = ann_records.annotate_counts(sv_count, sv_records, prefix=prefix)
 
     sv_records.df = ann_records.annotsv(sv_records.df)
-    print(sv_records.df.head())
     sv_records.df = ann_records.calc_exons_spanned(sv_records.df, exon_bed)
     sv_records.df = ann_records.annotate_gnomad(gnomad, sv_records)
     sv_records.df = ann_records.annotate_hgmd(hgmd_db, sv_records.df)
@@ -92,7 +87,8 @@ def main(
     # format and rearrange the columns
     if MetaSV_col not in sv_records.df.columns:
         sv_records.df["variants/NUM_SVTOOLS"] = "1"
-    sv_records.df = sv_records.df[
+
+    sv_report_cols = (
         [
             col
             for col in sample_cols
@@ -108,27 +104,61 @@ def main(
         + [
             "BioMart Associated Gene Name",
             "EXONS_SPANNED",
-        ]
-        + [
             "Genes in HPO",
             "HPO Features",
-        ]
-        + [
             "Genes in OMIM",
             "OMIM Phenotypes",
             "OMIM Inheritance",
-        ]
-        + [
             "N_GENES_IN_HPO",
             "N_UNIQUE_HPO_TERMS",
             "N_GENES_IN_OMIM",
-        ]
-        + [
             "Canadian_MSSNG_parent_SVs.Manta.counts",
             "Canadian_MSSNG_parent_SVs.Manta.counts_SV",
             "Canadian_MSSNG_parent_SVs.LUMPY.counts",
             "Canadian_MSSNG_parent_SVs.LUMPY.counts_SV",
+            "DGV_GAIN_IDs",
+            "DGV_GAIN_n_samples_with_SV",
+            "DGV_GAIN_n_samples_tested",
+            "DGV_GAIN_Frequency",
+            "DGV_LOSS_IDs",
+            "DGV_LOSS_n_samples_with_SV",
+            "DGV_LOSS_n_samples_tested",
+            "DGV_LOSS_Frequency",
+            "gnomAD_AF",
+            "gnomAD_SV",
+            "gnomAD_AN",
+            "gnomAD_AC",
+            "gnomAD_N_HOMREF",
+            "gnomAD_N_HET",
+            "gnomAD_N_HOMALT",
+            "gnomAD_FREQ_HOMREF",
+            "gnomAD_FREQ_HET",
+            "gnomAD_FREQ_HOMALT",
+            "gnomAD_POPMAX_AF",
+            "DDD_disease",
+            "DDD_mode",
+            "DDD_pmids",
+            "Genes in HGMD",
+            "HGMD disease",
+            "HGMD descr",
+            "HGMD JOURNAL_DETAILS",
+            "ExAC syn_z",
+            "ExAC mis_z",
+            "ExAC lof_z",
+            "ExAC pLI",
         ]
+        + [col for col in SVScore_cols if col != "variants/SVLEN"]
+        + [
+            "nearestLeftExonBoundary",
+            "nearestLeftExonDistance",
+            "nearestRightExonBoundary",
+            "nearestRightExonDistance",
+            "DECIPHER_LINK",
+        ]
+    )
+    # DGV CNVs not relevant for BNDs, nor are SVscores
+    remove_from_bnd_report = (
+        ["variants/SVLEN", MetaSV_col]
         + [
             "DGV_GAIN_IDs",
             "DGV_GAIN_n_samples_with_SV",
@@ -141,39 +171,20 @@ def main(
             "DGV_LOSS_n_samples_tested",
             "DGV_LOSS_Frequency",
         ]
-        + [
-            "gnomAD_AF",
-            "gnomAD_SV",
-            "gnomAD_AN",
-            "gnomAD_AC",
-            "gnomAD_N_HOMREF",
-            "gnomAD_N_HET",
-            "gnomAD_N_HOMALT",
-            "gnomAD_FREQ_HOMREF",
-            "gnomAD_FREQ_HET",
-            "gnomAD_FREQ_HOMALT",
-            "gnomAD_POPMAX_AF",
-        ]
-        + [
-            "DDD_disease",
-            "DDD_mode",
-            "DDD_pmids",
-        ]
-        + ["Genes in HGMD", "HGMD disease", "HGMD descr", "HGMD JOURNAL_DETAILS"]
-        + ["ExAC syn_z", "ExAC mis_z", "ExAC lof_z", "ExAC pLI"]
         + [col for col in SVScore_cols if col != "variants/SVLEN"]
-        + [
-            "nearestLeftExonBoundary",
-            "nearestLeftExonDistance",
-            "nearestRightExonBoundary",
-            "nearestRightExonDistance",
-        ]
-        + ["DECIPHER_LINK"]
+    )
+
+    bnd_report_cols = [
+        col for col in sv_report_cols if col not in remove_from_bnd_report
     ]
+
+    if report_type == "SV":
+        sv_records.df = sv_records.df[sv_report_cols]
+    else:
+        sv_records.df = sv_records.df[bnd_report_cols]
+
     sv_records.df.columns = sv_records.df.columns.str.replace("variants/", "")
     sv_records.df = sv_records.df.drop_duplicates()
-
-    # [ "DDD_SV", "DDD_DUP_n_samples_with_SV", "DDD_DUP_Frequency", "DDD_DEL_n_samples_with_SV", "DDD_DEL_Frequency" ]
 
     # set missing values in numeric columns to 0, and '.' in non-numeric columns
     numeric = [
@@ -190,14 +201,12 @@ def main(
         "gnomAD_FREQ_HET",
         "gnomAD_FREQ_HOMALT",
         "gnomAD_POPMAX_AF",
-        "calldata/SR",
-        "calldata/PR",
-        "BND_DEPTH",
     ]
     non_numeric = [col for col in sv_records.df.columns if col not in numeric]
     for col in numeric:
-        pass
-        # sv_records.df[col] = [val if val == val else '0' for val in sv_records.df[col].tolist()]
+        sv_records.df[col] = [
+            val if val == val else "0" for val in sv_records.df[col].tolist()
+        ]
     for col in non_numeric:
         print(col)
         sv_records.df[col] = [
@@ -220,19 +229,42 @@ if __name__ == "__main__":
     metasv = [vcf for vcf in snakemake.input if "metasv" in vcf]
     manta = [vcf for vcf in snakemake.input if "manta" in vcf]
 
-    # # create unfiltered SV report
-    # out_report="{}.unfiltered.wgs.sv.v{}.{}.tsv".format(snakemake.params.project, snakemake.params.PIPELINE_VERSION, date.today().strftime("%Y-%m-%d"))
+    # create unfiltered SV report
+    out_report = "{}.unfiltered.wgs.sv.v{}.{}.tsv".format(
+        snakemake.params.project,
+        snakemake.params.PIPELINE_VERSION,
+        date.today().strftime("%Y-%m-%d"),
+    )
 
-    # main(snakemake.params.protein_coding_genes, snakemake.params.exon_bed, snakemake.params.hgmd, snakemake.params.hpo, snakemake.params.exac, \
-    #      snakemake.params.omim, snakemake.params.biomart, snakemake.params.gnomad, \
-    #      [snakemake.params.mssng_manta_counts, snakemake.params.mssng_lumpy_counts], \
-    #      out_report, metasv)
+    main(
+        snakemake.params.protein_coding_genes,
+        snakemake.params.exon_bed,
+        snakemake.params.hgmd,
+        snakemake.params.hpo,
+        snakemake.params.exac,
+        snakemake.params.omim,
+        snakemake.params.biomart,
+        snakemake.params.gnomad,
+        [snakemake.params.mssng_manta_counts, snakemake.params.mssng_lumpy_counts],
+        out_report,
+        metasv,
+        "SV",
+    )
 
-    # # create filtered SV report
-    # filtered_report=filter_report(out_report)
+    # create report dir
     mkdir(report_dir)
-    # out_filtered_report="{}/{}.wgs.sv.v{}.{}.tsv".format(report_dir,snakemake.params.project, snakemake.params.PIPELINE_VERSION, date.today().strftime("%Y-%m-%d"))
-    # filtered_report.to_csv(out_filtered_report, sep='\t', encoding='utf-8', na_rep='.', index=False)
+
+    # create filtered SV report
+    filtered_report = filter_report(out_report)
+    out_filtered_report = "{}/{}.wgs.sv.v{}.{}.tsv".format(
+        report_dir,
+        snakemake.params.project,
+        snakemake.params.PIPELINE_VERSION,
+        date.today().strftime("%Y-%m-%d"),
+    )
+    filtered_report.to_csv(
+        out_filtered_report, sep="\t", encoding="utf-8", na_rep=".", index=False
+    )
 
     # create manta BND report
     bnd_report = "{}/{}.BND.wgs.sv.v{}.{}.tsv".format(
@@ -257,4 +289,4 @@ if __name__ == "__main__":
         "BND",
     )
 
-    # move(out_report, report_dir)
+    move(out_report, report_dir)

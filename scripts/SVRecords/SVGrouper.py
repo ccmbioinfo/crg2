@@ -2,7 +2,9 @@ import allel
 import numpy as np
 import pandas as pd
 import os
+from collections import defaultdict
 from pybedtools import BedTool
+from pysam import VariantFile
 
 
 class SVGrouper:
@@ -32,8 +34,6 @@ class SVGrouper:
         columns.extend(["%s_SV_DETAILS" % s for s in sample_list])
         columns.extend(["%s_GENOTYPE" % s for s in sample_list])
         if report_type == "BND":
-            columns.extend(["%s_SR" % s for s in sample_list])
-            columns.extend(["%s_PR" % s for s in sample_list])
             columns.extend(["%s_DEPTH" % s for s in sample_list])
 
         self.sample_list = sample_list
@@ -51,6 +51,15 @@ class SVGrouper:
         )
         self.bedtool = self.make_ref_bedtool()
 
+        # if vcfs are manta for BND report, need to make a dict of BNDs with split reads (SR) and discordant read pairs (PR) supporting the alt allele
+        # this is because the allel.read_vcf function does not properly parse these fields: it only extracts the SR and PR supporting the reference allele
+        if report_type == "BND":
+            print("Extracting split reads and discordant reads supporting breakends...")
+            bnd_dict = self._make_bnd_dict(vcfs)
+            # using dict, extract SR and PR for variants in self.df
+            for sample in self.sample_list:
+                self.df = self._add_bnd_supp_reads(bnd_dict, sample)
+
         # convert listed annotations into comma separated strings
         for name in self.sample_list:
             self.df["%s_SV_DETAILS" % name] = list2string(
@@ -58,8 +67,11 @@ class SVGrouper:
             )
             self.df["%s_GENOTYPE" % name] = list2string(self.df["%s_GENOTYPE" % name])
             if report_type == "BND":
-                self.df["%s_SR" % name] = list2string(self.df["%s_SR" % name])
-                self.df["%s_PR" % name] = list2string(self.df["%s_PR" % name])
+                # if there are multiple BND at one site, just take the first depth (should be same for both)
+                self.df["%s_DEPTH" % name] = [
+                    depth[0] if isinstance(depth, list) and len(depth) >= 1 else depth
+                    for depth in (self.df["%s_DEPTH" % name].values.tolist())
+                ]
                 self.df["%s_DEPTH" % name] = list2string(self.df["%s_DEPTH" % name])
 
         # append annotation fields to final df
@@ -91,18 +103,16 @@ class SVGrouper:
         # CHR POS STOP needs to be first 3 columns for creation of BedTool instance
         index_fields = list(self.index_cols.keys())
 
-        # get sample-specific ALT, GT fields, as well as split reads (SR), discordant read pairs(PRs), and breakend depth (BND_DEPTH) if this a Manta BND vcf
+        # get sample-specific ALT, GT fields, as well as breakend depth (BND_DEPTH) if this a Manta BND vcf
         # these columns will be used in the bedtools intersection
         sample_sv_fields = (
             index_fields
             + ["variants/ALT"]
             + ["calldata/GT", "variants/ANN_Gene_ID", "samples"]
         )
-        print(sample_sv_fields)
+
         if report_type == "BND":
             sample_sv_fields = sample_sv_fields + [
-                "calldata/SR",
-                "calldata/PR",
                 "variants/BND_DEPTH",
             ]
         parse_fields = list(set(sample_sv_fields + ann_fields))
@@ -154,10 +164,8 @@ class SVGrouper:
                 for id_list in vcf_dict["variants/ANN_Gene_ID"]
             ]
 
-            # unlist Manta SR, PR and get number of reads supporting alt allele (second list element)
+            # unlist Manta BND_DEPTH
             if report_type == "BND":
-                vcf_dict["calldata/PR"] = [pr[0] for pr in vcf_dict["calldata/PR"]]
-                vcf_dict["calldata/SR"] = [sr[0] for sr in vcf_dict["calldata/SR"]]
                 vcf_dict["variants/BND_DEPTH"] = [
                     depth for depth in vcf_dict["variants/BND_DEPTH"]
                 ]
@@ -225,8 +233,6 @@ class SVGrouper:
                     ref_gt,
                     ref_genes,
                     ref_name,
-                    ref_sr,
-                    ref_pr,
                     ref_bnd_depth,
                     samp_chr,
                     samp_start,
@@ -236,8 +242,6 @@ class SVGrouper:
                     samp_gt,
                     samp_genes,
                     samp_name,
-                    samp_sr,
-                    samp_pr,
                     samp_bnd_depth,
                 ) = l
             else:
@@ -285,8 +289,6 @@ class SVGrouper:
                     samp_alt,
                     samp_gt,
                     samp_name,
-                    samp_sr,
-                    samp_pr,
                     samp_bnd_depth,
                 )
 
@@ -308,8 +310,6 @@ class SVGrouper:
                 samp_alt,
                 samp_gt,
                 samp_name,
-                samp_sr,
-                samp_pr,
                 samp_bnd_depth,
             ) = samp_interval
         else:
@@ -336,8 +336,6 @@ class SVGrouper:
                 row["%s_SV_DETAILS" % name] = []
                 row["%s_GENOTYPE" % name] = []
                 if report_type == "BND":
-                    row["%s_SR" % name] = []
-                    row["%s_PR" % name] = []
                     row["%s_DEPTH" % name] = []
         else:
             row = self.df.loc[ref_interval[:-1], :]
@@ -359,8 +357,6 @@ class SVGrouper:
             )
         row["%s_GENOTYPE" % samp_name].append(samp_gt)
         if report_type == "BND":
-            row["%s_SR" % samp_name].append(samp_sr)
-            row["%s_PR" % samp_name].append(samp_pr)
             row["%s_DEPTH" % samp_name].append(samp_bnd_depth)
 
     def write(self, outfile_name):
@@ -368,3 +364,59 @@ class SVGrouper:
 
     def make_ref_bedtool(self):
         return BedTool(list(self.df.index.values))
+
+    def _make_bnd_dict(self, vcfs):
+        # makes a dictionary of dictionaries, e.g. {'control_DMD': {'X:40352732-40352732:BND:CCTGC[15:74508951[': {'SR': 30, 'PR': 4}}
+        bnd_dict = defaultdict(dict)
+        for vcf in vcfs:
+            print(vcf)
+            bnd_vcf = VariantFile(vcf)
+            for record in bnd_vcf.fetch():
+                for sample in record.samples:
+                    sr = record.samples[sample]["SR"][1]
+                    pr = record.samples[sample]["PR"][1]
+                    name = record.samples[sample].name
+                bnd = (
+                    record.chrom
+                    + ":"
+                    + str(record.pos)
+                    + "-"
+                    + str(record.pos)
+                    + ":"
+                    + record.info["SVTYPE"]
+                    + ":"
+                    + "".join(
+                        record.alts
+                    )  # alts is a tuple because the program accounts for possibility of multiple vcfs, but we always have one-sample vcfs
+                )
+                bnd_dict[name][bnd] = {"SR": sr, "PR": pr}
+        return bnd_dict
+
+    def _add_bnd_supp_reads(self, bnd_dict, sample):
+        df = self.df
+        sr_all = []
+        pr_all = []
+        for index, row in df.iterrows():
+            sv_details = row[f"{sample}_SV_DETAILS"]
+            if sv_details == "":
+                # BND was not called in sample
+                sr_all.append(".")
+                pr_all.append(".")
+            else:
+                # sv_details = sv_details.split(",")
+                sr_max = 0
+                pr_max = 0
+                for sv in sv_details:
+                    sv = sv.strip(" ")
+                    sr = bnd_dict[sample][sv]["SR"]
+                    pr = bnd_dict[sample][sv]["PR"]
+                    if sr > sr_max:
+                        sr_max = sr
+                    if pr > pr_max:
+                        pr_max = pr
+                sr_all.append(sr_max)
+                pr_all.append(pr_max)
+
+        df[f"{sample}_SR"] = sr_all
+        df[f"{sample}_PR"] = pr_all
+        return df
