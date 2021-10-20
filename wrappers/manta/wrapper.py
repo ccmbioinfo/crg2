@@ -3,7 +3,6 @@ from snakemake.shell import shell
 log = snakemake.log_fmt_shell(stdout=True, stderr=True)
 
 shell(
-
     "(configManta.py "
     "--runDir {snakemake.params.outdir} "
     "--reference {snakemake.input.fasta} "
@@ -14,5 +13,5 @@ shell(
     "--quiet "
     "-m local "
     "-j {snakemake.threads});"
-    "mv {snakemake.params.outdir}/results/variants/diploidSV.vcf.gz {snakemake.output} {log}"
+    "(bcftools filter -i 'FORMAT/SR > 0 & BND_DEPTH >= 10 & MATE_BND_DEPTH >= 10' {snakemake.output.sv} -o {snakemake.output.bnd} -O  z) {log}"
 )
