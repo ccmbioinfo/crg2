@@ -6,6 +6,7 @@ from collections import defaultdict
 from pybedtools import BedTool
 from pysam import VariantFile
 
+# original code written by Dennis Kao: https://github.com/ccmbioinfo/crg/blob/master/SVRecords/SVGrouper.py
 
 class SVGrouper:
     def __init__(self, vcfs, report_type, ann_fields=[]):

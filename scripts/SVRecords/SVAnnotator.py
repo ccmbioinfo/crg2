@@ -7,6 +7,7 @@ from pybedtools import BedTool
 from collections import defaultdict
 from enum import Enum, auto
 
+# original code written by Dennis Kao: https://github.com/ccmbioinfo/crg/blob/master/SVRecords/SVAnnotator.py
 
 class SVTYPE(Enum):
     def _generate_next_value_(name, start, count, last_values):
