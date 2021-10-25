@@ -53,7 +53,7 @@ rule vcfanno:
     input:
         "annotated/{p}/vep/{family}.{p}.vep.vcf",
     output:
-        "annotated/{p}/vcfanno/{family}.{p}.vep.vcfanno.vcf",
+        temp("annotated/{p}/vcfanno/{family}.{p}.vep.vcfanno.vcf"),
     log:
         "logs/vcfanno/{family}.vcfanno.{p}.log"
     threads: 10
@@ -84,3 +84,27 @@ rule vcf2db:
         get_wrapper_path("vcf2db")
 
 
+rule bgzip:
+    input:
+        "{prefix}.vcf"
+    output:
+        "{prefix}.vcf.gz"
+    conda:
+        "../envs/common.yaml"
+
+    shell:
+        '''
+        bgzip -c {input} > {output}
+        '''
+
+rule tabix:
+    input: 
+        "{prefix}.vcf.gz"
+    output: 
+        "{prefix}.vcf.gz.tbi"
+    log: 
+        "logs/{prefix}.log"
+    conda:
+           "../envs/common.yaml"
+    wrapper:
+        get_wrapper_path("tabix")
