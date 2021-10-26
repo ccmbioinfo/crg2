@@ -4,4 +4,3 @@ channels:
   - defaults
 dependencies:
   - smoove ==0.2.5
-  - bcftools ==1.13
