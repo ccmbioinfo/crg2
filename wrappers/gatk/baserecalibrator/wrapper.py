@@ -11,6 +11,10 @@ from snakemake.shell import shell
 
 extra = snakemake.params.get("extra", "")
 java_opts = snakemake.params.get("java_opts", "")
+bed = snakemake.input.get("bed", "")
+if bed:
+    bed = "-L " + bed
+
 
 with TemporaryDirectory() as tmpdir:
     recal_table = os.path.join(tmpdir, "recal_table.grp")
@@ -20,7 +24,7 @@ with TemporaryDirectory() as tmpdir:
         known = "--known-sites {}".format(known)
 
     shell(
-        "gatk --java-options '{java_opts}' BaseRecalibrator {extra} "
+        "gatk --java-options '{java_opts}' BaseRecalibrator {extra} {bed} "
         "-R {snakemake.input.ref} -I {snakemake.input.bam} "
         "-O {recal_table} {known} {log}"
     )

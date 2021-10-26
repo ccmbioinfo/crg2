@@ -5,3 +5,4 @@ channels:
 dependencies:
   - samtools ==1.9
   - bcftools ==1.9
+  - parallel ==20190522
