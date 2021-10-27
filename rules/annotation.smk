@@ -23,9 +23,9 @@ rule pass:
        	"{prefix}.{ext}"
     output:
         temp("{prefix}.pass.{ext,(vcf|vcf\.gz)}")
-    threads: 1
+    threads: 6
     resources:
-        mem_mb = 4000
+        mem=lambda wildcards, threads: threads * 2
     params: "-f PASS"
     wrapper:
         get_wrapper_path("bcftools", "view")

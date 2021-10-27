@@ -6,7 +6,9 @@ run:
   panel: "" # three-column BED file based on hpo file; leave this string empty if there is no panel
   hpo: "" # five-column TSV with HPO terms; leave this string empty is there are no hpo terms
   flank: 100000
+  gatk: "gatk"
   input: "fastq"
+  pipeline: "wes" #either wes (exomes) or wgs (genomes)
 
 genes:
   ensembl: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/Homo_sapiens.GRCh37.87.gtf_subset.csv"
@@ -28,6 +30,8 @@ ref:
   no_decoy: /hpf/largeprojects/ccm_dccforge/dccdipg/Common/genomes/GRCh37/GRCh37.fa
   decoy_bed: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/pipelines/cre/data/grch37d5.decoy.bed"
   canon_bed: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/genomes/grch37.canon.bed"
+  split_genome: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/genomes/split_genome"
+  gatk-known: "/hpf/largeprojects/ccmbio/naumenko/tools/bcbio/genomes/Hsapiens/GRCh37/variation/Mills_and_1000G_gold_standard.indels.vcf.gz"
 
 filtering:
   vqsr: false
@@ -38,6 +42,24 @@ filtering:
       "QD < 2.0 || FS > 60.0 || MQ < 40.0 || MQRankSum < -12.5 || ReadPosRankSum < -8.0"
     indels:
       "QD < 2.0 || FS > 200.0 || ReadPosRankSum < -20.0"
+  soft:
+    platypus:
+      name: 'PlatQualDepth'
+      filter: '(FR[0] <= 0.5 && TC < 4 && %QUAL < 20) || (TC < 13 && %QUAL < 10) || (FR[0] > 0.5 && TC < 4 && %QUAL < 50)'
+    freebayes:
+      name: 'FBQualDepth'
+      filter: '(AF[0] <= 0.5 && (max(FORMAT/DP) < 4 || (max(FORMAT/DP) < 13 && %QUAL < 10))) || (AF[0] > 0.5 && (max(FORMAT/DP) < 4 && %QUAL < 50))'
+    samtools:
+      name: 'stQualDepth'
+      filter: '((AC[0] / AN) <= 0.5 && max(FORMAT/DP) < 4 && %QUAL < 20) || (max(FORMAT/DP) < 13 && %QUAL < 10) || ((AC[0] / AN) > 0.5 && max(format/DP) < 4 && %QUAL < 50)'
+    gatk:
+      snvs:
+        name: 'GATKCutoffSNP'
+        filter: 'TYPE="snp" && (MQRankSum < -12.5 || ReadPosRankSum < -8.0 || QD < 2.0 || FS > 60.0 || (QD < 10.0 && AD[0:1] / (AD[0:1] + AD[0:0]) < 0.25 && ReadPosRankSum < 0.0) || MQ < 30.0)'
+      indel:
+        name: 'GATKCutoffIndel'
+        filter: 'TYPE="indel" && (ReadPosRankSum < -20.0 || QD < 2.0 || FS > 200.0 || SOR > 10.0 || (QD < 10.0 && AD[0:1] / (AD[0:1] + AD[0:0]) < 0.25 && ReadPosRankSum < 0.0))'
+
 
 processing:
   mark-duplicates: true
@@ -53,6 +75,10 @@ qc:
     conf: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/qc/FastQ_Screen_Genomes/fastq_screen.conf"
   
 annotation:
+  cre.vcfanno:
+    conf: "~/crg2/vcfanno/cre.vcfanno.conf"
+    lua_script: "~/crg2/vcfanno/cre.vcfanno.lua"
+    base_path: "/hpf/largeprojects/ccmbio/naumenko/tools/bcbio/genomes/Hsapiens/GRCh37"
   vcfanno:
     conf: "~/crg2/vcfanno/crg.vcfanno.conf" 
     lua_script: "~/crg2/vcfanno/crg.vcfanno.lua"
@@ -83,6 +109,8 @@ annotation:
     trf: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/ExpansionHunter/tandem_repeat_disease_loci_v1.1.tsv"
     1000g: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/ExpansionHunter/1000G_EH_v1.0.tsv"
 
+validation:
+  benchmark: "benchmark.tsv"
 
 params:
   bwa:
@@ -96,6 +124,14 @@ params:
     #BaseRecalibrator: "--interval-set-rule INTERSECTION -U LENIENT-VCF-PROCESSING --read-filter BadCigar --read-filter NotzPrimaryAlignment"
     GenotypeGVCFs: ""
     VariantRecalibrator: ""
+  gatk3:
+    java_opts: "-Xms500m -Xmx9555m"
+    HaplotypeCaller: "-drf DuplicateRead --interval_set_rule INTERSECTION --pair_hmm_implementation VECTOR_LOGLESS_CACHING -ploidy 2 -U LENIENT_VCF_PROCESSING --read_filter BadCigar --read_filter NotPrimaryAlignment"
+    annotation: "MappingQualityRankSumTest MappingQualityZero QualByDepth ReadPosRankSumTest RMSMappingQuality BaseQualityRankSumTest FisherStrand GCContent HaplotypeScore HomopolymerRun DepthPerAlleleBySample Coverage ClippingRankSumTest DepthPerSampleHC"
+    RealignerTargetCreator: " -l INFO --interval_set_rule INTERSECTION -U LENIENT_VCF_PROCESSING --read_filter BadCigar --read_filter NotPrimaryAlignment "
+    IndelRealigner: " -U LENIENT_VCF_PROCESSING --read_filter BadCigar --read_filter NotPrimaryAlignment "
+    BaseRecalibrator: " --interval_set_rule INTERSECTION -U LENIENT_VCF_PROCESSING --read_filter BadCigar --read_filter NotPrimaryAlignment "
+    PrintReads: " -jdk_deflater -jdk_inflater -U LENIENT_VCF_PROCESSING --read_filter BadCigar --read_filter NotPrimaryAlignment "
   picard:
     MarkDuplicates: "REMOVE_DUPLICATES=false"
     java_opts: "-Xmx2g"
@@ -112,3 +148,15 @@ params:
     java_opts: "-Xms750m -Xmx20g"
   svscore:
     operations: "max,sum,top5,top10,mean"
+  samtools:
+    mpileup: " -t DP -t AD -u -g "
+  bcftools:
+    mpileup: "-a DP -a AD "
+    call: " -m -v "
+  freebayes: " --genotype-qualities --strict-vcf --ploidy 2 --no-partial-observations --min-repeat-entropy 1 "
+  platypus: "--filterDuplicates=0"
+  rtg-tools:
+    java_opts: "-Xmx20g"
+    vcfeval:
+      sdf: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/rtg-tools/GRch37_SDF/"
+

@@ -7,3 +7,4 @@ dependencies:
   - parallel ==20190522
   - bedtools >=2.29
   - sed ==4.7
+  - vcflib ==1.0.0_rc2

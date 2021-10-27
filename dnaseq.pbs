@@ -5,7 +5,14 @@
 #PBS -d .
 #PBS -l vmem=80g,mem=80g
 
-SF="/hpf/largeprojects/ccm_dccforge/dccdipg/Common/pipelines/crg2/Snakefile"
+if [ -z $pipeline ]; then pipeline=$1; fi;
+
+if [ $pipeline = "wes" ]; then
+	SF=~/crg2/cre.Snakefile; 
+else
+	SF=~/crg2/Snakefile
+fi;
+
 CP="/hpf/largeprojects/ccm_dccforge/dccdipg/Common/snakemake"
 
 source /hpf/largeprojects/ccm_dccforge/dccdipg/Common/anaconda3/etc/profile.d/conda.sh
