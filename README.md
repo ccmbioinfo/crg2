@@ -311,10 +311,19 @@ The following output files are not included in the main Snakefile and can be req
   
 ## Other outputs
 CNV and SV comparison outputs are not yet part of the pipeline. Please follow the steps 7 & 8 in [crg](https://github.com/ccmbioinfo/crg#7-cnv-report) to generate the following three TSVs (this is also required for GenomeRounds)
-1. <FAMILYID>.<DATE>.cnv.withSVoverlaps.tsv
-2. <FAMILYID>.unfiltered.wgs.sv.<VER>.<DATE>.withCNVoverlaps.tsv
-3. <FAMILYID>.wgs.sv.<VER>.<DATE>.withCNVoverlaps.tsv
+1. \<FAMILYID>.\<DATE>.cnv.withSVoverlaps.tsv
+2. \<FAMILYID>.unfiltered.wgs.sv.\<VER>.\<DATE>.withCNVoverlaps.tsv
+3. \<FAMILYID>.wgs.sv.\<VER>.\<DATE>.withCNVoverlaps.tsv
+
+## Benchmarking
+
+SNV calls from WES and WGS pipeline can be benchmarked using the GIAB dataset _HG001_NA12878_ (family_sample) and truth calls from NISTv3.3.2
+
+0. Copy all required files for run as [here](#running-the-pipeline).
+  The inputs in `units.tsv` is downsampled for testing purposes. Edit the tsv to use the inputs from HPF: `ccmmarvin_shared/validation/benchmarking/benchmark-datasets`
+1. Copy `crg2/benchmark.tsv` to current directory. _Note: benchmark.tsv uses HG001_NA12878 as family_sample name, so you should edit the "project" name in `config.yaml`_
+2. Edit the `config.yaml` to set "wes" or "wgs" pipeline
+3. Edit `dnaseq_cluster.pbs` to include the target `validation/HG001`
 
 
-  
 
