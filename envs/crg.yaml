@@ -9,3 +9,4 @@ dependencies:
   - numpy >1.1
   - bedtools ==2.29.0
   - bcftools ==1.12
+  - pysam ==0.17.0
