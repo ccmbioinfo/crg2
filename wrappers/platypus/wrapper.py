@@ -29,8 +29,5 @@ log = snakemake.log_fmt_shell(stdout=True, stderr=True)
 shell(
     "platypus callVariants {bams} {params} --nCPU {threads} "
     "--refFile={snakemake.input.ref} {regions} "
-    "--output={snakemake.output}  &&  "
-    "vcfallelicprimitives -t DECOMPOSED --keep-geno {snakemake.output} "
-    "| vcffixup - | vcfstreamsort  > temp && "
-    "mv temp {snakemake.output} {log} "
+    "--output={snakemake.output} {log} "
 )

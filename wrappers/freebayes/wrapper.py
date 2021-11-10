@@ -34,7 +34,5 @@ shell(
     "({freebayes} {params} -f {snakemake.input.ref}"
     " {snakemake.input.samples} | "
     " bcftools filter -i 'ALT=\"<*>\" || QUAL > 5' {pipe} "
-    " | vcfallelicprimitives  -t DECOMPOSED --keep-geno "
-    " | vcffixup - | vcfstreamsort "
-    " > {snakemake.output[0]})  {log}"
+    " -o {snakemake.output[0]})  {log}"
 )
