@@ -30,6 +30,8 @@ rule evaluation_bed:
         family=config["run"]["project"]
     resources:
         mem=30
+    conda:
+        "../../envs/common.yaml"
     shell:
         '''
         truth_bed=`grep -v "family" {input.benchmark} | grep "{params.family}" | grep "{params.pipeline}" | awk '{{ print $5;}}'`;
