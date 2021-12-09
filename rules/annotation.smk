@@ -43,8 +43,6 @@ rule vep:
     params:
         dir=config["annotation"]["vep"]["dir"],
         dir_cache=config["annotation"]["vep"]["dir_cache"],
-        maxentscan=config["annotation"]["vep"]["maxentscan"],
-        human_ancestor_fasta=config["annotation"]["vep"]["human_ancestor_fasta"],
         ref=config["ref"]["genome"],
     wrapper:
         get_wrapper_path("vep")
