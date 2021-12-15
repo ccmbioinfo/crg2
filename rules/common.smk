@@ -176,7 +176,8 @@ def get_eh_json(wildcards):
     return ["str/EH/{}_{}.json".format(wildcards.family, sample) for sample in samples.index]
 
 def parse_ped_id(individual_id, family):
-    if individual_id != "0":
+    # G4RD sometimes puts random integers into id columns
+    if individual_id != "0" and len(individual_id) >=3:
         individual_id = str(individual_id)
         parsed_id = family + "_" + individual_id.replace(family, "")
     else:
@@ -201,6 +202,7 @@ def format_pedigree(wildcards):
         for col in ["individual_id", "pat_id", "mat_id"]:
             ped[col] = [parse_ped_id(individual_id, family) for individual_id in ped[col].values]
 
+        ped = ped[ped["individual_id"] != "0"]
         ped.to_csv(f"{family}.ped", sep=" ", index=False, header=False)
 
         return f"{family}.ped"
