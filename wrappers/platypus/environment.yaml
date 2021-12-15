@@ -1,7 +1,7 @@
 channels:
-  - bioconda
+  - bioconda/label/cf201901
   - conda-forge
   - defaults
 dependencies:
   - platypus-variant ==0.8.1.2
-  - vcflib ==1.0.0_rc2
+  - vt ==2015.11.10

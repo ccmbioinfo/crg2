@@ -13,11 +13,13 @@ if snakemake.output[0].endswith(".bcf"):
 if snakemake.threads == 1:
     freebayes = "freebayes"
     if snakemake.input.get("regions", ""):
-        freebayes = "{} --targets {} ".format(freebayes,snakemake.input.get("regions"))
+        freebayes = "{} --targets {} ".format(freebayes, snakemake.input.get("regions"))
 else:
     chunksize = snakemake.params.get("chunksize", 100000)
-    regions = "<(fasta_generate_regions.py {snakemake.input.ref}.fai {chunksize})".format(
-        snakemake=snakemake, chunksize=chunksize
+    regions = (
+        "<(fasta_generate_regions.py {snakemake.input.ref}.fai {chunksize})".format(
+            snakemake=snakemake, chunksize=chunksize
+        )
     )
     if snakemake.input.get("regions", ""):
         regions = (
@@ -34,7 +36,7 @@ shell(
     "({freebayes} {params} -f {snakemake.input.ref}"
     " {snakemake.input.samples} | "
     " bcftools filter -i 'ALT=\"<*>\" || QUAL > 5' {pipe} "
-    " | vcfallelicprimitives  -t DECOMPOSED --keep-geno "
+    " | vt decompose_blocksub - "
     " | vcffixup - | vcfstreamsort "
     " > {snakemake.output[0]})  {log}"
 )

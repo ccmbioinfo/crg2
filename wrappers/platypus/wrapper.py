@@ -30,7 +30,7 @@ shell(
     "platypus callVariants {bams} {params} --nCPU {threads} "
     "--refFile={snakemake.input.ref} {regions} "
     "--output={snakemake.output}  &&  "
-    "vcfallelicprimitives -t DECOMPOSED --keep-geno {snakemake.output} "
+    "vt decompose_blocksub {snakemake.output} "
     "| vcffixup - | vcfstreamsort  > temp && "
     "mv temp {snakemake.output} {log} "
 )
