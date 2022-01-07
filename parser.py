@@ -29,11 +29,14 @@ def setup_directories(family, sample_list, filepath, step):
         cmd = ["cp", os.path.join(crg2_dir, i), d]
         subprocess.check_call(cmd)
 
-    #replace family ID in config.yaml & dnaseq_cluster.pbs
+    #replace family ID and pipeline in config.yaml & dnaseq_cluster.pbs
     replace = 's/NA12878/{}/'.format(family)
+    pipeline = 's/wes/wgs/'
     config = os.path.join(d,"config.yaml")
     if os.path.isfile(config):
         cmd = ["sed", "-i", replace, config]
+        subprocess.check_call(cmd)
+        cmd = ["sed", "-i", pipeline, config]
         subprocess.check_call(cmd)
     replace = 's/crg2_pbs/{}/'.format(family)
     pbs = os.path.join(d,"dnaseq_cluster.pbs")
