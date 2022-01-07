@@ -10,11 +10,14 @@ rule manta:
     threads:
         4
     output:
-        "sv/manta/{family}_{sample}/results/variants/diploidSV.vcf.gz"
+        sv = "sv/manta/{family}_{sample}/results/variants/diploidSV.vcf.gz",
+        bnd = "sv/manta/{family}_{sample}/variants.vcf.gz"
     log:
         "logs/manta/{family}_{sample}.log"
     wrapper:
         get_wrapper_path("manta")
+
+
 
 rule wham:
     input:
@@ -89,12 +92,12 @@ rule metasv:
 
 rule snpeff:
     input:
-        "sv/metasv/{family}_{sample}/variants.vcf.gz"
+        "sv/{tool}/{family}_{sample}/variants.vcf.gz"
     output:
-        vcf = "sv/metasv/{family}_{sample}/variants.snpeff.vcf",
-        report = report("sv/metasv/{family}_{sample}/snpEff_summary.html",caption="../report/snpeff.rst",category="SnpEff")
+        vcf = "sv/{tool}/{family}_{sample}/variants.snpeff.vcf",
+        report = report("sv/{tool}/{family}_{sample}/snpEff_summary.html",caption="../report/snpeff.rst",category="SnpEff")
     log:
-        "logs/snpeff/{family}_{sample}.log"
+        "logs/snpeff/{tool}/{family}_{sample}.log"
     params:
         java_opts = config["params"]["snpeff"]["java_opts"],
         reference = config["ref"]["name"],
@@ -104,11 +107,11 @@ rule snpeff:
 
 rule svscore:
     input:
-        "sv/metasv/{family}_{sample}/variants.snpeff.vcf"
+        "sv/{tool}/{family}_{sample}/variants.snpeff.vcf"
     output:
-        "sv/metasv/{family}_{sample}/variants.snpeff.svscore.vcf"
+        "sv/{tool}/{family}_{sample}/variants.snpeff.svscore.vcf"
     log:
-        "logs/svscore/{family}_{sample}.log"
+        "logs/svscore/{tool}/{family}_{sample}.log"
     params:
         svscore_script=config["tools"]["svscore_script"],
         operations=config["params"]["svscore"]["operations"],

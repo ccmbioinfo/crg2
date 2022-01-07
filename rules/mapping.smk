@@ -72,7 +72,8 @@ rule recalibrate_base_qualities:
         bam = get_recal_input(),
         bai = get_recal_input(bai=True),
         ref = config["ref"]["genome"],
-        known = config["ref"]["known-variants"]
+        known = config["ref"]["known-variants"],
+        bed = "mapped/{family}_{sample}-callable.bed" 
     output:
         bam = protected("recal/{family}_{sample}.bam")
     params:
@@ -83,6 +84,101 @@ rule recalibrate_base_qualities:
     wrapper:
         get_wrapper_path("gatk", "baserecalibrator")
 
+rule realignertargetcreator:
+    input:
+        bam = get_recal_input(),
+        bai = get_recal_input(bai=True),
+        ref = config["ref"]["genome"],
+        known = config["ref"]["known-variants"]
+    output:
+        intervals="recal/gatk3/realignertargetcreator/{family}_{sample}.intervals",
+    log:
+        "logs/gatk3/realignertargetcreator/{family}_{sample}.log"
+    params:
+        extra = get_regions_param() + config["params"]["gatk3"]["RealignerTargetCreator"],
+        java_opts = config["params"]["gatk"]["java_opts"],
+    threads: 8
+    #resources: #cannot access threads here; fix later
+     #   mem=lambda wildcards, threads: {threads} * 3
+     #using already installed haplotypecaller conda-env, otherwise conda takes forever; 
+     #todo: change to a common gatk3.yaml instead of seperate conda for sub-commands
+    conda: 
+        "../wrappers/gatk3/haplotypecaller/environment.yaml"
+    wrapper:
+        get_wrapper_path("gatk3", "realignertargetcreator")
+
+rule indelrealigner:
+    input:
+        bam = get_recal_input(),
+        bai = get_recal_input(bai=True),
+        ref = config["ref"]["genome"],
+        known = config["ref"]["known-variants"],
+        target_intervals="recal/gatk3/realignertargetcreator/{family}_{sample}.intervals",
+    output:
+        bam = protected("recal/gatk3/indelrealigner/{family}_{sample}-realign.bam"),
+    log:
+        "logs/gatk3/indelrealigner/{family}_{sample}.log"
+    params:
+        extra = get_regions_param() + config["params"]["gatk3"]["IndelRealigner"],
+        java_opts = config["params"]["gatk"]["java_opts"],
+    conda:
+        "../wrappers/gatk3/haplotypecaller/environment.yaml"
+    wrapper:
+        get_wrapper_path("gatk3", "indelrealigner")
+
+rule mosdepth:
+    input:
+        bam = get_recal_input(),
+        bai = get_recal_input(bai=True),
+    output:
+        qbed = "mapped/{family}_{sample}.quantized.bed.gz",
+        bed = "mapped/{family}_{sample}-callable.bed"
+    params:
+        prefix = f"mapped/{{family}}_{{sample}}",
+        by = config["ref"]["canon_bed"],
+        quantiles = "0:1:4:"
+    log:
+        "logs/mosdepth/{family}_{sample}.log"
+    wrapper:
+        get_wrapper_path("mosdepth")
+       
+rule baserecalibrator:
+    input:
+        bam = "recal/gatk3/indelrealigner/{family}_{sample}-realign.bam",
+        bai = "recal/gatk3/indelrealigner/{family}_{sample}-realign.bam.bai",
+        bed = "mapped/{family}_{sample}-callable.bed",
+        ref = config["ref"]["genome"],
+        known = config["ref"]["known-variants"]
+    output:
+        "recal/gatk3/baserecalibrator/{family}_{sample}-recal.grp"
+    params:
+        extra = get_regions_param() + config["params"]["gatk3"]["BaseRecalibrator"],
+        java_opts = config["params"]["gatk"]["java_opts"],
+    log:
+        "logs/gatk3/baserecalibrator/{family}_{sample}.log"
+    threads: 8
+    conda:
+        "../wrappers/gatk3/haplotypecaller/environment.yaml"
+    wrapper:
+        get_wrapper_path("gatk3", "baserecalibrator")
+
+rule printreads:
+    input:
+        bam = "recal/gatk3/indelrealigner/{family}_{sample}-realign.bam",
+        bai = "recal/gatk3/indelrealigner/{family}_{sample}-realign.bam.bai",
+        ref = config["ref"]["genome"],
+        recal_data = "recal/gatk3/baserecalibrator/{family}_{sample}-recal.grp"
+    output:
+        protected("recal/gatk3/{family}_{sample}.bam")
+    params:
+        extra = get_regions_param() + config["params"]["gatk3"]["PrintReads"],
+        java_opts = config["params"]["gatk"]["java_opts"],
+    log:
+        "logs/gatk3/printreads/{family}_{sample}.log"
+    conda:
+        "../wrappers/gatk3/haplotypecaller/environment.yaml"
+    wrapper:
+        get_wrapper_path("gatk3", "printreads")
 rule md5:
     input: 
         bam = "recal/{family}_{sample}.bam"
@@ -120,3 +216,38 @@ rule samtools_index:
     wrapper:
         get_wrapper_path("samtools", "index")
 
+
+rule concatenate_callable_bed:
+    input:
+        expand("mapped/{family}_{sample}-callable.bed",family=project,sample=samples.index)
+    output: 
+        "mapped/{family}-concat-sort.bed"
+    log:
+        "logs/bash/{family}-callable-concat.log"
+    shell:
+        '''
+            cat {input} | sort -k1,1 -k2,2n > {output} 2>{log}
+        '''
+    
+rule merge_bed:
+    input: 
+        "mapped/{family}-concat-sort.bed"
+    output:
+        "mapped/{family}-sort-callable.bed"
+    log:
+        "logs/bedtools/{family}-callable-merge.log"
+    wrapper:
+        get_wrapper_path("bedtools", "merge")
+
+rule contigwise_bed:
+    input:
+        "mapped/{family}-sort-callable.bed"
+    output:
+        "mapped/bed/{family}-sort-callable-{contig}.bed"
+    log:
+        "logs/bash/{family}.{contig}.log"    
+    shell:
+        """
+            awk '{{ if($1=="{wildcards.contig}") print $0; }}' {input} > {output} 2>{log}
+        """
+    

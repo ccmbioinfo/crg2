@@ -5,6 +5,7 @@ __license__ = "MIT"
 
 
 from snakemake.shell import shell
+from os import popen
 
 outfile = snakemake.output[0]
 
@@ -19,6 +20,15 @@ elif outfile.endswith("bcf"):
 elif outfile.endswith("bcf.gz"):
     compress_flags = "-Ob"
 
+
+samples = snakemake.params.samples if snakemake.params.get("samples") else ""
+
+if isinstance(samples,list):
+    samples = " -s " + ",".join(samples)
+
+params = snakemake.params.filter if snakemake.params.get("filter") else ""
+
+
 shell(
-    "bcftools view {snakemake.params} {snakemake.input[0]} {compress_flags} " "-o {outfile}"
+    "bcftools view {samples} {params} {snakemake.input[0]} {compress_flags} -o {outfile} "
 )

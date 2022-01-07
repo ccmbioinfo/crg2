@@ -119,15 +119,9 @@ properties:
             type: string
           dir_cache:
             type: string
-          maxentscan:
-            type: string
-          human_ancestor_fasta:
-            type: string
         required:
           - dir
           - dir_cache
-          - maxentscan
-          - human_ancestor_fasta
 
       snpeff:
         type: object

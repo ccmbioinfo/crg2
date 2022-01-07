@@ -1,9 +1,3 @@
-__author__ = "Johannes Köster, Felix Mölder"
-__copyright__ = "Copyright 2017, Johannes Köster"
-__email__ = "johannes.koester@protonmail.com, felix.moelder@uni-due.de"
-__license__ = "MIT"
-
-
 from snakemake.shell import shell
 
 shell.executable("bash")
@@ -18,6 +12,8 @@ if snakemake.output[0].endswith(".bcf"):
 
 if snakemake.threads == 1:
     freebayes = "freebayes"
+    if snakemake.input.get("regions", ""):
+        freebayes = "{} --targets {} ".format(freebayes,snakemake.input.get("regions"))
 else:
     chunksize = snakemake.params.get("chunksize", 100000)
     regions = "<(fasta_generate_regions.py {snakemake.input.ref}.fai {chunksize})".format(
@@ -36,5 +32,9 @@ else:
 
 shell(
     "({freebayes} {params} -f {snakemake.input.ref}"
-    " {snakemake.input.samples} {pipe} > {snakemake.output[0]}) {log}"
+    " {snakemake.input.samples} | "
+    " bcftools filter -i 'ALT=\"<*>\" || QUAL > 5' {pipe} "
+    " | vcfallelicprimitives  -t DECOMPOSED --keep-geno "
+    " | vcffixup - | vcfstreamsort "
+    " > {snakemake.output[0]})  {log}"
 )

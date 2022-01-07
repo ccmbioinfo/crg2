@@ -4,3 +4,4 @@ channels:
   - defaults
 dependencies:
   - platypus-variant ==0.8.1.2
+  - vcflib ==1.0.0_rc2
