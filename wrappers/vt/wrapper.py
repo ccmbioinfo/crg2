@@ -25,5 +25,5 @@ log = snakemake.log_fmt_shell(stdout=False, stderr=True)
 
 shell(
     "(vt decompose -s {incalls} | vt normalize {fastaprefix} -n - | vt uniq - "
-    "> {outcalls}) {log}"
+    " | vt view -o {outcalls} - ) {log}"
 )

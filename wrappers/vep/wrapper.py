@@ -20,12 +20,6 @@ dirprefix = "--dir {}".format(dir) if dir else ""
 dircache = snakemake.params.get("dir_cache")
 dircacheprefix = "--dir_cache {}".format(dircache) if dircache else ""
 
-maxentscan = snakemake.params.get("maxentscan")
-maxentscanprefix = "--plugin MaxEntScan,{}".format(maxentscan) if maxentscan else ""
-
-humanancestorfasta = snakemake.params.get("human_ancestor_fasta")
-humanancestorfastaprefix = "--plugin LoF,human_ancestor_fa:{},loftee_path:{}".format(humanancestorfasta, dir) if humanancestorfasta and dir else ""
-
 fasta = snakemake.params.get("ref")
 if fasta:
     fastaprefix = "--fasta {}".format(fasta)
@@ -50,7 +44,6 @@ shell(
     "(vep --vcf -o stdout -i {incalls} {threadsprefix} --species homo_sapiens --no_stats --cache --offline {dirprefix} {dircacheprefix} --symbol --numbers --biotype --total_length "
     "--canonical --gene_phenotype --ccds --uniprot --domains --regulatory --protein --tsl --appris --af --max_af --af_1kg --af_esp --af_gnomad "
     "--pubmed --variant_class --allele_number {fastaprefix} "
-    "{humanancestorfastaprefix} {maxentscanprefix} "
     "--plugin SpliceRegion --sift b --polyphen b --hgvs --shift_hgvs 1 --merged  "
     "| sed '/^#/! s/;;/;/g' {outprefix} > {outcalls}) {log}"
 )

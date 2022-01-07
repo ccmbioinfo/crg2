@@ -21,6 +21,7 @@ validate(units, schema="../schemas/units.schema.yaml")
 
 project = config["run"]["project"]
 flank = config["run"]["flank"]
+gatk = config["run"]["gatk"] 
 
 ##### Wildcard constraints #####
 wildcard_constraints:
@@ -95,6 +96,9 @@ def get_read_group(wildcards):
         sample=wildcards.sample,
         platform=units.loc[(wildcards.sample), "platform"])
 
+def get_sample_order(wildcards):
+    """bcftools view -s <sample_order> as freebaayes randomly picks order"""
+    return [ "{}_{}".format(project,s) for s in samples.index ]
 
 def get_trimmed_reads(wildcards):
     """Get trimmed reads of given family-sample."""
@@ -124,11 +128,23 @@ def get_regions_param(regions=config["processing"].get("restrict-regions"), defa
 
 
 def get_call_variants_params(wildcards, input):
-    return (get_regions_param(regions=input.regions, default="--intervals {}".format(wildcards.contig)) +
-            config["params"]["gatk"]["HaplotypeCaller"])
+    return (get_regions_param(regions=input.regions, default="--intervals {} ".format(wildcards.contig)) +
+            config["params"][gatk]["HaplotypeCaller"])
 
 
 def get_recal_input(bai=False):
+    # case 1: no duplicate removal
+    f = "mapped/{family}_{sample}.sorted.bam"
+    if config["processing"]["mark-duplicates"]:
+        # case 2: remove duplicates
+        f = "dedup/{family}_{sample}.bam"
+    if bai or  config["processing"].get("restrict-regions"):
+            # case 3: need an index because random access is required
+            f += ".bai"
+    return f
+    
+
+def get_recal_input_gatk3(bai=False):
     # case 1: no duplicate removal
     f = "mapped/{family}_{sample}.sorted.bam"
     if config["processing"]["mark-duplicates"]:

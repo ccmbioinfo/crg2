@@ -1,11 +1,11 @@
 # crg2
-Clinical research pipeline for exploring variants in whole genome sequencing data
+Clinical research pipeline for exploring variants in whole genome (WGS) and exome (WES) sequencing data
 
 <div align="center">
     <img src="/crg2logolarge.png" width="800px"</img> 
 </div>
 
-crg2 is a research pipeline aimed at discovering clinically relevant variants (SNVs, SVs) in whole genome sequencing data.
+crg2 is a research pipeline aimed at discovering clinically relevant variants (SNVs, SVs) in whole genome and exome sequencing data.
 It aims to provide reproducible results, be computationally efficient, and transparent in it's workflow.
 
 crg2 uses Snakemake and Conda to manage jobs and software dependencies.
@@ -21,10 +21,16 @@ mkdir ~/crg2-conda
 ```
 
 5. Navigate to the crg2 directory. Install all software dependencies using:
-```
-cd crg2
-snakemake --use-conda -s Snakefile --conda-prefix ~/crg2-conda --create-envs-only
-```
+- WGS:
+  ```
+  cd crg2
+  snakemake --use-conda -s Snakefile --conda-prefix ~/crg2-conda --create-envs-only
+  ```
+- WES: This will install additional tools like freebayes, platypus, mosdepth and gatk3.
+  ```
+  cd crg2
+  snkamake --use-conda -s cre.Snakefile --conda-prefix ~/crg2-conda --create-envs-only
+  ```
 Make sure to replace ```~/crg2-conda``` with the path made in step 4. This will take a while.
 
 6. Install these plugins for VEP: ```LoF, MaxEntScan, SpliceRegion```. Refer to this page for installation instructions: https://useast.ensembl.org/info/docs/tools/vep/script/vep_plugins.html. The INSTALL.pl script has been renamed to vep_install in the VEP's Conda build. It is located in the conda environment directory, under ```share/ensembl-vep-99.2-0/vep_install```. Therefore, your command should be similar to: ```fb5f2eb3/share/ensembl-vep-99.2-0/vep_install -a p --PLUGINS LoF,MaxEntScan,SpliceRegion```
@@ -152,8 +158,10 @@ rule call_variants:
 ```
 
 5. Run the pipeline
-  - as a single job using: ```qsub dnaseq.pbs```. 
-  - as multi-node jobs using: ```qsub dnaseq_cluster.pbs```. Change the value of variables defined inside the above file according to your system 
+  
+  You can invoke exome or genome pipeline by passing ```-v pipeline=wgs|wes``` to the PBS script.
+  - as a single job using: ```qsub dnaseq.pbs -v pipeline=wes```. 
+  - as multi-node jobs using: ```qsub dnaseq_cluster.pbs -v pipeline=wgs```. Change the value of variables defined inside the above file according to your system 
   Refer `pbs_profile/cluster.md` document for detailed documentation for cluster integration.
   
 The SNV reports can be found in the directories: 
@@ -189,6 +197,7 @@ The script performs the following operations for each familyID present in the sa
     - pbs_config.yaml
   - submit Snakemake job 
 
+
 ## Pipeline details
 
 ### Pre-calling steps
@@ -200,7 +209,7 @@ The script performs the following operations for each familyID present in the sa
 
 4. Remove reads mapped to decoy chromosomes
 
-### SNV
+### WGS: SNV
 1. Call SNV's and generate gVCFs
 
 2. Merge gVCF's and perform joint genotyping
@@ -208,6 +217,21 @@ The script performs the following operations for each familyID present in the sa
 3. Filter against GATK best practices filters
 
 4. Decompose multiallelics, sort and uniq the filtered VCF using vt
+
+5. Annotate using vcfanno and VEP
+
+6. Generate a gemini db using vcf2db.py
+
+7. Generate a cre report using cre.sh
+
+### WES: SNV
+1. Call variants using GATK, Freebayes, Platypus, and SAMTools
+
+2. Apply caller specific filters and retain PASS variants
+
+3. Decompose multiallelics, sort and uniq filtered VCF using vt
+
+4. Retain variants called by GATK or 2 other callers; Annotate caller info in VCF with INFO/CALLER and INFO/NUMCALLS.
 
 5. Annotate using vcfanno and VEP
 
@@ -251,7 +275,7 @@ SNV: https://docs.google.com/document/d/1zL4QoINtkUd15a0AK4WzxXoTWp2MRcuQ9l_P9-x
 
 SV: https://docs.google.com/document/d/1o870tr0rcshoae_VkG1ZOoWNSAmorCZlhHDpZuZogYE
 
-The pipeline generates 6 reports:
+The WGS pipeline generates 6 reports:
 
 1. wgs.snv - a report on coding SNVs across the entire genome
 
@@ -265,6 +289,15 @@ The pipeline generates 6 reports:
 
 6. EHDN - a report on denovo repeats filtered from a case-control outlier analysis
 
+The WES pipeline generates 4 reports for SNV:
+
+1. clinical.wes.regular - report on coding SNVs in exonice regions using clinical filters as decribed [here](https://docs.google.com/document/d/1zL4QoINtkUd15a0AK4WzxXoTWp2MRcuQ9l_P9-xSlS4/edit#heading=h.e4whjtn15ybp) 
+
+2. clinical.wes.synonymous - report on synonymous SNVs in exonic regions using clinical filters as decribed in [here](https://docs.google.com/document/d/1zL4QoINtkUd15a0AK4WzxXoTWp2MRcuQ9l_P9-xSlS4/edit#heading=h.e4whjtn15ybp) 
+
+3. wes.regular - report on coding SNVs in exonic regions
+
+4. wes.synonymous - report on synonymous SNVs in exonic regions
 ## Extra targets
 
 The following output files are not included in the main Snakefile and can be requested in `snakemake` command-line.
@@ -278,10 +311,19 @@ The following output files are not included in the main Snakefile and can be req
   
 ## Other outputs
 CNV and SV comparison outputs are not yet part of the pipeline. Please follow the steps 7 & 8 in [crg](https://github.com/ccmbioinfo/crg#7-cnv-report) to generate the following three TSVs (this is also required for GenomeRounds)
-1. <FAMILYID>.<DATE>.cnv.withSVoverlaps.tsv
-2. <FAMILYID>.unfiltered.wgs.sv.<VER>.<DATE>.withCNVoverlaps.tsv
-3. <FAMILYID>.wgs.sv.<VER>.<DATE>.withCNVoverlaps.tsv
+1. \<FAMILYID>.\<DATE>.cnv.withSVoverlaps.tsv
+2. \<FAMILYID>.unfiltered.wgs.sv.\<VER>.\<DATE>.withCNVoverlaps.tsv
+3. \<FAMILYID>.wgs.sv.\<VER>.\<DATE>.withCNVoverlaps.tsv
+
+## Benchmarking
+
+SNV calls from WES and WGS pipeline can be benchmarked using the GIAB dataset _HG001_NA12878_ (family_sample) and truth calls from NISTv3.3.2
+
+0. Copy all required files for run as [here](#running-the-pipeline).
+  The inputs in `units.tsv` is downsampled for testing purposes. Edit the tsv to use the inputs from HPF: `ccmmarvin_shared/validation/benchmarking/benchmark-datasets`
+1. Copy `crg2/benchmark.tsv` to current directory. _Note: benchmark.tsv uses HG001_NA12878 as family_sample name, so you should edit the "project" name in `config.yaml`_
+2. Edit the `config.yaml` to set "wes" or "wgs" pipeline
+3. Edit `dnaseq_cluster.pbs` to include the target `validation/HG001`
 
 
-  
 
