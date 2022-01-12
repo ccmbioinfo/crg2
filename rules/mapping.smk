@@ -37,6 +37,7 @@ elif config["run"]["input"] == "cram":
         output:
             fastq1 = temp("fastq/{family}_{sample}_R1.fastq.gz"),
             fastq2 = temp("fastq/{family}_{sample}_R2.fastq.gz")
+        shadow: "shallow"
         log:
             "logs/cramtofastq/{family}_{sample}.log"
         wrapper:
