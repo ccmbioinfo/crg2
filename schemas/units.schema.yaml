@@ -17,6 +17,9 @@ properties:
   bam:
     type: string
     description: path to bam file (fill this in if fastqs are not available)
+  cram:
+    type: string
+    description: path to cram file (if available)
 required:
   - sample
   - platform

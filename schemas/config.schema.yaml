@@ -59,6 +59,10 @@ properties:
         type: string
       canon_bed:
         type: string
+      old_cram_ref:
+        type: string
+      new_cram_ref:
+        type: string
     required:
       - genome
       - known-variants
