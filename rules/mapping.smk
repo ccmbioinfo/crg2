@@ -33,7 +33,7 @@ rule map_reads:
         markSplitReads = config["params"]["bwa"]["markSplitReads"],
         sort = "samtools",
         sort_order = "coordinate"
-    threads: 16
+    threads: 32
     resources: 
         mem=lambda wildcards, threads: threads * 2
     wrapper:
