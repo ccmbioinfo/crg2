@@ -41,7 +41,7 @@ rule recalibrate_calls:
     input:
         vcf="filtered/{family}.{vartype}.vcf.gz"
     output:
-        vcf=temp("filtered{family}.{vartype}.recalibrated.vcf.gz")
+        vcf=temp("filtered/{family}.{vartype}.recalibrated.vcf.gz")
     params:
         extra=config["params"]["gatk"]["VariantRecalibrator"]
     log:
