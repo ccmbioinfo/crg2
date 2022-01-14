@@ -219,7 +219,7 @@ rule remove_decoy:
         "../envs/samtools.yaml"
     shell:
         """
-        samtools view --threads {threads} -h -L {input.canon} {input.bam} | egrep -v "hs37d5|NC_007605" | samtools view --threads {threads} - -bh > {output.out_f}
+        samtools view --threads {threads} -h -L {input.canon} {input.bam} | egrep -v "_decoy|chrEBV" | samtools view --threads {threads} - -bh > {output.out_f}
         """
 
 rule samtools_index:
