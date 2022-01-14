@@ -32,8 +32,8 @@ elif config["run"]["input"] == "cram":
         input:
             units=config["run"]["units"]
         params:
-            OldCramRef = config["ref"]["old_cram_ref"],
-            NewCramRef = config["ref"]["new_cram_ref"]
+            old_cram_ref = config["ref"]["old_cram_ref"],
+            new_cram_ref = config["ref"]["new_cram_ref"]
         output:
             fastq1 = temp("fastq/{family}_{sample}_R1.fastq.gz"),
             fastq2 = temp("fastq/{family}_{sample}_R2.fastq.gz")
