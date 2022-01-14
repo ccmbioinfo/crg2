@@ -18,11 +18,14 @@ copy_cmd = (" cp {cram_file} {dest}; ")
 
 get_header_cmd = (" samtools view -H {dest} > fastq/{family}_{sample}_header.sam; ")
 
-sed_cmd = (" sed -i 's+{snakemake.params.OldCramRef}+UR:{snakemake.params.NewCramRef}+g' fastq/{family}_{sample}_header.sam; ")
+sed_cmd = (" sed -i 's+{snakemake.params.old_cram_ref}+UR:{snakemake.params.new_cram_ref}+g' fastq/{family}_{sample}_header.sam; ")
 
 reheader_cmd = (" samtools reheader -i fastq/{family}_{sample}_header.sam {dest}; ")
 
-fastq_cmd = (" samtools sort -n {dest} | samtools fastq - --reference {snakemake.params.NewCramRef} -1 fastq/{family}_{sample}_R1.fastq.gz -2 fastq/{family}_{sample}_R2.fastq.gz -s fastq/{family}_{sample}_singleton.fastq.gz; ")
+fastq_cmd = (" samtools sort -n {dest} | samtools fastq - --reference {snakemake.params.new_cram_ref} "
+" -1 fastq/{family}_{sample}_R1.fastq.gz"
+" -2 fastq/{family}_{sample}_R2.fastq.gz"
+" -s fastq/{family}_{sample}_singleton.fastq.gz; ")
 
 rm_cmd = (" rm -f fastq/{family}_{sample}_header.sam fastq/{family}_{sample}.cram fastq/{family}_{sample}_singleton.fastq.gz; ")
 
