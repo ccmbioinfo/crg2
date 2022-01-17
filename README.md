@@ -64,7 +64,7 @@ mkdir NA12878
 cp crg2/samples.tsv crg2/units.tsv crg2/config.yaml crg2/pbs_profile/pbs_config.yaml NA12878
 ```
 
-2. Reconfigure the 3 files to reflect project names, sample names, input fastq or bam files, a panel bed file (if any) or hpo file (if any) and a ped file (if any). Inclusion of a panel bed file or hpofile will generate 2 SNV reports with all variants falling within these regions. Inclusion of a ped file with unaffacted parents and an affected proband will allow generation of a de novo report. Note that the default input file type specified in the config is fastq; change this to bam if the inputs are bam files. If there are multiple fastqs per read end, these must be comma-delimited within the units.tsv file. At the moment, the pipeline does not support a mix of fastqs and bam files within a project/family. 
+2. Reconfigure the 3 files to reflect project names, sample names, input fastq, bam or cram files, a panel bed file (if any) or hpo file (if any) and a ped file (if any). Inclusion of a panel bed file or hpofile will generate 2 SNV reports with all variants falling within these regions. Inclusion of a ped file with unaffacted parents and an affected proband will allow generation of a de novo report. Note that the default input file type specified in the config is fastq; change this to bam or cram if the inputs are bam or cram files. If you using cram files as input, also make sure that you are specifying the correct cram references - old_cram_ref refers to the original reference the cram was aligned to, and new_cram_ref refers to the new reference used to convert the cram to fastq. You can get the old_cram_ref from the cram file header by running samtools view -H file_name.cram.  If there are multiple fastqs per read end, these must be comma-delimited within the units.tsv file. At the moment, the pipeline does not support a mix of fastqs, bam or cram files within a project/family. 
 
 samples.tsv
 ```
@@ -74,7 +74,7 @@ NA12878
 
 units.tsv
 ```
-sample	platform	fq1	fq2
+sample	platform	fq1	fq2	bam	cram
 NA12878	ILLUMINA	/hpf/largeprojects/ccm_dccforge/dccdipg/Common/NA12878/NA12878.bam_1.fq	/hpf/largeprojects/ccm_dccforge/dccdipg/Common/NA12878/NA12878.bam_2.fq
 ```
 
@@ -87,7 +87,7 @@ run:
   ped: "" # leave this line blank if there is no ped
   panel: "/hpf/largeprojects/ccmbio/dennis.kao/NA12878/panel.bed" # remove this line entirely if there is no panel bed file
   flank: "100000"
-  input: "fastq" # default fastq; specify bam if input is bam
+  input: "fastq" # default fastq; specify bam if input is bam or cram
   
 cre: /hpf/largeprojects/ccm_dccforge/dccdipg/Common/pipelines/cre
 

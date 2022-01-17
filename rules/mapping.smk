@@ -11,7 +11,7 @@ if config["run"]["input"] == "fastq":
             "../envs/crg.yaml" 
         script:
             "../scripts/fastq_prep.py"
-else:
+elif config["run"]["input"] == "bam":
     rule bamtofastq:
         input:
             bam_file = get_bam
@@ -27,7 +27,21 @@ else:
             4
         wrapper:
             get_wrapper_path("bedtools", "bamtofastq")
-
+elif config["run"]["input"] == "cram":
+    rule cramtofastq:
+        input:
+            units=config["run"]["units"]
+        params:
+            old_cram_ref = config["ref"]["old_cram_ref"],
+            new_cram_ref = config["ref"]["new_cram_ref"]
+        output:
+            fastq1 = temp("fastq/{family}_{sample}_R1.fastq.gz"),
+            fastq2 = temp("fastq/{family}_{sample}_R2.fastq.gz")
+        shadow: "shallow"
+        log:
+            "logs/cramtofastq/{family}_{sample}.log"
+        wrapper:
+            get_wrapper_path("samtools", "fastq")
 
 
 rule map_reads:
