@@ -39,17 +39,7 @@ with TemporaryDirectory() as tempdir:
     html_path = path.join(tempdir, output_base + "_fastqc.html")
     zip_path = path.join(tempdir, output_base + "_fastqc.zip")
  
-
-    #shell(
-        #" unzip -o {zip_path} -d {tempdir}"
-    #)
-    #unzip_path = path.join(tempdir, output_base + "_fastqc")
-    #unzip_path_rename = path.join(tempdir, output_base)
-    #shell("mv {unzip_path} {unzip_path_rename}")
-
-    #unzip_folder = path.join(tempdir, output_base)
-    #unzip_base = "_".join(output_base.split("_")[:-1])
-    
+   
     if snakemake.output.html != html_path:
         shell("mv {html_path} {snakemake.output.html}")
 
