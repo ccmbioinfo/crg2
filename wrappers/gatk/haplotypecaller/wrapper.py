@@ -28,5 +28,6 @@ shell(
     "gatk --java-options '{java_opts}' HaplotypeCaller {extra} "
     "-R {snakemake.input.ref} {bams} "
     "-ERC GVCF "
+    "--dragen-mode "
     "-O {snakemake.output.gvcf} {known} {log}"
 )
