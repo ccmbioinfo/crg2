@@ -3,7 +3,8 @@ rule fastqc:
         reads=["fastq/{family}_{sample}_R1.fastq.gz", "fastq/{family}_{sample}_R2.fastq.gz"]
     output:
         html="qc/fastqc/{family}_{sample}.html",
-        zip="qc/fastqc/{family}_{sample}.zip"
+        zip="qc/fastqc/{family}_{sample}.zip",
+        unzip_folder=directory("qc/fastqc/{family}_{sample}")
     log:
         "logs/fastqc/{family}_{sample}.log"
     wrapper:
@@ -80,8 +81,7 @@ rule verifybamid2:
 rule multiqc:
     input:
         [expand(input_file, sample=samples.index,family=project) for input_file in ["qc/samtools-stats/{family}_{sample}.txt", 
-                                                            "qc/fastqc/{family}_{sample}.zip",
-                                                            "qc/fastqc/{family}_{sample}.zip", 
+                                                            "qc/fastqc/{family}_{sample}", 
                                                             "qc/dedup/{family}_{sample}.metrics.txt", 
                                                             "qc/verifybamid2/{family}_{sample}.selfSM", 
                                                             "qc/qualimap/{family}_{sample}/genome_results.txt", 
