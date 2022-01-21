@@ -9,7 +9,9 @@ project = config["run"]["project"]
 if config["run"]["pipeline"] == "wes":
     rule all:
         input:
-            "report/coding/{}".format(project)
+            "report/coding/{}".format(project),
+            "qc/multiqc/multiqc.html",
+            [expand("recal/{family}_{sample}.bam.md5".format(family=config["run"]["project"], sample=s)) for s in samples.index]
 else:
     rule all:
         input:
@@ -22,7 +24,8 @@ else:
             "qc/multiqc/multiqc.html",
             #"plots/depths.svg",
             #"plots/allele-freqs.svg"
-            "programs-{}.txt".format(PIPELINE_VERSION)
+            "programs-{}.txt".format(PIPELINE_VERSION),
+            expand("recal/{family}_{sample}.bam.md5".format(family=config["run"]["project"], sample=config["run"]["project"]))
 
 
 
