@@ -175,10 +175,11 @@ The STR reprots can be found in:
   - report/str/{PROJECT_ID}.EH.v1.1.{DATE}.xlsx
   - report/str/{PROJECT_ID}.EHDN.{DATE}.xlsx
 ## Automatic pipeline submission
-`parser.py` script can be used to automate the above process for a batch of genomes. 
+### Genomes
+`parser_genomes.py` script can be used to automate the above process for a batch of genomes. 
 
 ```
-usage: parser.py [-h] -f FILE -s {fastq,mapped,recal,decoy_rm} -d path
+usage: parser_genomes.py [-h] -f FILE -s {fastq,mapped,recal,decoy_rm} -d path
 Reads sample info from TSV file (-f) and creates directory (-d) necessary to start crg2 from step (-s) requested.
 optional arguments:
   -h, --help            show this help message and exit
@@ -192,6 +193,37 @@ The script performs the following operations for each familyID present in the sa
   - copy the following files to run folder and update settings where applicable:
     - config.yaml: update run name, input type, panel and ped (if avaialble in /hpf/largeprojects/ccmbio/dennis.kao/gene_data/{HPO,Pedigrees})
     - units.tsv: add sample name, and input file paths
+    - samples.tsv: add sample names
+    - dnaseq_cluser.pbs: rename job (#PBS -N \<familyID\>)
+    - pbs_config.yaml
+  - submit Snakemake job 
+
+### Exomes
+`parser_exomes.py` script can be used to automate the above process for a batch of exomes. 
+
+```
+usage: parser_exomes.py [-h] -f FILE -d path -s {fastq,mapped,recal,decoy_rm}
+                        -b BIOINFOS [BIOINFOS ...]
+
+Reads sample info from csv file (-f) and creates directory (-d) necessary to
+start crg2 from step (-s) requested.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -f FILE, --file FILE  Analyses csv output from STAGER
+  -d path, --dir path   Absolute path where crg2 directory structure will be
+                        created under familyID as base directory
+  -s {fastq,mapped,recal,decoy_rm}, --step {fastq,mapped,recal,decoy_rm}
+                        start running from this folder creation(step)
+  -b BIOINFOS [BIOINFOS ...], --bioinfos BIOINFOS [BIOINFOS ...]
+                        Names of bioinformaticians who will be assigned cases
+                        separated by spaces, e.g. MC NH PX
+```
+The script performs the following operations for each familyID present in the analyses request file
+  - create run folder: \<familyID\>
+  - copy the following files to run folder and update settings where applicable:
+    - config.yaml: update run name, input type
+    - units.tsv: add sample name, and input file paths from MinIO uploads or previously run analyses
     - samples.tsv: add sample names
     - dnaseq_cluser.pbs: rename job (#PBS -N \<familyID\>)
     - pbs_config.yaml
