@@ -61,8 +61,8 @@ def check_minio_dccforge(family, participant):
     MINIO_MIRROR = (
         "/hpf/largeprojects/ccm_dccforge/dccforge/uploads/MinIO_G4RD_Mirror/*/"
     )
-    dccforge_input = input_file(f"{DCCFORGE_UPLOADS}/{family}_{participant}/")
-    minio_input = input_file(f"{MINIO_MIRROR}/{family}_{participant}/")
+    dccforge_input = input_file(f"{DCCFORGE_UPLOADS}/{family}_{participant}*/")
+    minio_input = input_file(f"{MINIO_MIRROR}/{family}_{participant}*/")
     if not dccforge_input and not minio_input:
         input = None
     else:
