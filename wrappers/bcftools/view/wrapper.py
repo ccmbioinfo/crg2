@@ -20,11 +20,15 @@ elif outfile.endswith("bcf"):
 elif outfile.endswith("bcf.gz"):
     compress_flags = "-Ob"
 
-
-samples = snakemake.params.samples if snakemake.params.get("samples") else ""
-
-if isinstance(samples,list):
-    samples = " -s " + ",".join(samples)
+family = snakemake.wildcards.family
+sample = snakemake.wildcards.sample
+#samples = snakemake.params.samples if snakemake.params.get("samples") else ""
+if snakemake.params.get("samples"): 
+    samples = f" -s {family}_{sample} ".format(family=family, sample = sample) 
+else: 
+    samples = "" 
+#if isinstance(samples,list):
+ #   samples = " -s " + ",".join(samples)
 
 params = snakemake.params.filter if snakemake.params.get("filter") else ""
 
