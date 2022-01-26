@@ -104,6 +104,30 @@ rule bcftools_stats:
     wrapper:
         get_wrapper_path("bcftools", "stats")
 
+rule peddy:
+    input:
+        vcf = get_gatk_vcf
+        ped = "{family}.ped" #which ped to use
+    output:
+        "qc/peddy/{family}.html",
+        "qc/peddy/{family}.het_check.csv",
+        "qc/peddy/{family}.het_check.png",
+        "qc/peddy/{family}.pca_check.png",
+        "qc/peddy/{family}.ped_check.csv",
+        "qc/peddy/{family}.ped_check.png",
+        "qc/peddy/{family}.peddy.ped",
+        "qc/peddy/{family}.sex_check.csv",
+        "qc/peddy/{family}.sex_check.png",
+        "qc/peddy/{family}.ped_check.rel-difference.csv",
+        "qc/peddy/{family}.background_pca.json"
+    params:
+        "-p 7"
+    log:
+        "logs/peddy/{family}.log"
+    wrapper:
+        get_wrapper_path("peddy")
+
+
 rule multiqc:
     input:
         [expand(input_file, sample=samples.index,family=project) for input_file in ["qc/samtools-stats/{family}_{sample}.txt", 
@@ -117,7 +141,18 @@ rule multiqc:
                                                             "qc/qualimap/{family}_{sample}/raw_data_qualimapReport/mapped_reads_gc-content_distribution.txt",
                                                             "qc/qualimap/{family}_{sample}/raw_data_qualimapReport/mapped_reads_gc-content_distribution.txt", 
                                                             "qc/fastq_screen/{family}_{sample}_screen.txt",
-                                                            "qc/bcftools_stats/{family}_{sample}.txt"
+                                                            "qc/bcftools_stats/{family}_{sample}.txt",
+                                                            "qc/peddy/{family}.html",
+                                                            "qc/peddy/{family}.het_check.csv",
+                                                            "qc/peddy/{family}.het_check.png",
+                                                            "qc/peddy/{family}.pca_check.png",
+                                                            "qc/peddy/{family}.ped_check.csv",
+                                                            "qc/peddy/{family}.ped_check.png",
+                                                            "qc/peddy/{family}.peddy.ped",
+                                                            "qc/peddy/{family}.sex_check.csv",
+                                                            "qc/peddy/{family}.sex_check.png",
+                                                            "qc/peddy/{family}.ped_check.rel-difference.csv",
+                                                            "qc/peddy/{family}.background_pca.json"
                                                                     ]]
     params:
     output:
