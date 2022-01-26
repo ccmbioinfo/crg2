@@ -205,3 +205,10 @@ def format_pedigree(wildcards):
 
         return f"{family}.ped"
 
+def get_gatk_vcf(wildcards):
+    """ Get vcf from gatk4 calling for the use in qc """
+    if config["run"]["pipeline"] == "wes":
+        vcf = expand("genotyped/{family}-gatk_haplotype.vcf.gz", family=wildcards.family)
+    elif config["run"]["pipeline"] == "wgs":
+        vcf = expand("genotyped/{family}_haplotype.vcf.gz", family=wildcards.family)
+    return vcf

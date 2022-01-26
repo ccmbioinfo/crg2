@@ -78,6 +78,30 @@ rule verifybamid2:
     wrapper:
         get_wrapper_path("verifybamid2")
 
+rule subset:
+    input: 
+        vcf = get_gatk_vcf
+    output:
+        sample_vcf = "genotyped/{family}_{sample}-gatk4.vcf.gz"
+    params:
+    log: 
+        "logs/bcftools/view/{family}_{sample}.log"
+    wrapper:
+        get_wrapper_path("bcftools", "view")
+
+
+rule bcftools_stats:
+    input:
+        sample_vcf = "genotyped/{family}_{sample}-gatk4.vcf.gz"
+    output:
+        "qc/bcftools_stats/{family}_{sample}.txt"
+    log:
+        "logs/bcftools_stats/{family}_{sample}.log"
+    params:
+    threads:
+    wrapper:
+        get_wrapper_path("bcftools", "stats")
+
 rule multiqc:
     input:
         [expand(input_file, sample=samples.index,family=project) for input_file in ["qc/samtools-stats/{family}_{sample}.txt", 
@@ -90,7 +114,8 @@ rule multiqc:
                                                             "qc/qualimap/{family}_{sample}/raw_data_qualimapReport/genome_fraction_coverage.txt", 
                                                             "qc/qualimap/{family}_{sample}/raw_data_qualimapReport/mapped_reads_gc-content_distribution.txt",
                                                             "qc/qualimap/{family}_{sample}/raw_data_qualimapReport/mapped_reads_gc-content_distribution.txt", 
-                                                            "qc/fastq_screen/{family}_{sample}_screen.txt"
+                                                            "qc/fastq_screen/{family}_{sample}_screen.txt"，
+                                                            "qc/bcftools_stats/{family}_{sample}.txt"
                                                                     ]]
     params:
     output:
