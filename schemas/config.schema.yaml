@@ -51,6 +51,8 @@ properties:
         type: string
       genome:
         type: string
+      dragstr_table:
+        type: string
       known-variants:
         type: string
       no_decoy:
