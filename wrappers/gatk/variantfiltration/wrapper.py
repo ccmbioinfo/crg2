@@ -16,5 +16,5 @@ filters = [
 log = snakemake.log_fmt_shell(stdout=True, stderr=True)
 shell(
     "gatk --java-options '{java_opts}' VariantFiltration -R {snakemake.input.ref} -V {snakemake.input.vcf} "
-    "{extra} {filters} -O {snakemake.output.vcf} {log}"
+    "--filter-expression 'QUAL < 10.4139' --filter-name 'DRAGENHardQUAL' -O {snakemake.output.vcf} {log}"
 )

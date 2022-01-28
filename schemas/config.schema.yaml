@@ -51,8 +51,6 @@ properties:
         type: string
       genome:
         type: string
-      dragstr_table:
-        type: string
       known-variants:
         type: string
       no_decoy:
@@ -60,6 +58,8 @@ properties:
       decoy_bed:
         type: string
       canon_bed:
+        type: string
+      dragstr_table:
         type: string
       old_cram_ref:
         type: string
