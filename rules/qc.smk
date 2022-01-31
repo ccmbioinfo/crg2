@@ -106,19 +106,14 @@ rule bcftools_stats:
 
 rule peddy:
     input:
-        vcf = get_gatk_vcf
-        ped = "{family}.ped" #which ped to use
+        vcf = get_gatk_vcf,
+        ped = dummy_ped
     output:
         "qc/peddy/{family}.html",
         "qc/peddy/{family}.het_check.csv",
-        "qc/peddy/{family}.het_check.png",
-        "qc/peddy/{family}.pca_check.png",
         "qc/peddy/{family}.ped_check.csv",
-        "qc/peddy/{family}.ped_check.png",
         "qc/peddy/{family}.peddy.ped",
         "qc/peddy/{family}.sex_check.csv",
-        "qc/peddy/{family}.sex_check.png",
-        "qc/peddy/{family}.ped_check.rel-difference.csv",
         "qc/peddy/{family}.background_pca.json"
     params:
         "-p 7"
@@ -144,14 +139,9 @@ rule multiqc:
                                                             "qc/bcftools_stats/{family}_{sample}.txt",
                                                             "qc/peddy/{family}.html",
                                                             "qc/peddy/{family}.het_check.csv",
-                                                            "qc/peddy/{family}.het_check.png",
-                                                            "qc/peddy/{family}.pca_check.png",
                                                             "qc/peddy/{family}.ped_check.csv",
-                                                            "qc/peddy/{family}.ped_check.png",
                                                             "qc/peddy/{family}.peddy.ped",
                                                             "qc/peddy/{family}.sex_check.csv",
-                                                            "qc/peddy/{family}.sex_check.png",
-                                                            "qc/peddy/{family}.ped_check.rel-difference.csv",
                                                             "qc/peddy/{family}.background_pca.json"
                                                                     ]]
     params:
