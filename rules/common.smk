@@ -27,7 +27,7 @@ gatk = config["run"]["gatk"]
 wildcard_constraints:
     vartype = "snvs|indels",
     sample = "|".join(samples.index),
-    family = project
+    family = str(project)
 
 
 ##### Helper functions #####
@@ -208,14 +208,10 @@ def format_pedigree(wildcards):
 # create dummy.ped for peddy
 def dummy_ped(wildcards):
     family = wildcards.family
-    family = str(family)
     sample_id = list(samples.index)
-    sample_id = [family + "_" + sample for sample in sample_id]
+    sample_id = [family + "_" + str(sample) for sample in sample_id]
 
     ped = config["run"]["ped"]
-    print(type(family))
-    print(type(sample_id))
-    print(type(ped))
     if ped == "":
         data = {'#Family_ID': family, 'Individual_ID':sample_id, 'Paternal_ID': '-9', 'Maternal_ID': '-9', 'Sex': '0', 'Phenotype': '0', 'Ethnicity': '-9'}
         data_df = pd.DataFrame(data)
