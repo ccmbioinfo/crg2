@@ -53,6 +53,8 @@ rule qualimap:
         hm = config["params"]["qualimap"]["hm"],
         c = config["params"]["qualimap"]["c"],
         mem_size = config["params"]["qualimap"]["mem"],
+        pipeline = config["run"]["pipeline"],
+        feature = config["params"]["qualimap"]["gtf"],
         extra = config["params"]["qualimap"]["extra"]
     threads: 8
     log:

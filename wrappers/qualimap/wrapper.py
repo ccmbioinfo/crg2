@@ -18,6 +18,11 @@ extra = snakemake.params.get("extra")
 out_dir = snakemake.params.get("out_dir")
 
 
+if snakemake.params.get("pipeline", "") == "wes":
+    feature = "--feature-file " + snakemake.params.get("feature", "")
+    elif snakemake.params.get("pipeline", "") == "wgs":
+        feature = ""
+
 shell(
     "qualimap bamqc"
     " -bam {snakemake.input}"
@@ -27,6 +32,7 @@ shell(
     " -nt {snakemake.threads}"
     " --java-mem-size={mem_size}"
     " -outdir {out_dir}"
+    " {feature}"
     " {extra}"
     "{log}"
 )
