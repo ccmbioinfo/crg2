@@ -18,9 +18,9 @@ extra = snakemake.params.get("extra")
 out_dir = snakemake.params.get("out_dir")
 
 
-if snakemake.params.get("pipeline", "") == "wes":
-    feature = "--feature-file " + snakemake.params.get("feature", "")
-    elif snakemake.params.get("pipeline", "") == "wgs":
+if snakemake.params.pipeline == "wes":
+    feature = "--feature-file " + snakemake.params.feature
+elif snakemake.params.pipeline == "wgs":
         feature = ""
 
 shell(

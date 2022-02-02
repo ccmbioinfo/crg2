@@ -140,7 +140,7 @@ params:
     nw: 400
     c: "-c"
     hm: 3
-    gtf: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/exons/hg19_UCSC_exons_canonical.bed"
+    gtf: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/exons/hg19_UCSC_exons_canonical_placeholder.bed"
     extra: ""
   verifybamid2:
     svd_prefix: "1000g.phase3 100k b37"
