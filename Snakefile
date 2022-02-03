@@ -25,7 +25,7 @@ else:
             #"plots/depths.svg",
             #"plots/allele-freqs.svg"
             "programs-{}.txt".format(PIPELINE_VERSION),
-            expand("recal/{family}_{sample}.bam.md5".format(family=config["run"]["project"], sample=config["run"]["project"]))
+            [expand("recal/{family}_{sample}.bam.md5".format(family=config["run"]["project"], sample=s)) for s in samples.index]
 
 
 
