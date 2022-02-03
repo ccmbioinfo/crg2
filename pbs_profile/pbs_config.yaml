@@ -49,3 +49,6 @@ smoove:
 
 manta:
   mem: "100g"
+
+peddy:
+  mem: "60g"
