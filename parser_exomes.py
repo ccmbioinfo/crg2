@@ -35,49 +35,56 @@ def input_file(input_path):
         if len(fq1) == len(fq2):
             input["fastq"] = {"R1": fq1, "R2": fq2}
         else:
-            print(f"Number of R1 and R2 reads in {input_path} does not match, exiting")
-            exit()
+            print(f"Number of R1 and R2 reads in {input_path} does not match")
+            input = None
     elif len(bam) != 0:
         if len(bam) == 1:
             input["bam"] = bam[0]
         else:
-            print(f"Multiple bams found under {input_path}, exiting")
-            exit()
+            print(f"Multiple bams found under {input_path}")
+            input = None
     elif len(cram) != 0:
         if len(cram) == 1:
             input["cram"] = cram[0]
         else:
-            print(f"Multiple crams found under {input_path}, exiting")
-            exit()
+            print(f"Multiple crams found under {input_path}")
+            input = None
     else:
         input = None
 
     return input
 
 
-def check_minio_dccforge(family, participant):
+def check_minio_dccforge(family, participant, sequencing_id):
     """Given family and participant codenames, find input files on the hpf"""
     DCCFORGE_UPLOADS = "/hpf/largeprojects/ccm_dccforge/dccforge/uploads/*/"
     MINIO_MIRROR = (
         "/hpf/largeprojects/ccm_dccforge/dccforge/uploads/MinIO_G4RD_Mirror/*/"
     )
+    DPLM = "/hpf/largeprojects/ccmbio_ephemeral/C4R/"
     dccforge_input = input_file(f"{DCCFORGE_UPLOADS}/{family}_{participant}*/")
     minio_input = input_file(f"{MINIO_MIRROR}/{family}_{participant}*/")
-    if not dccforge_input and not minio_input:
+    # some datasets are transferred to the ccmbio_ephemeral space by DPLM
+    dplm_input = None
+    if sequencing_id != None:
+        dplm_input = input_file(f"{DPLM}/*{sequencing_id}*/")
+    if not dccforge_input and not minio_input and not dplm_input:
         input = None
     else:
         if minio_input:
             input = minio_input
+        elif dplm_input:
+            input = dplm_input
         else:
             input = dccforge_input
     return input
 
 
-def find_input(family, participant):
+def find_input(family, participant, sequencing_id):
     """Given family and participant codenames, check if individuals have already been analyzed"""
     RESULTS_DIR = "/hpf/largeprojects/ccm_dccforge/dccforge/results/*/"
     # check uploads folders first, as participant may have been resequenced
-    input = check_minio_dccforge(family, participant)
+    input = check_minio_dccforge(family, participant, sequencing_id)
     if not input:
         # if not in uploads, this is a re-analysis using bams from results directory
         bam = glob.glob(f"{RESULTS_DIR}/{family}/{family}_{participant}.bam")
@@ -285,9 +292,12 @@ if __name__ == "__main__":
         if not family in projects:
             projects[family] = []
         family_inputs = []
-        for participant in ast.literal_eval(row["participant_codenames"]):
+        for participant, sequencing_id in zip(
+            ast.literal_eval(row["participant_codenames"]),
+            ast.literal_eval(row["sequencing_id"]),
+        ):
             # look for input files in MinIO mirror on hpf, or in results directory
-            input = find_input(family, participant)
+            input = find_input(family, participant, sequencing_id)
             if input:
                 if input["fastq"]:
                     fq1, fq2 = (",").join(input["fastq"]["R1"]), (",").join(
