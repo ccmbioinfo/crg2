@@ -94,7 +94,7 @@ rule recalibrate_base_qualities:
         extra = get_regions_param() + config["params"]["gatk"]["BaseRecalibrator"],
         java_opts = config["params"]["gatk"]["java_opts"],
     log:
-        "logs/gatk/bqsr/{family}_{sample}.log"
+       "logs/gatk/bqsr/{family}_{sample}.log"
     wrapper:
         get_wrapper_path("gatk", "baserecalibrator")
 
