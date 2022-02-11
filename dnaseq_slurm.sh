@@ -9,7 +9,7 @@ SF=~/crg2/Snakefile
 CP="/hpf/largeprojects/ccm_dccforge/dccdipg/Common/snakemake"
 SLURM=~/crg2/slurm_profile
 
-source /storage/modules/anaconda/2020.11/etc/profile.d/conda.sh
+source /hpf/largeprojects/ccm_dccforge/dccdipg/Common/anaconda3/etc/profile.d/conda.sh
 conda activate snakemake_5.10.0 
 
 snakemake --use-conda -s ${SF} --cores 4 --conda-prefix ${CP} --profile $SLURM  
