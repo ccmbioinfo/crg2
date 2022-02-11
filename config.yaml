@@ -97,7 +97,7 @@ annotation:
   svreport:
     hgmd: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/HGMD_2018/hgmd_pro.db"
     protein_coding_genes: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/grch37.p13.ensembl.sorted.protein.coding.genes.bed"
-    exon_bed: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/exons/hg19_UCSC_exons_canonical.bed"
+    exon_bed: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/exons/hg19_UCSC_exons_canonical_placeholder.bed"
     exac: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/ExAC/fordist_cleaned_nonpsych_z_pli_rec_null_data.txt"
     omim: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/OMIM_2020-04-09/genemap2.txt"
     gnomad: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/gnomad_v2_sv.sites.bed"
@@ -146,6 +146,8 @@ params:
     svd_prefix: "1000g.phase3 100k b37"
     # --DisableSanityCheck ensures verifybamid2 does not fail for exomes with < 10,000 markers
     extra: "--DisableSanityCheck"
+  multiqc:
+    config: "~/crg2/rules/multiqc_config.yaml"
   snpeff:
     java_opts: "-Xms750m -Xmx20g"
   svscore:

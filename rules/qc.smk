@@ -109,7 +109,7 @@ rule bcftools_stats:
 rule peddy:
     input:
         vcf = get_gatk_vcf,
-        ped = dummy_ped
+        ped = peddy_ped
     output:
         "qc/peddy/{family}.html",
         "qc/peddy/{family}.het_check.csv",
@@ -147,6 +147,7 @@ rule multiqc:
                                                             "qc/peddy/{family}.background_pca.json"
                                                                     ]]
     params:
+        config["params"]["multiqc"]["config"]
     output:
         report("qc/multiqc/multiqc.html", caption="../report/multiqc.rst", category="Quality control") 
     log:

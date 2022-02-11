@@ -29,7 +29,7 @@ if snakemake.params.get("samples"):
     except:
         family = snakemake.wildcards.family
         sample = snakemake.wildcards.sample
-        samples = f" -s {family}_{sample} ".format(family=family, sample = sample)
+        samples = f" -s {family}_{sample} "
 else: 
     samples = "" 
 
