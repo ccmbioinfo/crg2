@@ -205,8 +205,8 @@ def format_pedigree(wildcards):
 
         return f"{family}.ped"
 
-# create dummy.ped for peddy
-def dummy_ped(wildcards):
+# create peddy.ped for peddy
+def peddy_ped(wildcards):
     family = wildcards.family
     sample_id = list(samples.index)
     sample_id = [family + "_" + str(sample) for sample in sample_id]
@@ -215,7 +215,7 @@ def dummy_ped(wildcards):
     if ped == "":
         data = {'#Family_ID': family, 'Individual_ID':sample_id, 'Paternal_ID': '-9', 'Maternal_ID': '-9', 'Sex': '0', 'Phenotype': '0', 'Ethnicity': '-9'}
         data_df = pd.DataFrame(data)
-        data_df.to_csv(f"{family}_dummy.ped", sep="\t", index=False, header=True)
+        data_df.to_csv(f"{family}_peddy.ped", sep="\t", index=False, header=True)
 
     else:
         ped = format_pedigree(wildcards) #family +'.ped' #f"{family}.ped"
@@ -232,9 +232,9 @@ def dummy_ped(wildcards):
 
         data = {'#Family_ID': family, 'Individual_ID':sample_id, 'Paternal_ID': pat_id, 'Maternal_ID': mat_id, 'Sex': sex, 'Phenotype': phenotype, 'Ethnicity': '-9'}
         data_df = pd.DataFrame(data)
-        data_df.to_csv(f"{family}_dummy.ped", sep="\t", index=False, header=True)
+        data_df.to_csv(f"{family}_peddy.ped", sep="\t", index=False, header=True)
 
-    return f"{family}_dummy.ped"
+    return f"{family}_peddy.ped"
 
 def get_gatk_vcf(wildcards):
     """ Get vcf from gatk4 calling for the use in qc """
