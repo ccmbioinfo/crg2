@@ -35,7 +35,7 @@ def input_file(input_path):
         if len(fq1) == len(fq2):
             input["fastq"] = {"R1": fq1, "R2": fq2}
         else:
-            print(f"Number of R1 and R2 reads in {input_path} does not match")
+            print(f"Number of R1 and R2 files in {input_path} does not match")
             input = None
     elif len(bam) != 0:
         if len(bam) == 1:
