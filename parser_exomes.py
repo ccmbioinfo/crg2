@@ -24,8 +24,8 @@ crg2_dir = os.path.dirname(os.path.realpath(sys.argv[0]))
 
 def input_file(input_path):
     """Given hpf path, find input files"""
-    fq1 = sorted(glob.glob(os.path.join(input_path, "{*_1_*fastq.gz,*_R1_*fastq.gz}")))
-    fq2 = sorted(glob.glob(os.path.join(input_path, "{*_2_*fastq.gz,*_R2_*fastq.gz}")))
+    fq1 = sorted(glob.glob(os.path.join(input_path, "*_R1*.fastq.gz"))) + sorted(glob.glob(os.path.join(input_path, "*_1*.fastq.gz")))
+    fq2 = sorted(glob.glob(os.path.join(input_path, "*_R2*.fastq.gz"))) + sorted(glob.glob(os.path.join(input_path, "*_2*.fastq.gz")))
     bam = glob.glob(os.path.join(input_path, "*bam"))
     cram = glob.glob(os.path.join(input_path, "*cram"))
     # prioritize fastq as input, then bam, then cram
