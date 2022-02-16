@@ -126,6 +126,7 @@ params:
     GenotypeGVCFs: ""
     VariantRecalibrator: ""
     Mutect: ""
+    FilterMutectCalls: ""
   gatk3:
     java_opts: "-Xms500m -Xmx9555m"
     HaplotypeCaller: "-drf DuplicateRead --interval_set_rule INTERSECTION --pair_hmm_implementation VECTOR_LOGLESS_CACHING -ploidy 2 -U LENIENT_VCF_PROCESSING --read_filter BadCigar --read_filter NotPrimaryAlignment"
@@ -159,8 +160,9 @@ params:
   bcftools:
     mpileup: "-a DP -a AD "
     call: " -m -v "
-  freebayes: " --genotype-qualities --strict-vcf --ploidy 2 --no-partial-observations --min-repeat-entropy 1 "
-    mosaic_call:  "--pooled-discrete --pooled-continuous --report-genotype-likelihood-max --allele-balance-priors-off --min-alternate-fraction 0.05"
+  freebayes:
+    call: " --genotype-qualities --strict-vcf --ploidy 2 --no-partial-observations --min-repeat-entropy 1 "
+    mosaic_call: "--pooled-discrete --pooled-continuous --report-genotype-likelihood-max --allele-balance-priors-off --min-alternate-fraction 0.05"
   platypus: "--filterDuplicates=0"
   rtg-tools:
     java_opts: "-Xmx20g"
