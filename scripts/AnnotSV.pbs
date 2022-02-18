@@ -1,0 +1,21 @@
+#!/bin/bash
+#PBS -l walltime=5:00:00,nodes=1:ppn=1
+#PBS -joe .
+#PBS -d .
+#PBS -l vmem=20g,mem=20g
+
+module load bedtools/2.26.0
+module load bcftools/1.9 
+
+if [ ! -d $family ]; then
+	mkdir $family
+fi
+
+$ANNOTSV/bin/AnnotSV \
+    -SVinputFile $vcf \
+    -outputFile ${family}/${family}.GRCh38.pbsv.AnnotSV.tsv \
+    -overlap 50 \
+    -reciprocal 1 \
+    -genomeBuild GRCh38 
+
+
