@@ -140,11 +140,14 @@ params:
     nw: 400
     c: "-c"
     hm: 3
+    gtf: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/exons/hg19_UCSC_exons_canonical_placeholder.bed"
     extra: ""
   verifybamid2:
     svd_prefix: "1000g.phase3 100k b37"
     # --DisableSanityCheck ensures verifybamid2 does not fail for exomes with < 10,000 markers
     extra: "--DisableSanityCheck"
+  multiqc:
+    config: "~/crg2/rules/multiqc_config.yaml"
   snpeff:
     java_opts: "-Xms750m -Xmx20g"
   svscore:
