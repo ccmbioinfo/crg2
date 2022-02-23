@@ -27,7 +27,7 @@ gatk = config["run"]["gatk"]
 wildcard_constraints:
     vartype = "snvs|indels",
     sample = "|".join(samples.index),
-    family = project
+    family = str(project)
 
 
 ##### Helper functions #####
@@ -205,3 +205,41 @@ def format_pedigree(wildcards):
 
         return f"{family}.ped"
 
+# create peddy.ped for peddy
+def peddy_ped(wildcards):
+    family = wildcards.family
+    sample_id = list(samples.index)
+    sample_id = [family + "_" + str(sample) for sample in sample_id]
+
+    ped = config["run"]["ped"]
+    if ped == "":
+        data = {'#Family_ID': family, 'Individual_ID':sample_id, 'Paternal_ID': '-9', 'Maternal_ID': '-9', 'Sex': '0', 'Phenotype': '0', 'Ethnicity': '-9'}
+        data_df = pd.DataFrame(data)
+        data_df.to_csv(f"{family}_peddy.ped", sep="\t", index=False, header=True)
+
+    else:
+        ped = format_pedigree(wildcards) #family +'.ped' #f"{family}.ped"
+        ped = pd.read_csv(
+            ped,
+            sep=" ",
+            header=None,
+            names=["fam_id", "individual_id", "pat_id", "mat_id", "sex", "phenotype"],
+        )
+        pat_id = list(ped['pat_id'])
+        mat_id = list(ped['mat_id'])
+        sex = list(ped['sex'])
+        phenotype = list(ped['phenotype'])
+
+        data = {'#Family_ID': family, 'Individual_ID':sample_id, 'Paternal_ID': pat_id, 'Maternal_ID': mat_id, 'Sex': sex, 'Phenotype': phenotype, 'Ethnicity': '-9'}
+        data_df = pd.DataFrame(data)
+        data_df.to_csv(f"{family}_peddy.ped", sep="\t", index=False, header=True)
+
+    return f"{family}_peddy.ped"
+
+def get_gatk_vcf(wildcards):
+    """ Get vcf from gatk4 calling for the use in qc """
+    if config["run"]["pipeline"] == "wes":
+        vcf = expand("genotyped/{family}-gatk_haplotype.vcf.gz", family=wildcards.family)
+    elif config["run"]["pipeline"] == "wgs":
+        vcf = expand("genotyped/{family}.vcf.gz", family=wildcards.family)
+    return vcf
