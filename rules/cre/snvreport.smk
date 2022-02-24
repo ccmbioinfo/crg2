@@ -1,5 +1,5 @@
 #gatk VCF is missing because it is symlinked to ensemble VCF
-callers = [ gatk + "_haplotype", "samtools", "freebayes", "platypus" ] 
+callers = [ gatk + "_haplotype", "samtools", "freebayes", "platypus", gatk + "_somatic" ] 
 
 rule allsnvreport:
     input:

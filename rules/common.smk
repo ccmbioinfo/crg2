@@ -116,6 +116,11 @@ def get_sample_bams(wildcards):
                   sample=wildcards.sample,
                   family=wildcards.family)
 
+def get_cre_bams(ext="bam"):
+    """Get bam and bam.bai for given sample. Used in freebayes variant calling"""
+    if gatk == "gatk3":
+        return expand("recal/gatk3/{family}_{sample}.{ext}", family=project, sample=samples.index, ext=ext)
+    return expand("recal/{family}_{sample}.{ext}", family=project, sample=samples.index, ext=ext)
 
 def get_regions_param(regions=config["processing"].get("restrict-regions"), default=""):
     if regions:
@@ -253,4 +258,10 @@ def get_gatk_vcf(wildcards):
         vcf = expand("genotyped/{family}-gatk_haplotype.vcf.gz", family=wildcards.family)
     elif config["run"]["pipeline"] == "wgs":
         vcf = expand("genotyped/{family}.vcf.gz", family=wildcards.family)
+    return vcf
+
+def get_gatk_somatic_vcf(ext="vcf.gz"):
+    """Get gatk_mutect call vcfs (exome only)"""
+    #vcf = ["genotyped/gatk_mutect/{family}_{sample}_somatic.vcf.gz".format(sample=sample, family=project) for sample in samples.index]
+    vcf = expand("genotyped/gatk_mutect/{family}_{sample}_somatic.{ext}", sample=samples.index, family=project, ext=ext)
     return vcf
