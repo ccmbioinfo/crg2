@@ -338,7 +338,7 @@ if __name__ == "__main__":
         write_proj_files(sample_list, filepath)
         if submit_flag:
             print(f"\nSubmitting job for family: {i}")
-            # submit_jobs(filepath, i)
+            submit_jobs(filepath, i)
         else:
             print(f"Job for {i} not submitted")
 
