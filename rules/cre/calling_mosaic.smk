@@ -35,7 +35,7 @@ rule merge_mutect_sample:
         vcf=get_gatk_somatic_vcf(),
         index=get_gatk_somatic_vcf(ext="vcf.gz.tbi")
     output:
-        vcf_unsort="genotyped/{family}-gatk_somatic_unsorted.vcf",
+        vcf_unsort=temp("genotyped/{family}-gatk_somatic_unsorted.vcf.gz"),
         vcf="genotyped/{family}-gatk_somatic.vcf"
     log: 
         "logs/bcftools/merge/{family}_gatk_somatic.log"

@@ -23,7 +23,6 @@ elif config["run"]["pipeline"] == "wgs":
             expand("report/{p}/{family}", p=["denovo"], family=project) if config["run"]["ped"] else [],
             expand("report/{p}/{family}", p=["panel", "panel-flank", "denovo"], family=project) if (config["run"]["hpo"] or config["run"]["panel"]) and config["run"]["ped"] else [],
             "report/coding/{family}".format(family=project),
-            "report/coding/{family}/mosaic".format(family=project),
             "report/sv",
             expand("report/str/{family}.{report_name}.xlsx", family=project, report_name=["EH-v1.1","EHDN"]),
             "qc/multiqc/multiqc.html",
