@@ -68,7 +68,7 @@ rule merge_freebayes_mosaic:
     input:
         expand("called/freebayes_mosaic/{contig}.vcf",contig = get_canon_contigs())
     output:
-        protected("genotyped/{family}-freebayes-mosaic.vcf")
+        protected("genotyped/{family}-freebayes_mosaic.vcf")
     log:
         "logs/freebayes/mosaic/{family}-merge.log"
     shell:
