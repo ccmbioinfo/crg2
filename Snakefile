@@ -12,7 +12,7 @@ if config["run"]["pipeline"] == "wes":
             "report/coding/{}".format(project),
             "qc/multiqc/multiqc.html",
             [expand("recal/{family}_{sample}.bam.md5".format(family=config["run"]["project"], sample=s)) for s in samples.index]
-else:
+elif config["run"]["pipeline"] == "wgs":
     rule all:
         input:
             expand("report/{p}/{family}", p=["panel", "panel-flank"], family=project) if config["run"]["hpo"] or config["run"]["panel"]  else [],
@@ -26,7 +26,10 @@ else:
             #"plots/allele-freqs.svg"
             "programs-{}.txt".format(PIPELINE_VERSION),
             [expand("recal/{family}_{sample}.bam.md5".format(family=config["run"]["project"], sample=s)) for s in samples.index]
-
+elif config["run"]["pipeline"] == "annot":
+    rule all:
+        input:
+            "report/coding/{family}".format(family=project)
 
 
 localrules: write_version
@@ -40,23 +43,26 @@ rule write_version:
 
 ##### Modules #####
 
-#Common to both wes and wgs
-include: "rules/mapping.smk"
-include: "rules/stats.smk"
-include: "rules/qc.smk"
-
 if config["run"]["pipeline"] == "wes":
+    include: "rules/mapping.smk"
+    include: "rules/stats.smk"
+    include: "rules/qc.smk"
     base = "rules/cre/"
-else:
+    include: base + "calling.smk"
+    include: base + "filtering.smk"
+elif config["run"]["pipeline"] == "wgs":
+    include: "rules/mapping.smk"
+    include: "rules/stats.smk"
+    include: "rules/qc.smk"
     base = "rules/"
+    include: base + "calling.smk"
+    include: base + "filtering.smk"
     include: base + "sv.smk"
     include: base + "svreport.smk"
     include: base + "str.smk"
-    
+elif config["run"]["pipeline"] == "annot":
+    base = "rules/"
 
-include: base + "calling.smk"
-include: base + "filtering.smk"
 include: base + "annotation.smk"
 include: base + "snvreport.smk"
 include: base + "validation.smk"
-
