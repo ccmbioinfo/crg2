@@ -10,19 +10,19 @@ out_vcf=$4;
 echo "extracting variants for $caller"
 
 if [ ${caller} == "platypus" ]; then
-grep "${caller}" ${sites} | egrep -v "gatk-haplotype|samtools|freebayes" > ${outdir}/${caller}.annot.txt
+grep "${caller}" ${sites} | egrep -v "gatk-haplotype|samtools|freebayes" | sort -k 1,1 -k2,2n > ${outdir}/${caller}.annot.txt
 file=${outdir}/0003.vcf.gz
 
 elif [ ${caller} == "freebayes" ]; then
 file=${outdir}/0002.vcf.gz
-grep "${caller}" ${sites} | egrep -v "gatk-haplotype|samtools" > ${outdir}/${caller}.annot.txt
+grep "${caller}" ${sites} | egrep -v "gatk-haplotype|samtools" | sort -k 1,1 -k2,2n > ${outdir}/${caller}.annot.txt
 
 elif [ ${caller} == "samtools" ]; then
-grep ${caller} ${sites} | egrep -v "gatk-haplotype" > ${outdir}/${caller}.annot.txt
+grep ${caller} ${sites} | egrep -v "gatk-haplotype" | sort -k 1,1 -k2,2n > ${outdir}/${caller}.annot.txt
 file=${outdir}/0001.vcf.gz
 
 elif [ ${caller} == "gatk-haplotype" ]; then
-grep ${caller} ${sites} > ${outdir}/${caller}.annot.txt
+grep ${caller} ${sites} | sort -k 1,1 -k2,2n > ${outdir}/${caller}.annot.txt
 file=${outdir}/0000.vcf.gz
 
 else
