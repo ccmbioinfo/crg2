@@ -29,8 +29,13 @@ elif config["run"]["pipeline"] == "wgs":
 elif config["run"]["pipeline"] == "annot":
     rule all:
         input:
-            "report/coding/{family}".format(family=project)
-
+            "report/coding/{family}".format(family=project),
+            expand("report/{p}/{family}", p=["panel", "panel-flank"], family=project) if config["run"]["hpo"] or config["run"]["panel"]  else []  
+elif config["run"]["pipeline"] == "calling":
+    rule all:
+        input:
+            "report/coding/{family}".format(family=project),
+            expand("report/{p}/{family}", p=["panel", "panel-flank"], family=project) if config["run"]["hpo"] or config["run"]["panel"]  else []
 
 localrules: write_version
 rule write_version:
@@ -50,6 +55,9 @@ if config["run"]["pipeline"] == "wes":
     base = "rules/cre/"
     include: base + "calling.smk"
     include: base + "filtering.smk"
+    include: base + "annotation.smk"
+    include: base + "snvreport.smk"
+    include: base + "validation.smk"
 elif config["run"]["pipeline"] == "wgs":
     include: "rules/mapping.smk"
     include: "rules/stats.smk"
@@ -60,9 +68,17 @@ elif config["run"]["pipeline"] == "wgs":
     include: base + "sv.smk"
     include: base + "svreport.smk"
     include: base + "str.smk"
+    include: base + "annotation.smk"
+    include: base + "snvreport.smk"
+    include: base + "validation.smk"
 elif config["run"]["pipeline"] == "annot":
     base = "rules/"
-
-include: base + "annotation.smk"
-include: base + "snvreport.smk"
-include: base + "validation.smk"
+    include: base + "annotation.smk"
+    include: base + "snvreport.smk"
+    include: base + "validation.smk"
+elif config["run"]["pipeline"] == "calling":
+    include: "rules/calling_only/calling.smk"
+    include: "rules/filtering.smk"
+    include: "rules/annotation.smk"
+    include: "rules/snvreport.smk"
+    include: "rules/validation.smk"
