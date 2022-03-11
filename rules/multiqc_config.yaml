@@ -1,4 +1,6 @@
 table_columns_visible:
   Peddy:
     error_sex_check: False
-
+    family_id: False
+  FastQC:
+    percent_duplicates: False
