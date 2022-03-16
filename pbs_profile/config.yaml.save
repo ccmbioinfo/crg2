@@ -9,6 +9,6 @@ cores: 86 # how many jobs you want to submit to your cluster queue
 local-cores: 1
 rerun-incomplete: true  # recomended for cluster submissions
 keep-going: false
-notemp: true
+notemp: false
 immediate-submit: true
 verbose: true
