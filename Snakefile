@@ -49,7 +49,6 @@ if config["run"]["pipeline"] == "wes":
     include: "rules/stats.smk"
     include: "rules/qc.smk"
     base = "rules/cre/"
-<<<<<<< HEAD
     include: base + "calling.smk"
     include: base + "filtering.smk"
     include: base + "calling_mosaic.smk"
@@ -59,10 +58,6 @@ elif config["run"]["pipeline"] == "wgs":
     include: "rules/mapping.smk"
     include: "rules/stats.smk"
     include: "rules/qc.smk"
-=======
-    include: base + "calling_mosaic.smk"
-else:
->>>>>>> mosaic workflow initial commit
     base = "rules/"
     include: base + "calling.smk"
     include: base + "filtering.smk"

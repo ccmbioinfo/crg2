@@ -1,48 +1,4 @@
 
-rule gatk_call_mosaic:
-    input:
-        map=get_sample_bams,
-        fasta=config["ref"]["genome"]
-    output:
-        vcf="called/gatk_mutect/{family}_{sample}.vcf",
-        stats="called/gatk_mutect/{family}_{sample}.vcf.stats"
-        #vcf=temp("called/gatk/{family}_{sample}.{contig}.g.vcf.gz")
-    log:
-        "logs/gatk/mutect/{family}_{sample}.log"
-    params:
-        extra=config["params"]["gatk"]["Mutect"],
-        #java_opts=config["params"]["gatk"]["java_opts"]
-    wrapper:
-        get_wrapper_path("gatk", "mutect")
-
-
-rule filter_mutect_call:
-    input: 
-        vcf="called/gatk_mutect/{family}_{sample}.vcf",
-        fasta=config["ref"]["genome"]
-    output:
-        vcf="genotyped/gatk_mutect/{family}_{sample}_somatic.vcf"
-    log:
-        "logs/gatk/filtermutectcalls/{family}_{sample}_somatic.log"
-    params:
-        extra=config["params"]["gatk"]["FilterMutectCalls"]
-        #java_opts=config["params"]["gatk"]["java_opts"]
-    wrapper:
-        get_wrapper_path("gatk", "filtermutectcalls")
-
-rule merge_mutect_sample:
-    input:
-        vcf=get_gatk_somatic_vcf(),
-        index=get_gatk_somatic_vcf(ext="vcf.gz.tbi")
-    output:
-        vcf_unsort=temp("genotyped/{family}-gatk_somatic_unsorted.vcf.gz"),
-        vcf="genotyped/{family}-gatk_somatic.vcf"
-    log: 
-        "logs/bcftools/merge/{family}_gatk_somatic.log"
-    params:
-        extra=config["params"]["bcftools"]["merge"]
-    wrapper:
-        get_wrapper_path("bcftools", "merge")
 
 rule freebayes_mosaic:
     input:
