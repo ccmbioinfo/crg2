@@ -7,7 +7,6 @@ run:
   hpo: "" # five-column TSV with HPO terms; leave this string empty is there are no hpo terms
   flank: 100000
   gatk: "gatk"
-  input: "fastq"
   pipeline: "wes" #either wes (exomes) or wgs (genomes)
 
 genes:
