@@ -196,7 +196,7 @@ def format_pedigree(wildcards):
             header=None,
             names=["fam_id", "individual_id", "pat_id", "mat_id", "sex", "phenotype"],
         )
-
+        ped=ped.drop(ped.index[3:])
         ped["fam_id"] = family
         for col in ["individual_id", "pat_id", "mat_id"]:
             ped[col] = [parse_ped_id(individual_id, family) for individual_id in ped[col].values]
