@@ -14,7 +14,6 @@ name = f"{family}_{sample}"
 units = pd.read_table(snakemake.input.units, dtype=str).set_index(["sample"], drop=False)
 
 #determining the sample input type based on units.tsv
-#file_types=units.loc[[sample],["fq1","fq2","bam","cram"]]
 file_types=units.loc[[sample],~units.columns.isin(['sample', 'platform'])]
 input_type=file_types.columns[-file_types.isnull().any()].tolist()
 print(input_type)
