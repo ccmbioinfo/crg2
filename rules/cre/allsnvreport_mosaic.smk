@@ -22,7 +22,7 @@ rule allsnvreport_mosaic:
         '''
         mkdir -p {output}
         cd {output}
-        ln -s ../../../../{input.db} {params.family}_mosaic-ensemble.db
+        ln -s ../../../../{input.db} {params.family}-ensemble.db
         
         ln -s ../../../../{input.caller_vcfs} {params.family}-freebayes_mosaic-annotated-decomposed.vcf.gz
         
