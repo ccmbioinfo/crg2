@@ -5,6 +5,7 @@ import argparse
 from collections import defaultdict
 from pybedtools import BedTool
 from sigfig import round
+from datetime import date
 
 
 def rename_SV_cols(annotsv_df):
@@ -142,15 +143,25 @@ def merge_full_split_annos(annotsv_df):
 
 
 def add_hpo(hpo, gene):
-    gene = gene.split(";")
+    try:
+        gene = gene.split(";")
+    except AttributeError:
+        return "NA"
     terms = []
     for g in gene:
         try:
-            terms.append(str(hpo[hpo["Gene symbol"] == g]["Features"].values[0]))
+            term = str(hpo[hpo["Gene symbol"] == g]["Features"].values[0])
+            term = term.replace("; ", ";").split(";")
+            term = list(set(term))
+            for t in term:
+                terms.append(t)
         except IndexError:
             pass
-    terms = ",".join(terms)
-    return terms
+    if len(terms) == 0:
+        return "nan"
+    else:
+        terms = ",".join(terms)
+        return terms
 
 
 def add_omim(omim_df, gene):
@@ -258,8 +269,13 @@ def annotate_pop_svs(annotsv_df, pop_svs, cols):
     cols.append(f"{pop_name}_SV")
     intersect = intersect[["CHROM", "POS", "END", "SVTYPE", "ID"] + cols]
     # round AFs
-    AF_col = [col for col in cols if "AF" in col][0]
-    intersect[AF_col] = [round(float(af), sigfigs=3) for af in intersect[AF_col].values]
+    try:
+        AF_col = [col for col in cols if "AF" in col][0]
+        intersect[AF_col] = [
+            round(float(af), sigfigs=3) for af in intersect[AF_col].values
+        ]
+    except IndexError:
+        pass
     # group by SV, joining annotation columns
     intersect = intersect.astype(str)
     intersect = (
@@ -268,11 +284,21 @@ def annotate_pop_svs(annotsv_df, pop_svs, cols):
         .reset_index()
     )
     # get max allele frequency
-    AF_col = [col for col in cols if "AF" in col][0]
-    intersect[f"{pop_name}_maxAF"] = intersect[AF_col].apply(
-        lambda x: max([float(af) for af in x.split("; ")])
-    )
-    cols.append(f"{pop_name}_maxAF")
+    try:
+        AF_col = [col for col in cols if "AF" in col][0]
+        intersect[f"{pop_name}_maxAF"] = intersect[AF_col].apply(
+            lambda x: max([float(af) for af in x.split("; ")])
+        )
+        cols.append(f"{pop_name}_maxAF")
+    # get max allele counts for C4R
+    except IndexError:
+        count_cols = ["C4R_AC", "seen_in_C4R_count"]
+        for col in count_cols:
+            intersect[f"{col}_max"] = intersect[col].apply(
+                lambda x: max([int(ac) for ac in x.split("; ")])
+            )
+        cols.append(f"{col}_max")
+
     # merge population AF dataframe with annotSV df
     annotsv_pop_svs = pd.merge(
         annotsv_df,
@@ -283,7 +309,7 @@ def annotate_pop_svs(annotsv_df, pop_svs, cols):
     return annotsv_pop_svs
 
 
-def main(df, omim, hpo, vcf, prefix, exon_bed, cmh, hprc, gnomad):
+def main(df, omim, hpo, vcf, prefix, exon_bed, cmh, hprc, gnomad, inhouse):
     # filter out SVs < 50bp
     df_len = df[apply_filter_length(df)]
     df_len = df_len.astype(str)
@@ -336,9 +362,20 @@ def main(df, omim, hpo, vcf, prefix, exon_bed, cmh, hprc, gnomad):
     ]
     df_merge = annotate_pop_svs(df_merge, gnomad, gnomad_cols)
 
+    # add C4R inhouse db SV counts
+    inhouse_cols = [
+        "C4R_ID",
+        "C4R_REF",
+        "C4R_ALT",
+        "C4R_AC",
+        "seen_in_C4R",
+        "seen_in_C4R_count",
+    ]
+    df_merge = annotate_pop_svs(df_merge, inhouse, inhouse_cols)
+
     # add exon counts
-    print(df_merge.dtypes)
     df_merge = get_exon_counts(df_merge, exon_bed)
+    print(df_merge.columns)
 
     # define columns to be included in report
     report_columns = (
@@ -348,6 +385,7 @@ def main(df, omim, hpo, vcf, prefix, exon_bed, cmh, hprc, gnomad):
             "END",
             "SVLEN",
             "SVTYPE",
+            "ID",
             "INFO",
             "Gene_name",
             "Gene_count",
@@ -363,11 +401,9 @@ def main(df, omim, hpo, vcf, prefix, exon_bed, cmh, hprc, gnomad):
         + dp_cols
         + ["Tx", "Frameshift", "EXONS_SPANNED", "Nearest_SS_type", "Dist_nearest_SS"]
         + cmh_cols
-        + ["cmh_maxAF"]
         + hprc_cols
-        + ["hprc_maxAF"]
         + gnomad_cols
-        + ["gnomad_maxAF"]
+        + inhouse_cols
         + [
             "DDD_HI_percent",
             "ExAC_delZ",
@@ -389,8 +425,14 @@ def main(df, omim, hpo, vcf, prefix, exon_bed, cmh, hprc, gnomad):
         ]
     )
 
-    df_filter_gt_notbenign = df_merge[report_columns]
-    df_filter_gt_notbenign.to_csv(f"{prefix}.rare.hpo.csv", index=False)
+    df_merge = df_merge[report_columns]
+    df_merge = df_merge.drop(columns=["C4R_REF", "C4R_ALT"])
+    df_merge["Gene_name"] = df_merge["Gene_name"].replace("nan", ".")
+    df_merge["omim_phenotype"].fillna("nan", inplace=True)
+    df_merge["omim_inheritance"].fillna("nan", inplace=True)
+    today = date.today()
+    today = today.strftime("%Y-%m-%d")
+    df_merge.to_csv(f"{prefix}.rare.hpo.{today}.csv", index=False)
 
     # make a dictionary of variants with SVLEN >=50 and BNDs from vcf
     # validate that the only SVs missing from annotSV merged and SV >=50 bp are on non-canonical chr
@@ -459,6 +501,12 @@ if __name__ == "__main__":
         type=str,
         required=True,
     )
+    parser.add_argument(
+        "-inhouse",
+        help="C4R inhouse database",
+        type=str,
+        required=True,
+    )
     args = parser.parse_args()
 
     df = pd.read_csv(args.annotsv, sep="\t", low_memory=False)
@@ -477,4 +525,15 @@ if __name__ == "__main__":
     )
     # Phenotips TSV has a space in column name: " Gene symbol"
     hpo.columns = hpo.columns.str.strip()
-    main(df, omim, hpo, vcf, prefix, args.exon, args.cmh, args.hprc, args.gnomad)
+    main(
+        df,
+        omim,
+        hpo,
+        vcf,
+        prefix,
+        args.exon,
+        args.cmh,
+        args.hprc,
+        args.gnomad,
+        args.inhouse,
+    )
