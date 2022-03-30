@@ -3,7 +3,7 @@ rule vep_mosaic:
         #input file is subject to change once soft filters have been decided. No filters applied yet!
         "filtered/{family}-freebayes_mosaic.uniq.normalized.decomposed.vcf.gz",
     output:
-        temp("annotated/coding/vep/{family}_mosaic.coding.vep.vcf")
+        temp("annotated/mosaic/vep/{family}_mosaic.coding.vep.vcf")
     log:
         "logs/vep/{family}_mosaic.vep.coding.log"
     threads: 10
@@ -18,9 +18,9 @@ rule vep_mosaic:
 
 rule vcfanno_mosaic:
     input:
-        "annotated/coding/vep/{family}_mosaic.coding.vep.vcf"
+        "annotated/mosaic/vep/{family}_mosaic.coding.vep.vcf"
     output:
-        "annotated/coding/vcfanno/{family}_mosaic.coding.vep.vcfanno.vcf"
+        "annotated/mosaic/vcfanno/{family}_mosaic.coding.vep.vcfanno.vcf"
     log:
         "logs/vcfanno/{family}_mosaic.vcfanno.coding.log"
     threads: 10
@@ -35,9 +35,9 @@ rule vcfanno_mosaic:
 
 rule vcf2db_mosaic:
     input:
-        "annotated/coding/vcfanno/{family}_mosaic.coding.vep.vcfanno.vcf".format(family=project)
+        "annotated/mosaic/vcfanno/{family}_mosaic.coding.vep.vcfanno.vcf".format(family=project)
     output:
-         db = "annotated/coding/{family}_mosaic-gemini.db",
+         db = "annotated/mosaic/{family}_mosaic-gemini.db",
     log:
         "logs/vcf2db/vcf2db.{family}_mosaic.log"
     params:
