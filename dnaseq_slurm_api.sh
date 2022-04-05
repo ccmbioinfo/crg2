@@ -13,7 +13,7 @@ if [ ! -d {filepath}/{family} ];then
 else
     echo "Analysis directory {filepath}/{family} exists, exiting"
     exit
-
+fi
 
 mkdir {filepath}/{family}
 cd {filepath}/{family}
@@ -29,4 +29,4 @@ if [ $exit_code == 0 ]; then
 else
     echo 'Analysis setup failed, exiting'
     exit
-
+fi
