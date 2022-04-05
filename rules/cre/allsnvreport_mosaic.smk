@@ -3,7 +3,7 @@
 rule allsnvreport_mosaic:
     input:
         db="annotated/mosaic/{family}_mosaic-gemini.db",
-        vcf="annotated/mosaic/vcfanno/{family}_mosaic.coding.vep.vcfanno.vcf.gz",
+        vcf="annotated/mosaic/vcfanno/{family}_mosaic.coding.vep.vcfanno.wDP.vcf.gz",
         #caller_vcfs is subject to change once soft filters have been decided. No filters applied yet!
         caller_vcfs = "filtered/{family}-freebayes_mosaic.uniq.normalized.decomposed.vcf.gz".format(family=project)
     output:
@@ -26,8 +26,8 @@ rule allsnvreport_mosaic:
         
         ln -s ../../../{input.caller_vcfs} {params.family}-freebayes_mosaic-annotated-decomposed.vcf.gz
         
-        ln -s ../../../{input.vcf} {params.family}_mosaic-ensemble-annotated-decomposed.vcf.gz
-        tabix {params.family}_mosaic-ensemble-annotated-decomposed.vcf.gz
+        ln -s ../../../{input.vcf} {params.family}-ensemble-annotated-decomposed.vcf.gz
+        tabix {params.family}-ensemble-annotated-decomposed.vcf.gz
         cd ../
         {params.cre}/cre.sh {params.family} 
         type=wes.mosaic {params.cre}/cre.sh {params.family}
