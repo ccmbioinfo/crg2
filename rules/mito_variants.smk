@@ -31,9 +31,8 @@ rule mito_vcfanno:
     resources:
         mem_mb = 20000
     params:
-        lua_script = config["annotation"]["cre.vcfanno"]["lua_script"],
-       	conf = config["annotation"]["cre.vcfanno"]["conf"],
-        base_path = config["annotation"]["cre.vcfanno"]["base_path"],
+       	conf ="~/crg2/vcfanno/mt.vcfanno.conf",
+        base_path = "/hpf/largeprojects/ccmbio/ajain/mity/vcfanno"
     wrapper:
         get_wrapper_path("vcfanno")
 
