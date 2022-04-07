@@ -1,5 +1,6 @@
 import argparse
 import ast
+from datetime import datetime
 import logging
 import os
 import shutil
@@ -21,10 +22,10 @@ def replace_str(filename, target, replacement):
 
 def setup_directory(filepath):
     # copy config.yaml, pbs_config.yaml, and dnaseq_cluster.pbs
-    for i in ["config.yaml", "pbs_profile/pbs_config.yaml", "dnaseq_cluster.pbs"]:
+    for i in ["config.yaml", "slurm_profile/slurm-config.yaml", "dnaseq_cluster.pbs"]:
         src = os.path.join(crg2_dir, i)
-        if i == "pbs_profile/pbs_config.yaml":
-            dest = os.path.join(filepath, "pbs_config.yaml")
+        if i == "slurm_profile/slurm-config.yaml":
+            dest = os.path.join(filepath, "slurm-config.yaml")
         else:
             dest = os.path.join(filepath, i)
         shutil.copyfile(src, dest)
@@ -38,12 +39,17 @@ def write_config(family, input_type_list, filepath):
     # modify input type depending on input file
     input_set = set(input_type_list)
     if input_set == {"bam"}:
+        logging.info("input type is bam")
         replace_str(config, 'input: "fastq"', 'input: "bam"')
     elif input_set == {"cram"}:
+        logging.info("input type is cram")
         replace_str(config, 'input: "fastq"', 'input: "cram"')
     elif input_set != {"fastq"}:
         logging.error("Mixed input filetypes among participants detected, exiting")
         sys.exit(1)
+    else:
+        # don't need to change config.yaml; default type is fastq
+        logging.info("input type is fastq")
 
 
 def input_type(file, participant):
@@ -73,11 +79,14 @@ def dataset_to_dict(datasets):
     for dataset in datasets:
         participant = ast.literal_eval(dataset.split(":")[0])
         files = ast.literal_eval(dataset.split(":")[1])
+        logging.info("creating dataset dictionary for participant %s", participant)
         keys = ["fq1", "fq2", "bam", "cram"]
         dataset_dict = {k: [] for k in keys}
         all_datasets_dict[participant] = dataset_dict
         for f in files:
             filetype = input_type(f, participant)
+            f = os.path.join('/srv', f)
+            logging.info("adding file %s",  f)
             if filetype == "bam":
                 all_datasets_dict[participant]["bam"].append(f)
             elif filetype == "cram":
@@ -101,8 +110,8 @@ def write_units_samples(datasets_dict, filepath):
             s.writelines(f"{participant}\n")
             bam = datasets_dict[participant]["bam"]
             cram = datasets_dict[participant]["cram"]
-            fq1 = datasets_dict[participant]["fq1"]
-            fq2 = datasets_dict[participant]["fq2"]
+            fq1 = sorted(datasets_dict[participant]["fq1"])
+            fq2 = sorted(datasets_dict[participant]["fq2"])
             # if fastqs available, set these as input files
             if len(fq1) != 0:
                 fq1 = ",".join(fq1)
@@ -122,7 +131,7 @@ def write_units_samples(datasets_dict, filepath):
             # if cram available, set as input file
             elif len(cram) != 0:
                 if len(cram) == 1:
-                    u.writelines(f"{participant}\tILLUMINA\t\t\t{cram[0]}\t\n")
+                    u.writelines(f"{participant}\tILLUMINA\t\t\t\t{cram[0]}\n")
                     input_type_list.append("cram")
                 else:
                     logging.error("Multiple cram files provided, exiting")
@@ -168,10 +177,11 @@ if __name__ == "__main__":
     args = parser.parse_args()
     family = args.family
     datasets = args.datasets
-    filepath = os.path.join(args.analysis_directory, family)
+    filepath = args.analysis_directory
+    today = datetime.today().strftime('%Y-%m-%d')
 
     logging.basicConfig(
-        filename="%s/setup.log" % filepath,
+        filename="%s/setup_%s.log" % (filepath, today),
         level=logging.INFO,
         format="%(asctime)s %(message)s",
     )
