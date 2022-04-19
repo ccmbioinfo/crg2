@@ -170,30 +170,6 @@ def setup_directories(family, sample_list, filepath, step=None):
         # check to see if each sample is associated with input file
         inputs_flag = check_inputs(sample_list)
 
-        # if an input file for any sample is missing, the inputs_flag is False and the job will not be submitted
-        if inputs_flag:
-            # set input type
-            if step == "fastq":
-                input_files = [input_types(sample) for sample in sample_list]
-                if set(input_files) == {"bam"}:
-                    # if inputs are bams, set input type to bam in config.yaml (default is fastq)
-                    replace = 's/input: "fastq"/input: "bam"/g'
-                    config = os.path.join(d, "config.yaml")
-                    if os.path.isfile(config):
-                        cmd = ["sed", "-i", replace, config]
-                        subprocess.check_call(cmd)
-                    else:
-                        inputs_flag = False
-                elif set(input_files) == {"cram"}:
-                    # if inputs are crams, set input type to cram
-                    replace = 's/input: "fastq"/input: "cram"/g'
-                    config = os.path.join(d, "config.yaml")
-                    if os.path.isfile(config):
-                        cmd = ["sed", "-i", replace, config]
-                        subprocess.check_call(cmd)
-                    else:
-                        inputs_flag = False
-
     return inputs_flag
 
 
@@ -338,7 +314,7 @@ if __name__ == "__main__":
         write_proj_files(sample_list, filepath)
         if submit_flag:
             print(f"\nSubmitting job for family: {i}")
-            submit_jobs(filepath, i)
+            # submit_jobs(filepath, i)
         else:
             print(f"Job for {i} not submitted")
 
