@@ -196,14 +196,25 @@ def format_pedigree(wildcards):
             header=None,
             names=["fam_id", "individual_id", "pat_id", "mat_id", "sex", "phenotype"],
         )
-        ped=ped.drop(ped.index[3:])
-        ped["fam_id"] = family
-        for col in ["individual_id", "pat_id", "mat_id"]:
-            ped[col] = [parse_ped_id(individual_id, family) for individual_id in ped[col].values]
 
-        ped.to_csv(f"{family}.ped", sep=" ", index=False, header=False)
+    for col in ["individual_id", "pat_id", "mat_id"]:
+            ped[col] = [parse_ped_id(individual_id, family) for individual_id in ped[col].values]       
+    
+    ped["fam_id"] = family
 
-        return f"{family}.ped"
+    for col in ["individual_id", "pat_id", "mat_id"]:
+        for row in range(len(ped[col])):
+            if len(ped.loc[row, col].split("_")[-1]) != 1 and len(ped.loc[row, col].split("_")[-1]) != 2:
+                pass   
+            else:
+                ped.loc[row, col] = ped.loc[row, col].replace(ped.loc[row, col], "0")
+
+    ped = ped.drop(ped.index[row] for row in ped.index if ped["individual_id"][row] == '0' )
+
+
+    ped.to_csv(f"{family}.ped", sep=" ", index=False, header=False)
+
+    return f"{family}.ped"
 
 # create peddy.ped for peddy
 def peddy_ped(wildcards):
