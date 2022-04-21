@@ -309,7 +309,68 @@ def annotate_pop_svs(annotsv_df, pop_svs, cols):
     return annotsv_pop_svs
 
 
-def main(df, omim, hpo, vcf, prefix, exon_bed, cmh, hprc, gnomad, inhouse):
+def annotate_odd_regions(annotsv_df, regions):
+    annotsv_bed = annotsv_df_to_bed(annotsv_df)
+    regions = pd.read_csv(regions, sep="\t")
+    regions_bed = BedTool.from_dataframe(regions)
+    intersect = annotsv_bed.intersect(
+        regions_bed,
+        wa=True,
+        wb=True,
+    ).to_dataframe()
+    intersect.columns = [
+        "CHROM",
+        "POS",
+        "END",
+        "SVTYPE",
+        "ID",
+        "CHROM_region",
+        "POS_region",
+        "END_region",
+        "PB_odd_region_type",
+    ]
+    # make a column with region details, e.g 1:25266309-25324509
+    intersect["PB_odd_region"] = intersect[
+        ["CHROM_region", "POS_region", "END_region"]
+    ].apply(lambda x: f"{x[0]}:{x[1]}-{x[2]}", axis=1)
+    # calculate percent of sample SV overlapped by region
+    intersect["PB_odd_region_perc_overlap"] = intersect[
+        ["POS", "END", "POS_region", "END_region"]
+    ].apply(lambda x: calculate_sample_SV_overlap(x[0], x[1], x[2], x[3]), axis=1)
+    intersect = intersect[
+        [
+            "CHROM",
+            "POS",
+            "END",
+            "SVTYPE",
+            "ID",
+            "PB_odd_region_type",
+            "PB_odd_region",
+            "PB_odd_region_perc_overlap",
+        ]
+    ]
+    cols = [col for col in intersect.columns if "PB" in col]
+    # merge odd region dataframe with annotSV df
+    intersect = intersect.astype(str)
+    annotsv_odd_region_svs = pd.merge(
+        annotsv_df,
+        intersect,
+        how="left",
+        on=["CHROM", "POS", "END", "SVTYPE", "ID"],
+    ).fillna(value={col: "." for col in cols})
+    return annotsv_odd_region_svs
+
+
+def calculate_sample_SV_overlap(sample_pos, sample_end, database_pos, database_end):
+    sample_len = sample_end - sample_pos
+    overlap_start = max(sample_pos, database_pos)
+    overlap_end = min(sample_end, database_end)
+    overlap = (overlap_end - overlap_start) / float(sample_len) * 100
+    overlap_perc = round(float(overlap), sigfigs=3)
+    return overlap_perc
+
+
+def main(df, omim, hpo, vcf, prefix, exon_bed, cmh, hprc, gnomad, inhouse, odd_regions):
     # filter out SVs < 50bp
     df_len = df[apply_filter_length(df)]
     df_len = df_len.astype(str)
@@ -377,6 +438,9 @@ def main(df, omim, hpo, vcf, prefix, exon_bed, cmh, hprc, gnomad, inhouse):
     df_merge = get_exon_counts(df_merge, exon_bed)
     print(df_merge.columns)
 
+    # add PacBio odd regions
+    df_merge = annotate_odd_regions(df_merge, odd_regions)
+
     # define columns to be included in report
     report_columns = (
         [
@@ -420,6 +484,9 @@ def main(df, omim, hpo, vcf, prefix, exon_bed, cmh, hprc, gnomad, inhouse):
             "Repeat_type_right",
             "SegDup_left",
             "SegDup_right",
+            "PB_odd_region_type",
+            "PB_odd_region",
+            "PB_odd_region_perc_overlap",
             "ENCODE_blacklist_characteristics_left",
             "ENCODE_blacklist_characteristics_right",
         ]
@@ -507,6 +574,12 @@ if __name__ == "__main__":
         type=str,
         required=True,
     )
+    parser.add_argument(
+        "-odd_regions",
+        help="PacBio odd regions",
+        type=str,
+        required=True,
+    )
     args = parser.parse_args()
 
     df = pd.read_csv(args.annotsv, sep="\t", low_memory=False)
@@ -536,4 +609,5 @@ if __name__ == "__main__":
         args.hprc,
         args.gnomad,
         args.inhouse,
+        args.odd_regions,
     )
