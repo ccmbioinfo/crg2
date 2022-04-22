@@ -21,14 +21,14 @@ conda activate snakemake
 
 family=2621
 analysis_id=1234
-data_dict="'CH2500':['cheo/Exomes/2621_CH2500/2297645.cram','cheo/Exomes/2621_CH2500/2297645.cram.crai','cheo/Exomes/2297645/2621_CH2500.cram.md5','cheo/Exomes/2621_CH2500/2297645.vcf.gz'] 'CH2501':['cheo/Exomes/2621_CH2501/2297669.cram','cheo/Exomes/2621_CH2501/2297669.cram.crai','cheo/Exomes/2621_CH2501/2297669.cram.md5','cheo/Exomes/2621_CH2501/2297669.vcf.gz'] 'CH2502':['cheo/Exomes/2621_CH2502/2297682.cram','cheo/Exomes/2621_CH2502/2297682.cram.crai','cheo/Exomes/2621_CH2502/2297682.cram.md5','cheo/Exomes/2621_CH2502/2297682.vcf.gz']"
+data_dict=/storage/data/test_crg2_automation/2621.json
 filepath=/storage/data/test_crg2_automation
 analysis_dir=${filepath}/${analysis_id}/${family}
 
 if [ ! -d $analysis_dir ];then
     mkdir -p $analysis_dir
 else
-    echo "Analysis directory ${filepath}/${family} exists, exiting"
+    echo "Analysis directory $analysis_dir exists, exiting"
     exit 1
 fi
 

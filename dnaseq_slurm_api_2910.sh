@@ -21,7 +21,7 @@ conda activate snakemake
 
 family=2910
 analysis_id=1235
-data_dict="'SK0418':['skh/2190_SK0418/2020-163-144-NGSCUSTOM_markdup.bam','skh/2190_SK0418/2020-163-144-NGSCUSTOM_markdup.bam.bai','skh/2190_SK0418/2020-163-144-NGSCUSTOM_S16_L001_R1_001_211F.fastq.gz','skh/2190_SK0418/2020-163-144-NGSCUSTOM_S16_L001_R2_001_211F.fastq.gz','skh/2190_SK0418/2020-163-144-NGSCUSTOM_S16_L002_R1_001_211F.fastq.gz','skh/2190_SK0418/2020-163-144-NGSCUSTOM_S16_L002_R2_001_211F.fastq.gz']"
+data_dict=/storage/data/test_crg2_automation/2910.json
 filepath=/storage/data/test_crg2_automation
 analysis_dir=${filepath}/${analysis_id}/${family}
 

@@ -10,9 +10,8 @@ CP="/home/slurm/conda_envs/crg2-conda";
 SLURM=~/crg2/slurm_profile;
 ANALYSIS_ID="$1"
 FAMILY="$2"
+# DATA is a json file in the format { participant1: [linked files], participant2: ['linked files']...}
 DATA="$3"
-#assume a python dictionary is passed; parse this so it is compatible with exome_setup_stager.py
-DATA=`echo $DATA | sed 's/{//g' | sed 's/}//g' | sed 's/],/] /g'`
 #temporary filepath
 FILEPATH=/storage/data/test_crg2_automation
 ANALYSIS_DIR=${FILEPATH}/${ANALYSIS_ID}/${FAMILY}

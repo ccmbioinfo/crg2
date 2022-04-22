@@ -1,6 +1,7 @@
 import argparse
 import ast
 from datetime import datetime
+import json
 import logging
 import os
 import shutil
@@ -75,10 +76,11 @@ def input_type(file, participant):
 
 def dataset_to_dict(datasets):
     # create dict of dicts with participant/sample name and associated files
+    datasets = open(datasets)
+    datasets = json.load(datasets)
     all_datasets_dict = {}
-    for dataset in datasets:
-        participant = ast.literal_eval(dataset.split(":")[0])
-        files = ast.literal_eval(dataset.split(":")[1])
+    for participant in datasets:
+        files = datasets[participant]
         logging.info("creating dataset dictionary for participant %s", participant)
         keys = ["fq1", "fq2", "bam", "cram"]
         dataset_dict = {k: [] for k in keys}
@@ -161,9 +163,8 @@ if __name__ == "__main__":
         "-d",
         "--datasets",
         type=str,
-        nargs="+",
         required=True,
-        help="List of participants and their associated files in the format participant_codename:linked_file(s)",
+        help="json file listing participants and their associated files",
     )
 
     parser.add_argument(
