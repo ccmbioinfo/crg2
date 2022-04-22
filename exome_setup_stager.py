@@ -32,25 +32,10 @@ def setup_directory(filepath):
         shutil.copyfile(src, dest)
 
 
-def write_config(family, input_type_list, filepath):
+def write_config(family, filepath):
     # replace family ID in config.yaml & dnaseq_cluster.pbs
     config = os.path.join(filepath, "config.yaml")
     replace_str(config, "NA12878", family)
-
-    # modify input type depending on input file
-    input_set = set(input_type_list)
-    if input_set == {"bam"}:
-        logging.info("input type is bam")
-        replace_str(config, 'input: "fastq"', 'input: "bam"')
-    elif input_set == {"cram"}:
-        logging.info("input type is cram")
-        replace_str(config, 'input: "fastq"', 'input: "cram"')
-    elif input_set != {"fastq"}:
-        logging.error("Mixed input filetypes among participants detected, exiting")
-        sys.exit(1)
-    else:
-        # don't need to change config.yaml; default type is fastq
-        logging.info("input type is fastq")
 
 
 def input_type(file, participant):
@@ -104,7 +89,6 @@ def write_units_samples(datasets_dict, filepath):
     units, samples = os.path.join(filepath, "units.tsv"), os.path.join(
         filepath, "samples.tsv"
     )
-    input_type_list = []
     with open(units, "w") as u, open(samples, "w") as s:
         s.writelines("sample\n")
         u.writelines("sample\tplatform\tfq1\tfq2\tbam\tcram\n")
@@ -119,12 +103,10 @@ def write_units_samples(datasets_dict, filepath):
                 fq1 = ",".join(fq1)
                 fq2 = ",".join(fq2)
                 u.writelines(f"{participant}\tILLUMINA\t{fq1}\t{fq2}\t\t\n")
-                input_type_list.append("fastq")
             # if bam available, set as input file
             elif len(bam) != 0:
                 if len(bam) == 1:
                     u.writelines(f"{participant}\tILLUMINA\t\t\t{bam[0]}\t\n")
-                    input_type_list.append("bam")
                 else:
                     logging.error(
                         "Multiple bam files provided for %s, exiting" % participant
@@ -134,14 +116,13 @@ def write_units_samples(datasets_dict, filepath):
             elif len(cram) != 0:
                 if len(cram) == 1:
                     u.writelines(f"{participant}\tILLUMINA\t\t\t\t{cram[0]}\n")
-                    input_type_list.append("cram")
                 else:
                     logging.error("Multiple cram files provided, exiting")
                     sys.exit(1)
             else:
                 logging.error("No input file provided for %s, exiting" % participant)
                 sys.exit(1)
-    return input_type_list
+
 
 
 if __name__ == "__main__":
@@ -192,7 +173,7 @@ if __name__ == "__main__":
     logging.info("Parsing participants' linked files")
     datasets_dict = dataset_to_dict(datasets)
     logging.info("Writing units.tsv and samples.tsv files")
-    input_type_list = write_units_samples(datasets_dict, filepath)
+    write_units_samples(datasets_dict, filepath)
     logging.info("Parsing config.yaml")
-    write_config(family, input_type_list, filepath)
+    write_config(family, filepath)
     logging.info("crg2 set up complete")
