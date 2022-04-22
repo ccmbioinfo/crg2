@@ -112,6 +112,7 @@ rule peddy:
         ped = peddy_ped
     output:
         "qc/peddy/{family}.html",
+        "qc/peddy/{family}.vs.html",
         "qc/peddy/{family}.het_check.csv",
         "qc/peddy/{family}.ped_check.csv",
         "qc/peddy/{family}.peddy.ped",
@@ -140,6 +141,7 @@ rule multiqc:
                                                             "qc/fastq_screen/{family}_{sample}_screen.txt",
                                                             "qc/bcftools_stats/{family}_{sample}.txt",
                                                             "qc/peddy/{family}.html",
+                                                            "qc/peddy/{family}.vs.html",
                                                             "qc/peddy/{family}.het_check.csv",
                                                             "qc/peddy/{family}.ped_check.csv",
                                                             "qc/peddy/{family}.peddy.ped",

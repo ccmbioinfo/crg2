@@ -56,6 +56,13 @@ Make sure to replace ```~/crg2-conda``` with the path made in step 4. This will 
 - Run script to parse the above files: ```python scripts/clean_gtf.py --ensembl_gtf /path/to/Homo_sapiens.GRCh37.87.gtf --refseq_gff3 /path/to/GRCh37_latest_genomic.gff --refseq_assembly /path/to/GRCh37_latest_assembly_report.txt```
 - Add the paths to the output files, Homo_sapiens.GRCh37.87.gtf_subset.csv and GRCh37_latest_genomic.gff_subset.csv, to the config["gene"]["ensembl"] and config["gene"]["refseq"] fields.
 - You will also need the HGNC alias file: download this from https://www.genenames.org/download/custom/ using the default fields. Add the path this file to config["gene"]["hgnc"].
+
+11. You will need to have R in your $PATH to generate the str (EH and EHDN) reports. You will also need to install the following packages: dbscan, doSNOW. 
+    ```
+    $ R
+    > install.packages("dbscan")
+    > install.packages("doSNOW")
+    ```
 ## Running the pipeline
 1. Make a folder in a directory with sufficient space. Copy over the template files samples.tsv, units.tsv, config.yaml, pbs_profile/pbs_config.yaml.
 You may need to re-copy config.yaml and pbs_config.yaml if the files were recently updated in repo from previous crg2 runs. Note that 'pbs_config.yaml' is for submitting each rule as cluster jobs, so ignore this if not running on cluster

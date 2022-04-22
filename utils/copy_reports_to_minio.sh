@@ -37,8 +37,9 @@ if [ "$NGS_type" == wgs ]; then
 	$mc cp ${family_dir}/report/cnv/${family}*cnv.withSVoverlaps.tsv minio/results-c4r/$family
 	$mc cp  ${family_dir}/report/sv/${family}.unfiltered.wgs*overlaps.tsv minio/results-c4r/$family
 	$mc cp  ${family_dir}/report/sv/${family}.wgs*overlaps.tsv minio/results-c4r/$family
-	$mc cp  ${family_dir}/report/str/${family}.EHDN.2021*xlsx minio/results-c4r/$family
-	$mc cp  ${family_dir}/report/str/${family}.EH-v1.1.2021*xlsx minio/results-c4r/$family
+	$mc cp  ${family_dir}/report/sv/${family}.BND.wgs.sv*.tsv minio/results-c4r/$family
+	$mc cp  ${family_dir}/report/str/${family}.EHDN.202*xlsx minio/results-c4r/$family
+	$mc cp  ${family_dir}/report/str/${family}.EH-v1.1.202*xlsx minio/results-c4r/$family
 	
 	if [ -f ${family_dir}/report/panel/${family}/${family}.wgs.panel*csv ]; then	
 		$mc cp ${family_dir}/report/panel/${family}/${family}.wgs.panel*csv minio/results-c4r/$family
