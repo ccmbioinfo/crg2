@@ -1,49 +1,23 @@
 
-if config["run"]["input"] == "fastq":
-    rule fastq_prep:
-        input: 
-            units=config["run"]["units"]
-        output:
-            reads = temp(["fastq/{family}_{sample}_R1.fastq.gz", "fastq/{family}_{sample}_R2.fastq.gz"]) 
-        log:
-            "logs/fastq_prep/{family}_{sample}.log"
-        conda:
-            "../envs/crg.yaml" 
-        script:
-            "../scripts/fastq_prep.py"
-elif config["run"]["input"] == "bam":
-    rule bamtofastq:
-        input:
-            bam_file = get_bam
-        params:
-            outdir = temp("fastq/"),
-            sort_check = True
-        output:
-            fastq1 = temp("fastq/{family}_{sample}_R1.fastq.gz"),
-            fastq2 = temp( "fastq/{family}_{sample}_R2.fastq.gz")
-        log:
-            "logs/bamtofastq/{family}_{sample}.log"
-        threads:
-            4
-        wrapper:
-            get_wrapper_path("bedtools", "bamtofastq")
-elif config["run"]["input"] == "cram":
-    rule cramtofastq:
-        input:
-            units=config["run"]["units"]
-        params:
-            old_cram_ref = config["ref"]["old_cram_ref"],
-            new_cram_ref = config["ref"]["new_cram_ref"]
-        output:
-            fastq1 = temp("fastq/{family}_{sample}_R1.fastq.gz"),
-            fastq2 = temp("fastq/{family}_{sample}_R2.fastq.gz")
-        shadow: "shallow"
-        log:
-            "logs/cramtofastq/{family}_{sample}.log"
-        wrapper:
-            get_wrapper_path("samtools", "fastq")
-
-
+rule input_prep:
+    input:
+        units=config["run"]["units"]
+    params:
+        outdir = temp("fastq/"),
+        sort_check = True,
+        old_cram_ref = config["ref"]["old_cram_ref"],
+        new_cram_ref = config["ref"]["new_cram_ref"]
+    output:
+        fastq1 = temp("fastq/{family}_{sample}_R1.fastq.gz"),
+        fastq2 = temp("fastq/{family}_{sample}_R2.fastq.gz")
+    log:
+        "logs/input_prep/{family}_{sample}.log"
+    threads:
+        4
+    wrapper:
+        get_wrapper_path("samtools", "fastq")
+    
+        
 rule map_reads:
     input:
         reads = ["fastq/{family}_{sample}_R1.fastq.gz", "fastq/{family}_{sample}_R2.fastq.gz"]
