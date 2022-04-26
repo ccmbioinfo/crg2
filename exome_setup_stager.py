@@ -62,7 +62,7 @@ def input_type(file, participant):
 def dataset_to_dict(datasets):
     # create dict of dicts with participant/sample name and associated files
     datasets = open(datasets)
-    datasets = json.load(datasets)
+    datasets = json.loads(datasets)
     all_datasets_dict = {}
     for participant in datasets:
         files = datasets[participant]
@@ -145,7 +145,7 @@ if __name__ == "__main__":
         "--datasets",
         type=str,
         required=True,
-        help="json file listing participants and their associated files",
+        help="json string listing participants and their associated files",
     )
 
     parser.add_argument(

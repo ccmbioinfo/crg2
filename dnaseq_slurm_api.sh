@@ -10,7 +10,7 @@ CP="/home/slurm/conda_envs/crg2-conda";
 SLURM=~/crg2/slurm_profile;
 ANALYSIS_ID="$1"
 FAMILY="$2"
-# DATA is a json file in the format { participant1: [linked files], participant2: ['linked files']...}
+# DATA is a json string in the format { participant1: [linked files], participant2: ['linked files']...}
 DATA="$3"
 #temporary filepath
 FILEPATH=/storage/data/test_crg2_automation
@@ -33,10 +33,4 @@ python3 exome_setup.py \
     -f $FAMILY \
     -d $DATA
 
-exit_code=`echo $?`
-if [ $exit_code == 0 ]; then
-    snakemake --use-conda -s $SF --conda-prefix $CP  --profile $SLURM -p 
-else
-    echo 'Analysis setup failed, exiting'
-    exit 1
-fi
+snakemake --use-conda -s $SF --conda-prefix $CP  --profile $SLURM -p 
