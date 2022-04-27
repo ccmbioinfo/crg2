@@ -29,10 +29,10 @@ ref:
   no_decoy: /storage/data/dccdipg/genomes/GRCh37/GRCh37.fa
   decoy_bed: "~/cre/data/grch37d5.decoy.bed"
   canon_bed: "/storage/data/dccdipg/genomes/grch37.canon.bed"
-  split_genome: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/genomes/split_genome"
-  gatk-known: "/hpf/largeprojects/ccmbio/naumenko/tools/bcbio/genomes/Hsapiens/GRCh37/variation/Mills_and_1000G_gold_standard.indels.vcf.gz"
+  split_genome: "/storage/data/dccdipg/genomes/split_genome/"
+  gatk-known: "/storage/data/dccdipg/annotation/vcfanno/Mills_and_1000G_gold_standard.indels.vcf.gz"
   old_cram_ref: "UR:/mnt/hnas/reference/hg19/hg19.fa"
-  new_cram_ref: "/hpf/largeprojects/ccmbio/naumenko/tools/bcbio/genomes/Hsapiens/hg19/seq/hg19.fa"
+  new_cram_ref: "/storage/data/dccdipg/genomes/hg19.fa"
 
 filtering:
   vqsr: false
@@ -104,9 +104,9 @@ annotation:
     mssng_manta_counts: "/storage/data/dccdipg/annotation/MSSNG_COUNTS/Canadian_MSSNG_parent_SVs.Manta.counts.txt"
     mssng_lumpy_counts: "/storage/data/dccdipg/annotation/MSSNG_COUNTS/Canadian_MSSNG_parent_SVs.LUMPY.counts.txt"
   eh:
-    catalog: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/ExpansionHunter/tandem_repeat_disease_loci_v1.1.hg19.masked.json"
-    trf: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/ExpansionHunter/tandem_repeat_disease_loci_v1.1.tsv"
-    1000g: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/ExpansionHunter/1000G_EH_v1.0.tsv"
+    catalog: "/storage/data/dccdipg/annotation/ExpansionHunter/tandem_repeat_disease_loci_v1.1.hg19.masked.json"
+    trf: "/storage/data/dccdipg/annotation/ExpansionHunter/tandem_repeat_disease_loci_v1.1.tsv"
+    1000g: "/storage/data/dccdipg/annotation/ExpansionHunter/1000G_EH_v1.0.tsv"
 
 validation:
   benchmark: "benchmark.tsv"
@@ -139,7 +139,7 @@ params:
     nw: 400
     c: "-c"
     hm: 3
-    gtf: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/exons/hg19_UCSC_exons_canonical_placeholder.bed"
+    gtf: "/storage/data/dccdipg/annotation/exons/hg19_UCSC_exons_canonical_placeholder.bed"
     extra: ""
   verifybamid2:
     svd_prefix: "1000g.phase3 100k b37"
