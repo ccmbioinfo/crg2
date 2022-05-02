@@ -108,7 +108,7 @@ annotation:
     trf: "/storage/data/dccdipg/annotation/ExpansionHunter/tandem_repeat_disease_loci_v1.1.tsv"
     1000g: "/storage/data/dccdipg/annotation/ExpansionHunter/1000G_EH_v1.0.tsv"
   cre:
-     database_path: "/storage/data/dccdipg/annotation/C4R_database/"
+    database_path: "/storage/data/dccdipg/annotation/C4R_database/"
 
 validation:
   benchmark: "benchmark.tsv"
