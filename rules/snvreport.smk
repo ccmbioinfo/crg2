@@ -12,6 +12,7 @@ rule allsnvreport:
          mem_mb=40000
     params:
          cre=config["tools"]["cre"],
+         database_path=config["annotation"]["cre"]["database_path"],
          ref=config["ref"]["genome"]
     shell:
          '''
@@ -24,6 +25,7 @@ rule allsnvreport:
          ln -s {project}-gatk-haplotype-annotated-decomposed.vcf.gz {project}-ensemble-annotated-decomposed.vcf.gz
          ln -s {project}-gatk-haplotype-annotated-decomposed.vcf.gz.tbi {project}-ensemble-annotated-decomposed.vcf.gz.tbi
          cd ../
+         database_path={params.database_path}
          if [ {wildcards.p} == "coding" ]; then  
          {params.cre}/cre.sh {project} 
          elif [ {wildcards.p} == "denovo" ]; then  
