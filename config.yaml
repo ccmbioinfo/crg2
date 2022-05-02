@@ -7,7 +7,7 @@ run:
   hpo: "" # five-column TSV with HPO terms; leave this string empty is there are no hpo terms
   flank: 100000
   gatk: "gatk"
-  pipeline: "wes" #either wes (exomes) or wgs (genomes)
+  pipeline: "wes" #either wes (exomes) or wgs (genomes) or annot (to annotate and produce reports for an input vcf)
 
 genes:
   ensembl: "/storage/data/dccdipg/annotation/genes_for_panels/Homo_sapiens.GRCh37.87.gtf_subset.csv"
@@ -107,6 +107,8 @@ annotation:
     catalog: "/storage/data/dccdipg/annotation/ExpansionHunter/tandem_repeat_disease_loci_v1.1.hg19.masked.json"
     trf: "/storage/data/dccdipg/annotation/ExpansionHunter/tandem_repeat_disease_loci_v1.1.tsv"
     1000g: "/storage/data/dccdipg/annotation/ExpansionHunter/1000G_EH_v1.0.tsv"
+  cre:
+     database_path: "/storage/data/dccdipg/annotation/C4R_database/"
 
 validation:
   benchmark: "benchmark.tsv"
