@@ -72,7 +72,7 @@ def dataset_to_dict(datasets):
         all_datasets_dict[participant] = dataset_dict
         for f in files:
             filetype = input_type(f, participant)
-            f = os.path.join('/srv', f)
+            f = os.path.join('/srv/minio', f)
             logging.info("adding file %s",  f)
             if filetype == "bam":
                 all_datasets_dict[participant]["bam"].append(f)
