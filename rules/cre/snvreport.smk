@@ -16,6 +16,7 @@ rule allsnvreport:
          mem_mb=40000
     params:
          cre=config["tools"]["cre"],
+         database_path=config["annotation"]["cre"]["database_path"],
          ref=config["ref"]["genome"],
          family = config["run"]["project"]
     shell:
@@ -33,8 +34,8 @@ rule allsnvreport:
          ln -s ../../../{input.vcf} {params.family}-ensemble-annotated-decomposed.vcf.gz
          tabix {params.family}-ensemble-annotated-decomposed.vcf.gz
          cd ../
-         {params.cre}/cre.sh {params.family} 
-         type=wes.synonymous {params.cre}/cre.sh {params.family}
+         database={params.database_path} {params.cre}/cre.sh {params.family} 
+         database={params.database_path} type=wes.synonymous {params.cre}/cre.sh {params.family}
          unset type
          '''
 
