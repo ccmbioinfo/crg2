@@ -61,7 +61,6 @@ def input_type(file, participant):
 
 def dataset_to_dict(datasets):
     # create dict of dicts with participant/sample name and associated files
-    datasets = open(datasets)
     datasets = json.loads(datasets)
     all_datasets_dict = {}
     for participant in datasets:
