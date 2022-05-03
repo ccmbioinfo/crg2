@@ -26,11 +26,11 @@ rule allsnvreport:
          ln -s {project}-gatk-haplotype-annotated-decomposed.vcf.gz.tbi {project}-ensemble-annotated-decomposed.vcf.gz.tbi
          cd ../
          if [ {wildcards.p} == "coding" ]; then  
-         database={params.database_path} {params.cre}/cre.sh {project} 
+         reference={params.ref} database={params.database_path} {params.cre}/cre.sh {project} 
          elif [ {wildcards.p} == "denovo" ]; then  
-         database={params.database_path} type=denovo {params.cre}/cre.sh {project} 
+         reference={params.ref} database={params.database_path} type=denovo {params.cre}/cre.sh {project} 
          else
-         database={params.database_path} type=wgs {params.cre}/cre.sh {project}
+         reference={params.ref} database={params.database_path} type=wgs {params.cre}/cre.sh {project}
          unset type
          fi;
          '''
