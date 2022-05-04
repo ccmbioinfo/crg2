@@ -11,6 +11,7 @@ if config["run"]["pipeline"] == "wes":
         input:
             "report/coding/{}".format(project),
             "qc/multiqc/multiqc.html",
+            "report/mosaic/{}".format(project),
             [expand("recal/{family}_{sample}.bam.md5".format(family=config["run"]["project"], sample=s)) for s in samples.index]
 elif config["run"]["pipeline"] == "wgs":
     rule all:
@@ -50,6 +51,9 @@ if config["run"]["pipeline"] == "wes":
     base = "rules/cre/"
     include: base + "calling.smk"
     include: base + "filtering.smk"
+    include: base + "calling_mosaic.smk"
+    include: base + "annotation_mosaic.smk"
+    include: base + "snvreport_mosaic.smk"
 elif config["run"]["pipeline"] == "wgs":
     include: "rules/mapping.smk"
     include: "rules/stats.smk"
