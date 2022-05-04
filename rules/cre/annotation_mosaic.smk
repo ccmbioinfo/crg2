@@ -1,7 +1,6 @@
 rule vep_mosaic:
     input:
-        #input file is subject to change once soft filters have been decided. No filters applied yet!
-        "filtered/{family}-freebayes_mosaic.uniq.normalized.decomposed.vcf.gz",
+        "filtered/{family}-freebayes_mosaic.uniq.normalized.decomposed.vcf.gz"
     output:
         temp("annotated/mosaic/vep/{family}_mosaic.coding.vep.vcf")
     log:
@@ -33,11 +32,29 @@ rule vcfanno_mosaic:
     wrapper:
         get_wrapper_path("vcfanno")
 
+rule fix_dp_mosaic:
+    input:
+        "annotated/mosaic/vcfanno/{family}_mosaic.coding.vep.vcfanno.vcf"
+    output:
+        "annotated/mosaic/vcfanno/{family}_mosaic.coding.vep.vcfanno.wDP.vcf"
+    threads: 1
+    resources:
+        mem_mb = 20000
+    shell:
+        '''
+        export _JAVA_OPTIONS=\"-Xmx2048m\"
+        rtg vcfsubset -i {input} -o annotated/mosaic/vcfanno/noDP.vcf.gz --remove-info DP
+        module load bcftools/1.11
+        bcftools +fill-tags annotated/mosaic/vcfanno/noDP.vcf.gz -o {output} -- -t 'DP2=sum(DP)'
+        sed -i "s/DP2/DP/g" {output}
+        rm annotated/mosaic/vcfanno/noDP.vcf*
+        '''
+
 rule vcf2db_mosaic:
     input:
-        "annotated/mosaic/vcfanno/{family}_mosaic.coding.vep.vcfanno.vcf".format(family=project)
+        "annotated/mosaic/vcfanno/{family}_mosaic.coding.vep.vcfanno.wDP.vcf".format(family=project)
     output:
-         db = "annotated/mosaic/{family}_mosaic-gemini.db",
+         db = "annotated/mosaic/{family}_mosaic-gemini.db"
     log:
         "logs/vcf2db/vcf2db.{family}_mosaic.log"
     params:

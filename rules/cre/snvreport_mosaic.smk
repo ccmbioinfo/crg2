@@ -4,7 +4,6 @@ rule allsnvreport_mosaic:
     input:
         db="annotated/mosaic/{family}_mosaic-gemini.db",
         vcf="annotated/mosaic/vcfanno/{family}_mosaic.coding.vep.vcfanno.wDP.vcf.gz",
-        #caller_vcfs is subject to change once soft filters have been decided. No filters applied yet!
         caller_vcfs = "filtered/{family}-freebayes_mosaic.uniq.normalized.decomposed.vcf.gz".format(family=project)
     output:
         directory("report/mosaic/{family}")
