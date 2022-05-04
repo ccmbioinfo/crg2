@@ -4,7 +4,7 @@ callers = [ gatk + "_haplotype", "samtools", "freebayes", "platypus", "freebayes
 
 #list used for annotating VCFs with INFO/CALLERS
 if len(callers) > 1:
-    caller_annotation = [ "gatk-haplotype", "samtools", "freebayes", "platypus", "freebayes-mosaic" ] 
+    caller_annotation = [ "gatk-haplotype", "samtools", "freebayes", "platypus" ] 
 
 def get_cre_vcfs():    
     return ["filtered/{family}-{caller}.uniq.normalized.decomposed.pass.vcf.gz".format(family=project,caller=i) for i in callers ]
