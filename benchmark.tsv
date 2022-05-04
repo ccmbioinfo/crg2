@@ -1,3 +1,3 @@
 family	sample	pipeline	baseline_vcf	high_conf_bed
-HG001	NA12878	wes	/storage/data/dccdipg/Common/rtg-tools/NISTv3.3.2/HG001_truth.vcf.gz	/storage/data/dccdipg/Common/rtg-tools/NISTv3.3.2/HG001_exome_truth.bed
-HG001	NA12878	wgs	/storage/data/dccdipg/Common/rtg-tools/NISTv3.3.2/HG001_truth.vcf.gz	/storage/data/dccdipg/Common/rtg-tools/NISTv3.3.2/HG001_truth.bed
+HG001	NA12878	wes	/srv/shared/data/dccdipg/Common/rtg-tools/NISTv3.3.2/HG001_truth.vcf.gz	/srv/shared/data/dccdipg/Common/rtg-tools/NISTv3.3.2/HG001_exome_truth.bed
+HG001	NA12878	wgs	/srv/shared/data/dccdipg/Common/rtg-tools/NISTv3.3.2/HG001_truth.vcf.gz	/srv/shared/data/dccdipg/Common/rtg-tools/NISTv3.3.2/HG001_truth.bed
