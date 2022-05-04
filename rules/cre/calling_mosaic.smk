@@ -6,14 +6,13 @@ rule freebayes_mosaic:
         bai=get_cre_bams(ext="bam.bai"),
         ref=config["ref"]["genome"],
         regions="mapped/bed/{family}-sort-callable-{{contig}}.bed".format(family=project)
-        #regions=config["ref"]["canon_bed"]
     output:
-        temp("called/freebayes_mosaic/{contig}.vcf")  # either .vcf or .bcf
+        temp("called/freebayes_mosaic/{contig}.vcf") 
     log:
         "logs/freebayes/mosaic/{contig}.log"
     params:
-        extra=config["params"]["freebayes"]["mosaic_call"], #["mosaic_call"],         # optional parameters
-        chunksize=100000  # reference genome chunk size for parallelization (default: 100000)
+        extra=config["params"]["freebayes"]["mosaic_call"], 
+        chunksize=100000
     threads: 1
     resources:
         mem=lambda wildcards, threads: threads * 4 if threads > 1 else 20
