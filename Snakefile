@@ -13,7 +13,9 @@ if config["run"]["pipeline"] == "wes":
             "report/coding/{}".format(project),
             "qc/multiqc/multiqc.html",
             [expand("recal/{family}_{sample}.bam.md5".format(family=config["run"]["project"], sample=s)) for s in samples.index],
-            expand("{minio}/{family}", minio=[config["run"]["minio"]], family=project) if config["run"]["minio"] else []
+            expand("{minio}/{family}", minio=[config["run"]["minio"]], family=project) if config["run"]["minio"] else [],
+            "report/mosaic/{}".format(project)
+            
 elif config["run"]["pipeline"] == "wgs":
     rule all:
         input:
@@ -52,6 +54,9 @@ if config["run"]["pipeline"] == "wes":
     base = "rules/cre/"
     include: base + "calling.smk"
     include: base + "filtering.smk"
+    include: base + "calling_mosaic.smk"
+    include: base + "annotation_mosaic.smk"
+    include: base + "snvreport_mosaic.smk"
 elif config["run"]["pipeline"] == "wgs":
     include: "rules/mapping.smk"
     include: "rules/stats.smk"
