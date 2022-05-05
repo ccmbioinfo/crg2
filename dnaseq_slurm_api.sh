@@ -13,7 +13,7 @@ FAMILY="$2"
 # DATA is a json string in the format { participant1: [linked files], participant2: ['linked files']...}
 DATA="$3"
 #temporary filepath
-FILEPATH=/storage/data/test_crg2_automation
+FILEPATH=/srv/shared/analyses/exomes
 ANALYSIS_DIR=${FILEPATH}/${ANALYSIS_ID}/${FAMILY}
 
 source /storage/modules/anaconda/2020.11/etc/profile.d/conda.sh
