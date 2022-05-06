@@ -8,7 +8,7 @@ import shutil
 import sys
 
 # replace with /home/ccmmarvin/crg2 when in production
-crg2_dir = os.path.dirname(os.path.realpath(sys.argv[0]))
+crg2_dir = "/home/slurm/crg2"
 
 
 def replace_str(filename, target, replacement):

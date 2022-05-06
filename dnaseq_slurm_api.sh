@@ -5,32 +5,32 @@
 
 set -euo pipefail
 
-SF=~/crg2/Snakefile; 
+SF=/home/slurm/crg2/Snakefile; 
 CP="/home/slurm/conda_envs/crg2-conda";
-SLURM=~/crg2/slurm_profile;
+SLURM=/home/slurm/crg2/slurm_profile;
 ANALYSIS_ID="$1"
 FAMILY="$2"
 # DATA is a json string in the format { participant1: [linked files], participant2: ['linked files']...}
 DATA="$3"
 #temporary filepath
 FILEPATH=/srv/shared/analyses/exomes
-ANALYSIS_DIR=${FILEPATH}/${ANALYSIS_ID}/${FAMILY}
+ANALYSIS_DIR="${FILEPATH}/${ANALYSIS_ID}/${FAMILY}"
 
 source /storage/modules/anaconda/2020.11/etc/profile.d/conda.sh
 conda activate snakemake
 
-if [ ! -d $ANALYSIS_DIR ];then
-    mkdir  -p $ANALYSIS_DIR
+if [ ! -d "$ANALYSIS_DIR" ];then
+    mkdir  -p "$ANALYSIS_DIR"
 else
-    echo "Analysis directory $ANALYSIS_DIR exists, exiting"
+    echo "Analysis directory "$ANALYSIS_DIR" exists, exiting"
     exit 1
 fi
 
-cd $ANALYSIS_DIR
+cd "$ANALYSIS_DIR"
 
-python3 exome_setup.py \
-    -a $ANALYSIS_DIR \
-    -f $FAMILY \
-    -d $DATA
+python3 /home/slurm/crg2/exome_setup_stager.py \
+    -a "$ANALYSIS_DIR" \
+    -f "$FAMILY" \
+    -d "$DATA"
 
-snakemake --use-conda -s $SF --conda-prefix $CP  --profile $SLURM -p 
+snakemake --use-conda -s "$SF" --conda-prefix "$CP"  --profile "$SLURM" -p 
