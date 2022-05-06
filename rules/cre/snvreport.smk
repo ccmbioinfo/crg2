@@ -34,8 +34,8 @@ rule allsnvreport:
          ln -s ../../../{input.vcf} {params.family}-ensemble-annotated-decomposed.vcf.gz
          tabix {params.family}-ensemble-annotated-decomposed.vcf.gz
          cd ../
-         database={params.database_path} {params.cre}/cre.sh {params.family} 
-         database={params.database_path} type=wes.synonymous {params.cre}/cre.sh {params.family}
+         cre={params.cre} reference={params.ref} database={params.database_path} {params.cre}/cre.sh {params.family} 
+         cre={params.cre} reference={params.ref} database={params.database_path} type=wes.synonymous {params.cre}/cre.sh {params.family}
          unset type
          '''
 
