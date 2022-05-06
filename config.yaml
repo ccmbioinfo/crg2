@@ -17,9 +17,9 @@ genes:
 tools:
   svscore_script: "/srv/shared/data/dccdipg/crg2-non-conda-tools/SVScore/svscore.pl"
   annotsv: "/srv/shared/data/dccdipg/crg2-non-conda-tools/AnnotSV_2.1"
-  cre: "~/cre"
-  crg: "~/crg"
-  crg2: "~/crg2"
+  cre: "/srv/shared/pipelines/cre"
+  crg: "/srv/shared/pipelines/crg"
+  crg2: "/srv/shared/pipelines/crg2"
 
 ref:
   name: GRCh37.75
@@ -27,7 +27,7 @@ ref:
   genome: /srv/shared/data/dccdipg/genomes/GRCh37d5/GRCh37d5.fa
   known-variants: /srv/shared/data/dccdipg/annotation/dbsnp.b147.20160601.tidy.vcf.gz
   no_decoy: /srv/shared/data/dccdipg/genomes/GRCh37/GRCh37.fa
-  decoy_bed: "~/cre/data/grch37d5.decoy.bed"
+  decoy_bed: "/srv/shared/pipelines/cre/data/grch37d5.decoy.bed"
   canon_bed: "/srv/shared/data/dccdipg/genomes/grch37.canon.bed"
   split_genome: "/srv/shared/data/dccdipg/genomes/split_genome/"
   gatk-known: "/srv/shared/data/dccdipg/annotation/vcfanno/Mills_and_1000G_gold_standard.indels.vcf.gz"
@@ -77,12 +77,12 @@ qc:
   
 annotation:
   cre.vcfanno:
-    conf: "~/crg2/vcfanno/cre.vcfanno.conf"
-    lua_script: "~/crg2/vcfanno/cre.vcfanno.lua"
+    conf: "/srv/shared/pipelines/crg2/vcfanno/cre.vcfanno.conf"
+    lua_script: "/srv/shared/pipelines/crg2/vcfanno/cre.vcfanno.lua"
     base_path: "/srv/shared/data/dccdipg/annotation/vcfanno"
   vcfanno:
-    conf: "~/crg/crg.vcfanno.conf" 
-    lua_script: "~/crg/crg.vcfanno.lua"
+    conf: "/srv/shared/pipelines/crg2/vcfanno/crg.vcfanno.conf" 
+    lua_script: "/srv/shared/pipelines/crg2/vcfanno/crg.vcfanno.lua"
     base_path: "/srv/shared/data/dccdipg/annotation/vcfanno"
   vep:
     dir: "/srv/shared/data/dccdipg/snakemake/6ea37454/share/ensembl-vep-101.0-0/"
@@ -148,7 +148,7 @@ params:
     # --DisableSanityCheck ensures verifybamid2 does not fail for exomes with < 10,000 markers
     extra: "--DisableSanityCheck"
   multiqc:
-    config: "~/crg2/rules/multiqc_config.yaml"
+    config: "/srv/shared/pipelines/crg2/rules/multiqc_config.yaml"
   snpeff:
     java_opts: "-Xms750m -Xmx20g"
   svscore:

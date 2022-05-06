@@ -7,8 +7,7 @@ import os
 import shutil
 import sys
 
-# replace with /home/ccmmarvin/crg2 when in production
-crg2_dir = "/home/slurm/crg2"
+crg2_dir = "/srv/shared/pipelines/crg2"
 
 
 def replace_str(filename, target, replacement):

@@ -5,9 +5,9 @@
 
 set -euo pipefail
 
-SF=/home/slurm/crg2/Snakefile; 
+SF=/srv/shared/pipelines/crg2/Snakefile; 
 CP="/home/slurm/conda_envs/crg2-conda";
-SLURM=/home/slurm/crg2/slurm_profile;
+SLURM=/srv/shared/pipelines/crg2/slurm_profile;
 ANALYSIS_ID="$1"
 FAMILY="$2"
 # DATA is a json string in the format { participant1: [linked files], participant2: ['linked files']...}
@@ -28,7 +28,7 @@ fi
 
 cd "$ANALYSIS_DIR"
 
-python3 /home/slurm/crg2/exome_setup_stager.py \
+python3 /srv/shared/pipelines/crg2/exome_setup_stager.py \
     -a "$ANALYSIS_DIR" \
     -f "$FAMILY" \
     -d "$DATA"
