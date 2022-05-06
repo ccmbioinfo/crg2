@@ -176,4 +176,5 @@ params:
     java_opts: "-Xmx20g"
     vcfeval:
       sdf: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/rtg-tools/GRch37_SDF/"
-
+    vcfsubset:
+      java_opts: "-Xmx2048m"
