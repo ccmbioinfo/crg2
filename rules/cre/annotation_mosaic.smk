@@ -40,15 +40,13 @@ rule fix_dp_mosaic:
     threads: 1
     resources:
         mem_mb = 20000
-    shell:
-        '''
-        export _JAVA_OPTIONS=\"-Xmx2048m\"
-        rtg vcfsubset -i {input} -o annotated/mosaic/vcfanno/noDP.vcf.gz --remove-info DP
-        module load bcftools/1.11
-        bcftools +fill-tags annotated/mosaic/vcfanno/noDP.vcf.gz -o {output} -- -t 'DP2=sum(DP)'
-        sed -i "s/DP2/DP/g" {output}
-        rm annotated/mosaic/vcfanno/noDP.vcf*
-        '''
+    log:
+        "logs/rtg-tools/vcfsubset/{family}_mosaic.coding.vep.vcfanno.wDP.log"
+    params:
+        java_opts = config["params"]["rtg-tools"]["vcfsubset"]["java_opts"]
+    wrapper:
+        get_wrapper_path("rtg-tools", "vcfsubset")
+
 
 rule vcf2db_mosaic:
     input:
