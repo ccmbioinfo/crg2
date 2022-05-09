@@ -40,8 +40,7 @@ rule mity_report:
     input:
         "mitochondrial_variants/vcfanno/{family}_mito.vcfanno.vcf"
     output:
-        "report/mitochondrial/{family}_mito.annotated_variants.xlsx",
-        "report/mitochondrial/{family}_mito.annotated_variants.csv"
+        "report/mitochondrial/{family}_mity_vcfanno_final_report.csv"
     params:
         outdir="report/mitochondrial/",
         prefix="{family}_mito",
