@@ -5,6 +5,11 @@
 
 set -euo pipefail
 
+# set environmental variables
+export ANNOTSV=/srv/shared/data/AnnotSV_2.1
+export LC_ALL=C.UTF-8
+export LANG=C.UTF-8
+
 SF=/srv/shared/pipelines/crg2/Snakefile; 
 CP="/home/slurm/conda_envs/crg2-conda";
 SLURM=/srv/shared/pipelines/crg2/slurm_profile;
@@ -17,13 +22,10 @@ FILEPATH=/srv/shared/analyses/exomes
 ANALYSIS_DIR="${FILEPATH}/${ANALYSIS_ID}/${FAMILY}"
 
 source /storage/modules/anaconda/2020.11/etc/profile.d/conda.sh
-conda activate snakemake_5.10.0
+conda activate /srv/shared/conda_envs/snakemake_5.10.0/
 
 if [ ! -d "$ANALYSIS_DIR" ];then
     mkdir  -p "$ANALYSIS_DIR"
-else
-    echo "Analysis directory "$ANALYSIS_DIR" exists, exiting"
-    exit 1
 fi
 
 cd "$ANALYSIS_DIR"
