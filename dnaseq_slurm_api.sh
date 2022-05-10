@@ -27,13 +27,12 @@ conda activate /srv/shared/conda_envs/snakemake_5.10.0/
 
 if [ ! -d "$ANALYSIS_DIR" ];then
     mkdir  -p "$ANALYSIS_DIR"
+    python3 /srv/shared/pipelines/crg2/exome_setup_stager.py \
+        -a "$ANALYSIS_DIR" \
+        -f "$FAMILY" \
+        -d "$DATA"
 fi
 
 cd "$ANALYSIS_DIR"
-
-python3 /srv/shared/pipelines/crg2/exome_setup_stager.py \
-    -a "$ANALYSIS_DIR" \
-    -f "$FAMILY" \
-    -d "$DATA"
 
 snakemake --use-conda -s "$SF" --conda-prefix "$CP"  --profile "$SLURM" -p 
