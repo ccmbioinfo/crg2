@@ -17,7 +17,7 @@ FILEPATH=/srv/shared/analyses/exomes
 ANALYSIS_DIR="${FILEPATH}/${ANALYSIS_ID}/${FAMILY}"
 
 source /storage/modules/anaconda/2020.11/etc/profile.d/conda.sh
-conda activate snakemake
+conda activate snakemake_5.10.0
 
 if [ ! -d "$ANALYSIS_DIR" ];then
     mkdir  -p "$ANALYSIS_DIR"
