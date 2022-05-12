@@ -65,18 +65,24 @@ def check_minio_dccforge(family, participant, sequencing_id):
     MINIO_MIRROR = (
         "/hpf/largeprojects/ccm_dccforge/dccforge/uploads/MinIO_G4RD_Mirror/*/"
     )
+    MINIO_MIRROR_SCH = (
+        "/hpf/largeprojects/ccm_dccforge/dccforge/uploads/MinIO_G4RD_Mirror/sch/exomes/"
+    )
     DPLM = "/hpf/largeprojects/ccmbio_ephemeral/C4R/"
     dccforge_input = input_file(f"{DCCFORGE_UPLOADS}/{family}_{participant}*/")
     minio_input = input_file(f"{MINIO_MIRROR}/{family}_{participant}*/")
+    minio_sch_input = input_file(f"{MINIO_MIRROR_SCH}/{family}_{participant}*/")
     # some datasets are transferred to the ccmbio_ephemeral space by DPLM
     dplm_input = None
     if sequencing_id != None:
         dplm_input = input_file(f"{DPLM}/*{sequencing_id}*/")
-    if not dccforge_input and not minio_input and not dplm_input:
+    if not dccforge_input and not minio_input and not minio_sch_input and not dplm_input:
         input = None
     else:
         if minio_input:
             input = minio_input
+        elif minio_sch_input:
+            input = minio_sch_input
         elif dplm_input:
             input = dplm_input
         else:
@@ -145,30 +151,30 @@ def assign_exomes(requested, bioinfos):
 
 def setup_directories(family, sample_list, filepath, step=None):
     d = os.path.join(filepath, family)
-    if os.path.isdir(d):
-        print(f"{family} analysis directory already exists")
-        inputs_flag = False
-    else:
-        os.mkdir(d)
+    # if os.path.isdir(d):
+    #     print(f"{family} analysis directory already exists")
+    #     inputs_flag = False
+    #else:
+    os.mkdir(d)
         # copy config.yaml, pbs_config.yaml, and dnaseq_cluster.pbs
-        for i in ["config.yaml", "pbs_profile/pbs_config.yaml", "dnaseq_cluster.pbs"]:
-            cmd = ["cp", os.path.join(crg2_dir, i), d]
-            subprocess.check_call(cmd)
+    for i in ["config.yaml", "pbs_profile/pbs_config.yaml", "dnaseq_cluster.pbs"]:
+        cmd = ["cp", os.path.join(crg2_dir, i), d]
+        subprocess.check_call(cmd)
 
-        # replace family ID in config.yaml & dnaseq_cluster.pbs
-        replace = f"s/NA12878/{family}/"
-        config = os.path.join(d, "config.yaml")
-        if os.path.isfile(config):
-            cmd = ["sed", "-i", replace, config]
-            subprocess.check_call(cmd)
-        replace = f"s/crg2_pbs/{family}/"
-        pbs = os.path.join(d, "dnaseq_cluster.pbs")
-        if os.path.isfile(pbs):
-            cmd = ["sed", "-i", replace, pbs]
-            subprocess.check_call(cmd)
+    # replace family ID in config.yaml & dnaseq_cluster.pbs
+    replace = f"s/NA12878/{family}/"
+    config = os.path.join(d, "config.yaml")
+    if os.path.isfile(config):
+        cmd = ["sed", "-i", replace, config]
+        subprocess.check_call(cmd)
+    replace = f"s/crg2_pbs/{family}/"
+    pbs = os.path.join(d, "dnaseq_cluster.pbs")
+    if os.path.isfile(pbs):
+        cmd = ["sed", "-i", replace, pbs]
+        subprocess.check_call(cmd)
 
-        # check to see if each sample is associated with input file
-        inputs_flag = check_inputs(sample_list)
+    # check to see if each sample is associated with input file
+    inputs_flag = check_inputs(sample_list)
 
     return inputs_flag
 
