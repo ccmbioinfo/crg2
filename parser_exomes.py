@@ -155,7 +155,8 @@ def setup_directories(family, sample_list, filepath, step=None):
     #     print(f"{family} analysis directory already exists")
     #     inputs_flag = False
     #else:
-    os.mkdir(d)
+    if not os.path.isdir(d):
+        os.mkdir(d)
         # copy config.yaml, pbs_config.yaml, and dnaseq_cluster.pbs
     for i in ["config.yaml", "pbs_profile/pbs_config.yaml", "dnaseq_cluster.pbs"]:
         cmd = ["cp", os.path.join(crg2_dir, i), d]
