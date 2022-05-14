@@ -3,5 +3,5 @@ channels:
   - bioconda
 dependencies:
   - tabix ==0.2.6
-  - bcftools ==1.9
+  - bcftools ==1.15
   - parallel==20190522
