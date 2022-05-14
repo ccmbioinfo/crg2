@@ -26,11 +26,10 @@ elif config["run"]["pipeline"] == "wgs":
             #"plots/allele-freqs.svg"
             "programs-{}.txt".format(PIPELINE_VERSION),
             [expand("recal/{family}_{sample}.bam.md5".format(family=config["run"]["project"], sample=s)) for s in samples.index]
-elif config["run"]["pipeline"] == "annot":
+elif config["run"]["pipeline"] == "annot" or config["run"]["pipeline"] == "pacbio":
     rule all:
         input:
             "report/coding/{family}".format(family=project)
-
 
 localrules: write_version
 rule write_version:
@@ -50,6 +49,8 @@ if config["run"]["pipeline"] == "wes":
     base = "rules/cre/"
     include: base + "calling.smk"
     include: base + "filtering.smk"
+    include: base + "snvreport.smk"
+    include: base + "validation.smk"
 elif config["run"]["pipeline"] == "wgs":
     include: "rules/mapping.smk"
     include: "rules/stats.smk"
@@ -60,9 +61,15 @@ elif config["run"]["pipeline"] == "wgs":
     include: base + "sv.smk"
     include: base + "svreport.smk"
     include: base + "str.smk"
+    include: base + "snvreport.smk"
+    include: base + "validation.smk"
 elif config["run"]["pipeline"] == "annot":
     base = "rules/"
+    include: base + "snvreport.smk"
+    include: base + "validation.smk"
+elif config["run"]["pipeline"] == "pacbio":
+    include: "rules/snvreport.smk"
+    include: "rules/validation.smk"
+    base = "rules/pacbio/"
 
 include: base + "annotation.smk"
-include: base + "snvreport.smk"
-include: base + "validation.smk"

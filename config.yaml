@@ -8,7 +8,7 @@ run:
   flank: 100000
   gatk: "gatk" #or gatk3 or dragen (for dragen-gatk variant calling)
   input: "fastq"
-  pipeline: "wes" #either wes (exomes) or wgs (genomes) or annot (to annotate and produce reports for an input vcf)
+  pipeline: "wes" #either wes (exomes) or wgs (genomes) or annot (to annotate and produce reports for an input vcf), or pacbio (to annotate pacbio VCFs)
 
 genes:
   ensembl: "/hpf/largeprojects/ccmbio/nhanafi/c4r/downloads/databases/ensembl_genes_hg38_gtf.csv"
