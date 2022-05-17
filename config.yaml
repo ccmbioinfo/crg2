@@ -85,6 +85,10 @@ annotation:
     conf: "~/crg2/vcfanno/crg.vcfanno.conf" 
     lua_script: "~/crg2/vcfanno/crg.vcfanno.lua"
     base_path: "/hpf/largeprojects/ccmbio/nhanafi/c4r/downloads/databases/"
+  pacbio.vcfanno:
+    conf: "~/crg2/vcfanno/pacbio.vcfanno.conf"
+    lua_script: "~/crg2/vcfanno/crg.vcfanno.lua"
+    base_path: "/hpf/largeprojects/ccmbio/nhanafi/c4r/downloads/databases/"
   vep:
     dir: "/hpf/largeprojects/ccmbio/nhanafi/c4r/downloads/executables/ensembl-vep/"
     dir_cache: "/hpf/largeprojects/ccmbio/nhanafi/c4r/downloads/databases/vep"
