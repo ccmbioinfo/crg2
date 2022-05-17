@@ -7,12 +7,12 @@ set -euo pipefail
 
 # set environment variables
 export ANNOTSV=/srv/shared/data/AnnotSV_2.1
-export LC_ALL=C.UTF-8
-export LANG=C.UTF-8
+#export LC_ALL=C.UTF-8
+#export LANG=C.UTF-8
 
 # set pipeline variables
 SF=/srv/shared/pipelines/crg2/Snakefile; 
-CP="/home/slurm/conda_envs/crg2-conda";
+CP="/srv/shared/conda_envs/crg2-conda/";
 SLURM=/srv/shared/pipelines/crg2/slurm_profile;
 ANALYSIS_ID="$1"
 FAMILY="$2"
