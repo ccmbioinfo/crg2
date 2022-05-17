@@ -58,8 +58,8 @@ rule vcfanno:
     resources:
         mem_mb = 20000
     params:
-        lua_script=config["annotation"]["vcfanno"]["lua_script"],
-       	conf=config["annotation"]["vcfanno"]["conf"],
+        lua_script=config["annotation"]["pacbio.vcfanno"]["lua_script"],
+       	conf=config["annotation"]["pacbio.vcfanno"]["conf"],
         base_path=config["annotation"]["vcfanno"]["base_path"],
     wrapper:
         get_wrapper_path("vcfanno")
