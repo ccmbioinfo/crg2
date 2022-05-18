@@ -27,8 +27,8 @@ elif config["run"]["pipeline"] == "wgs":
             #"plots/depths.svg",
             #"plots/allele-freqs.svg"
             "programs-{}.txt".format(PIPELINE_VERSION),
-            [expand("recal/{family}_{sample}.bam.md5".format(family=config["run"]["project"], sample=s)) for s in samples.index],
-            "report/mitochondrial/{family}_mity_vcfanno_final_report.csv".format(family=project)
+            "report/mitochondrial/{family}_mity_vcfanno_final_report.csv".format(family=project),
+            [expand("recal/{family}_{sample}.bam.md5".format(family=config["run"]["project"], sample=s)) for s in samples.index]
 elif config["run"]["pipeline"] == "annot":
     rule all:
         input:
