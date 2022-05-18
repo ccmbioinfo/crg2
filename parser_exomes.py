@@ -4,6 +4,7 @@ import glob
 import os
 import sys
 import pandas as pd
+import re
 import subprocess
 from collections import namedtuple
 
@@ -24,20 +25,30 @@ crg2_dir = os.path.dirname(os.path.realpath(sys.argv[0]))
 
 def input_file(input_path):
     """Given hpf path, find input files"""
-    fq1 = sorted(glob.glob(os.path.join(input_path, "*_R1*.fastq.gz"))) + sorted(
-        glob.glob(os.path.join(input_path, "*_1.fastq.gz"))
-    )
-    fq2 = sorted(glob.glob(os.path.join(input_path, "*_R2*.fastq.gz"))) + sorted(
-        glob.glob(os.path.join(input_path, "*_2.fastq.gz"))
-    )
+    # regex would capture reads such as 19-13210-A-02-00_BH2HKGBCX3_R1_1.fastq.gz, or 670513-P_HVWLCBCXX-2-ID01_1_sequence.fastq.gz 
+    read1_regex = re.compile(r"_R1[_.]|_1_")
+    read2_regex = re.compile(r"_R2[_.]|_2_")
+    fq = sorted(glob.glob(os.path.join(input_path, "*fastq.gz")))
     bam = glob.glob(os.path.join(input_path, "*bam"))
     cram = glob.glob(os.path.join(input_path, "*cram"))
     # prioritize fastq as input, then bam, then cram
     input_types = ("fastq", "bam", "cram")
     input = dict.fromkeys(input_types, "")
-    if len(fq1) != 0:
+    if len(fq) != 0:
+        fq1, fq2 = [], []
+        for f in fq:
+            match1 = re.search(read1_regex, f)
+            match2 = re.search(read2_regex, f)
+            if match1:
+                fq1.append(f)
+            elif match2:
+                fq2.append(f)
+            else:
+                print(f"Unrecognized fastq file format")
+                input = None
+        print(fq1, fq2)
         if len(fq1) == len(fq2):
-            input["fastq"] = {"R1": fq1, "R2": fq2}
+            input["fastq"] = {"R1": sorted(fq1), "R2": sorted(fq2)}
         else:
             print(f"Number of R1 and R2 files in {input_path} does not match")
             input = None
@@ -68,7 +79,10 @@ def check_minio_dccforge(family, participant, sequencing_id):
     MINIO_MIRROR_SCH = (
         "/hpf/largeprojects/ccm_dccforge/dccforge/uploads/MinIO_G4RD_Mirror/sch/exomes/"
     )
+    # Sean places the files here
     DPLM = "/hpf/largeprojects/ccmbio_ephemeral/C4R/"
+    # Lynette sometimes places them here:
+    DPLM_2 = "/hpf/largeprojects/ccmbio_ephemeral/hgmd_20180411_v2018.1"
     dccforge_input = input_file(f"{DCCFORGE_UPLOADS}/{family}_{participant}*/")
     minio_input = input_file(f"{MINIO_MIRROR}/{family}_{participant}*/")
     minio_sch_input = input_file(f"{MINIO_MIRROR_SCH}/{family}_{participant}*/")
@@ -76,6 +90,8 @@ def check_minio_dccforge(family, participant, sequencing_id):
     dplm_input = None
     if sequencing_id != None:
         dplm_input = input_file(f"{DPLM}/*{sequencing_id}*/")
+        if not dplm_input:
+            dplm_input = input_file(f"{DPLM_2}/*{sequencing_id}*/")
     if not dccforge_input and not minio_input and not minio_sch_input and not dplm_input:
         input = None
     else:
