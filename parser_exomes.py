@@ -46,7 +46,6 @@ def input_file(input_path):
             else:
                 print(f"Unrecognized fastq file format")
                 input = None
-        print(fq1, fq2)
         if len(fq1) == len(fq2):
             input["fastq"] = {"R1": sorted(fq1), "R2": sorted(fq2)}
         else:
@@ -337,7 +336,7 @@ if __name__ == "__main__":
         write_proj_files(sample_list, filepath)
         if submit_flag:
             print(f"\nSubmitting job for family: {i}")
-            submit_jobs(filepath, i)
+            #submit_jobs(filepath, i)
         else:
             print(f"Job for {i} not submitted")
 
