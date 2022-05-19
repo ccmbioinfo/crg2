@@ -3,3 +3,4 @@ channels:
 dependencies:
   - vcf2db =2018.10.26
   - bcftools
+  - decorator =4.4.2
