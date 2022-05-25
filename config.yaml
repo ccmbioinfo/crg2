@@ -6,7 +6,7 @@ run:
   panel: "" # three-column BED file based on hpo file; leave this string empty if there is no panel
   hpo: "" # five-column TSV with HPO terms; leave this string empty is there are no hpo terms
   flank: 100000
-  gatk: "gatk"
+  gatk: "gatk" #or gatk3 or dragen (for dragen-gatk variant calling)
   input: "fastq"
   pipeline: "wes" #either wes (exomes) or wgs (genomes) or annot (to annotate and produce reports for an input vcf)
 
@@ -27,10 +27,11 @@ ref:
   no_decoy_name: GRCh38
   genome: /hpf/largeprojects/ccmbio/nhanafi/c4r/genomes/Homo_sapiens_assembly38.fasta
   known-variants: /hpf/largeprojects/ccmbio/nhanafi/c4r/genomes/Homo_sapiens_assembly38.dbsnp138.vcf
-  no_decoy: /hpf/largeprojects/ccmbio/nhanafi/c4r/genomes/Homo_sapiens_assembly38.fasta
+  no_decoy: /hpf/largeprojects/ccmbio/nhanafi/c4r/genomes/illumina/Homo_sapiens_assembly38_masked_decoy_removed.fasta
   decoy_bed: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/pipelines/cre/data/grch37d5.decoy.bed"
   canon_bed: "/hpf/largeprojects/ccmbio/nhanafi/c4r/genomes/illumina/grch38_canon.bed"
   split_genome: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/genomes/split_genome"
+  dragstr_table: "/hpf/largeprojects/ccmbio/nhanafi/c4r/genomes/illumina/hg38.str.zip"
   gatk-known: "/hpf/largeprojects/ccmbio/nhanafi/c4r/genomes/Mills_and_1000G_gold_standard.indels.hg38.vcf.gz"
   old_cram_ref: "UR:/mnt/hnas/reference/hg19/hg19.fa"
   new_cram_ref: "/hpf/largeprojects/ccmbio/naumenko/tools/bcbio/genomes/Hsapiens/hg19/seq/hg19.fa"
@@ -44,6 +45,8 @@ filtering:
       "QD < 2.0 || FS > 60.0 || MQ < 30.0 || MQRankSum < -12.5 || ReadPosRankSum < -8.0"
     indels:
       "QD < 2.0 || FS > 200.0 || ReadPosRankSum < -20.0"
+    dragen:
+      "QUAL < 10.4139"
   soft:
     platypus:
       name: 'PlatQualDepth'
@@ -61,7 +64,9 @@ filtering:
       indel:
         name: 'GATKCutoffIndel'
         filter: 'TYPE="indel" && (ReadPosRankSum < -20.0 || QD < 2.0 || FS > 200.0 || SOR > 10.0)'
-
+    dragen:
+        name: 'DRAGENHardQUAL'
+        filter: 'QUAL < 10.4139'
 
 processing:
   mark-duplicates: true
@@ -89,7 +94,7 @@ annotation:
     dir: "/hpf/largeprojects/ccmbio/nhanafi/c4r/downloads/executables/ensembl-vep/"
     dir_cache: "/hpf/largeprojects/ccmbio/nhanafi/c4r/downloads/databases/vep"
   snpeff:
-    dataDir: "/hpf/largeprojects/ccmbio/naumenko/tools/bcbio/genomes/Hsapiens/GRCh37/snpeff"
+    dataDir: "/hpf/largeprojects/ccmbio/nhanafi/c4r/downloads/databases/snpeff/data/GRCh38.92"
   svscore:
     exon_bed: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/SVScore/refGene.exons.bed.gz"
     intron_bed: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/SVScore/refGene.introns.bed.gz"
@@ -132,6 +137,9 @@ params:
     IndelRealigner: " -U LENIENT_VCF_PROCESSING --read_filter BadCigar --read_filter NotPrimaryAlignment "
     BaseRecalibrator: " --interval_set_rule INTERSECTION -U LENIENT_VCF_PROCESSING --read_filter BadCigar --read_filter NotPrimaryAlignment "
     PrintReads: " -jdk_deflater -jdk_inflater -U LENIENT_VCF_PROCESSING --read_filter BadCigar --read_filter NotPrimaryAlignment "
+  dragen:
+    java_opts: "-Xms500m -Xmx9555m"
+    HaplotypeCaller: ""
   picard:
     MarkDuplicates: "REMOVE_DUPLICATES=false"
     java_opts: "-Xmx2g"

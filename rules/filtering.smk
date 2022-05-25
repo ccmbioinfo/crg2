@@ -18,9 +18,14 @@ rule select_calls:
 
 
 def get_filter(wildcards):
-    return {
-        "snv-hard-filter":
-        config["filtering"]["hard"][wildcards.vartype]}
+  if config["run"]["gatk"] == "gatk":
+      return {
+          "snv-hard-filter":
+          config["filtering"]["hard"][wildcards.vartype]}
+  elif config["run"]["gatk"] == "dragen":
+      return {
+          "snv-hard-filter":
+          config["filtering"]["hard"]["dragen"]}
 
 
 rule hard_filter_calls:
@@ -30,7 +35,7 @@ rule hard_filter_calls:
     output:
         vcf=temp("filtered/{family}.{vartype}.hardfiltered.vcf.gz")
     params:
-        filters=get_filter
+         filters=get_filter
     log:
         "logs/gatk/variantfiltration/{family}.{vartype}.log"
     wrapper:

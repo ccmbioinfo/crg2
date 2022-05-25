@@ -16,24 +16,58 @@ def get_decoy_removed_sample_bams(wildcards):
                   sample=wildcards.sample,
                   family=wildcards.family)
 
-rule call_variants:
+rule drag_str:
     input:
         bam=get_sample_bams,
         ref=config["ref"]["genome"],
-        known=config["ref"]["known-variants"],
-        regions="called/{contig}.regions.bed" if config["processing"].get("restrict-regions") else []
+        dragstr_table=config["ref"]["dragstr_table"]
     output:
-        gvcf=temp("called/{family}_{sample}.{contig}.g.vcf.gz")
+        dragstr_parameters="called/{family}_{sample}.drag_str_parameters.txt"
     log:
-        "logs/gatk/haplotypecaller/{family}_{sample}.{contig}.log"
-    params:
-        extra=get_call_variants_params,
-        java_opts=config["params"]["gatk"]["java_opts"],
-    group: "gatkcall"
-    resources: 
-        mem=lambda wildcards, input: len(input.bam) * 15
+        "logs/gatk/CalibrateDragstrModel/{family}_{sample}.log"
     wrapper:
-        get_wrapper_path("gatk", "haplotypecaller")
+        get_wrapper_path("gatk", "CalibrateDragstrModel")
+
+
+if config["run"]["gatk"] == "gatk":
+    rule gatk:
+        input:
+            bam=get_sample_bams,
+            ref=config["ref"]["genome"],
+            known=config["ref"]["known-variants"],
+            regions="called/{contig}.regions.bed" if config["processing"].get("restrict-regions") else []
+        output:
+            gvcf=temp("called/{family}_{sample}.{contig}.g.vcf.gz")
+        log:
+            "logs/gatk/haplotypecaller/{family}_{sample}.{contig}.log"
+        params:
+            extra=get_call_variants_params,
+            java_opts=config["params"]["gatk"]["java_opts"],
+        group: "gatkcall"
+        resources:
+            mem=lambda wildcards, input: len(input.bam) * 15
+        wrapper:
+            get_wrapper_path("gatk", "haplotypecaller")
+elif config["run"]["gatk"] == "dragen":
+    rule dragen:
+        input:
+            bam=get_sample_bams,
+            ref=config["ref"]["genome"],
+            known=config["ref"]["known-variants"],
+            regions="called/{contig}.regions.bed" if config["processing"].get("restrict-regions") else [],
+            dragstr_parameters="called/{family}_{sample}.drag_str_parameters.txt"
+        output:
+            gvcf=temp("called/{family}_{sample}.{contig}.g.vcf.gz")
+        log:
+            "logs/gatk/dragenhaplotypecaller/{family}_{sample}.{contig}.log"
+        params:
+            extra=get_call_variants_params,
+            java_opts=config["params"]["dragen"]["java_opts"],
+        group: "gatkcall"
+        resources:
+            mem=lambda wildcards, input: len(input.bam) * 15
+        wrapper:
+            get_wrapper_path("gatk", "dragenhaplotypecaller") 
 
 
 rule combine_calls:
