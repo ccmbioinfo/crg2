@@ -1,6 +1,7 @@
 import sys, os, subprocess, glob
 from collections import namedtuple
 import argparse
+import pandas as pd
 
 """
 Usage: python parser.py -f <input_sample.tsv> -d <absolute path to create directories> -s [mapped|recal|fastq|decoy_rm]
@@ -69,11 +70,25 @@ def setup_directories(family, sample_list, filepath, step):
     if len(ped) > 1:
         print(f"Multiple ped files found: {ped}. Exiting!")
         exit()
+    if len(ped) == 0:
+        print(f"No ped files found: {ped}. Exiting!")
+        exit()
     if len(ped) == 1 and os.path.isfile(config):
         ped = ped[0]
-        replace = 's+ped: ""+ped: "{}"+'.format(ped)
-        cmd = ["sed", "-i", replace, config]
-        subprocess.check_call(cmd)
+        pedi = pd.read_csv(
+            ped,
+            sep=" ",
+            header=None,
+            names=["fam_id", "individual_id", "pat_id", "mat_id", "sex", "phenotype"]
+            )
+        for row in range(len(pedi)):
+            if not (str(pedi.loc[row, "individual_id"]).isnumeric() and str(pedi.loc[row, "pat_id"]).isnumeric() and str(pedi.loc[row, "mat_id"]).isnumeric()):
+                replace = 's+ped: ""+ped: "{}"+'.format(ped)
+                cmd = ["sed", "-i", replace, config]
+                subprocess.check_call(cmd)
+            else:                         
+                print(f"Ped files is either not a trio or not linked, double check: {ped}. Exiting!")
+                exit()
 
     # bam: start after folder creation and symlink for step
     if step in ["mapped", "decoy_rm", "recal"]:
