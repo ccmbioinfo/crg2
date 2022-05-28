@@ -29,6 +29,6 @@ shell(
     "-R {snakemake.input.ref} {bams} "
     "-ERC GVCF "
     "--dragen-mode "
-    "--dragstr-params-path {snakemake.input.dragstr_parameters} "
+#    "--dragstr-params-path {snakemake.input.dragstr_parameters} "
     "-O {snakemake.output.gvcf} {known} {log}"
 )
