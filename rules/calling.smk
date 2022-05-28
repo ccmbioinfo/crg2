@@ -16,17 +16,17 @@ def get_decoy_removed_sample_bams(wildcards):
                   sample=wildcards.sample,
                   family=wildcards.family)
 
-rule drag_str:
-    input:
-        bam=get_sample_bams,
-        ref=config["ref"]["genome"],
-        dragstr_table=config["ref"]["dragstr_table"]
-    output:
-        dragstr_parameters="called/{family}_{sample}.drag_str_parameters.txt"
-    log:
-        "logs/gatk/CalibrateDragstrModel/{family}_{sample}.log"
-    wrapper:
-        get_wrapper_path("gatk", "CalibrateDragstrModel")
+#rule drag_str:
+#    input:
+#        bam=get_sample_bams,
+#        ref=config["ref"]["genome"],
+#        dragstr_table=config["ref"]["dragstr_table"]
+#    output:
+#        dragstr_parameters="called/{family}_{sample}.drag_str_parameters.txt"
+#    log:
+#        "logs/gatk/CalibrateDragstrModel/{family}_{sample}.log"
+#    wrapper:
+#        get_wrapper_path("gatk", "CalibrateDragstrModel")
 
 
 if config["run"]["gatk"] == "gatk":
@@ -55,7 +55,7 @@ elif config["run"]["gatk"] == "dragen":
             ref=config["ref"]["genome"],
             known=config["ref"]["known-variants"],
             regions="called/{contig}.regions.bed" if config["processing"].get("restrict-regions") else [],
-            dragstr_parameters="called/{family}_{sample}.drag_str_parameters.txt"
+#            dragstr_parameters="called/{family}_{sample}.drag_str_parameters.txt"
         output:
             gvcf=temp("called/{family}_{sample}.{contig}.g.vcf.gz")
         log:
