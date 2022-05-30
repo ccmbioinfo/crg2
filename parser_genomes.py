@@ -81,14 +81,32 @@ def setup_directories(family, sample_list, filepath, step):
             header=None,
             names=["fam_id", "individual_id", "pat_id", "mat_id", "sex", "phenotype"]
             )
-        for row in range(len(pedi)):
-            if not (str(pedi.loc[row, "individual_id"]).isnumeric() and str(pedi.loc[row, "pat_id"]).isnumeric() and str(pedi.loc[row, "mat_id"]).isnumeric()):
-                replace = 's+ped: ""+ped: "{}"+'.format(ped)
-                cmd = ["sed", "-i", replace, config]
-                subprocess.check_call(cmd)
+        for row in range(len(pedi)): #check whether any of the information is numeric (ie. unwanted information)
+            if not (str(pedi.loc[row, "individual_id"]).isnumeric() or str(pedi.loc[row, "pat_id"]).isnumeric() or str(pedi.loc[row, "mat_id"]).isnumeric()):
+                #write and check sample
+                write_sample(filepath, family) 
+                samples = os.path.join(filepath, family, "samples.tsv")
+                samples = pd.read_csv(samples)
+                samples = list(samples.iloc[:,0])
+                samples = [family + s for s in samples]
+                samples.sort()   
+                print(f"samples to be processed: {samples}")        
+                ped_samples = [pedi.loc[row, "individual_id"], pedi.loc[row, "pat_id"], pedi.loc[row, "mat_id"] ]
+                ped_samples.sort()
+                print(f"sample trio in ped file: {ped_samples}")
+                if all(s in ped_samples for s in samples): 
+                    replace = 's+ped: ""+ped: "{}"+'.format(ped)
+                    cmd = ["sed", "-i", replace, config]
+                    subprocess.check_call(cmd)
+                    break
+                else:
+                    print(f"Individuals in ped file do not match with samples.tsv, double check: {ped}. Exiting!")
+                    #exit()
+                    break
             else:                         
-                print(f"Ped files is either not a trio or not linked, double check: {ped}. Exiting!")
-                exit()
+                print(f"Ped file is either not a trio or not linked, double check: {ped}. Exiting!")
+                #exit()
+                break
 
     # bam: start after folder creation and symlink for step
     if step in ["mapped", "decoy_rm", "recal"]:
@@ -118,16 +136,18 @@ def setup_directories(family, sample_list, filepath, step):
         if len(sample_list) == len([i for i in sample_list if i.fq1]):
             return True
 
-
-def write_proj_files(sample_list, filepath):
-    units, samples = os.path.join(filepath, "units.tsv"), os.path.join(
-        filepath, "samples.tsv"
-    )
-    with open(units, "w") as u, open(samples, "w") as s:
+def write_sample(filepath, family):  
+    samples = os.path.join(filepath, family, "samples.tsv")
+    with open(samples, "w") as s:
         s.writelines("sample\n")
+        for i in sample_list:
+            s.writelines(f"{i.sample}\n") 
+
+def write_units(sample_list, filepath):
+    units = os.path.join(filepath, "units.tsv")
+    with open(units, "w") as u:
         u.writelines("sample\tplatform\tfq1\tfq2\tbam\n")
         for i in sample_list:
-            s.writelines(f"{i.sample}\n")
             u.writelines(f"{i.sample}\t{i.platform}\t{i.fq1}\t{i.fq2}\t{i.bam}\n")
 
 
@@ -222,7 +242,7 @@ if __name__ == "__main__":
         submit_flag = setup_directories(i, sample_list, args.dir, args.step)
 
         if submit_flag:
-            write_proj_files(sample_list, filepath)
+            write_units(sample_list, filepath)
             submit_jobs(filepath, i)
 
     print("DONE")
