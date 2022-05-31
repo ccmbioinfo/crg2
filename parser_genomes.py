@@ -72,7 +72,7 @@ def setup_directories(family, sample_list, filepath, step):
         exit()
     if len(ped) == 0:
         print(f"No ped files found: {ped}. Exiting!")
-        exit()
+        break
     if len(ped) == 1 and os.path.isfile(config):
         ped = ped[0]
         pedi = pd.read_csv(
@@ -101,11 +101,9 @@ def setup_directories(family, sample_list, filepath, step):
                     break
                 else:
                     print(f"Individuals in ped file do not match with samples.tsv, double check: {ped}. Exiting!")
-                    #exit()
                     break
             else:                         
                 print(f"Ped file is either not a trio or not linked, double check: {ped}. Exiting!")
-                #exit()
                 break
 
     # bam: start after folder creation and symlink for step
