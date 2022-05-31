@@ -20,6 +20,7 @@ tools:
   cre: "~/cre"
   crg: "~/crg"
   crg2: "~/crg2"
+  ehdn: "/hpf/largeprojects/ccmbio/arun/Tools/EHDN.TCAG/ExpansionHunterDenovo-v0.7.0"
 
 ref:
   name: GRCh37.75
@@ -107,6 +108,8 @@ annotation:
     catalog: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/ExpansionHunter/tandem_repeat_disease_loci_v1.1.hg19.masked.json"
     trf: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/ExpansionHunter/tandem_repeat_disease_loci_v1.1.tsv"
     1000g: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/ExpansionHunter/1000G_EH_v1.0.tsv"
+  ehdn:
+    files: "/srv/shared/data/dccdipg/annotation/ExpansionHunterDenovo/"
   cre:
      database_path: "/hpf/largeprojects/ccm_dccforge/dccforge/results/database/"
 
