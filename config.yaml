@@ -20,6 +20,7 @@ tools:
   cre: "/srv/shared/pipelines/cre"
   crg: "/srv/shared/pipelines/crg"
   crg2: "/srv/shared/pipelines/crg2"
+  ehdn: "/srv/shared/data/dccdipg/crg2-non-conda-tools/EHDN/ExpansionHunterDenovo-v0.7.0"
 
 ref:
   name: GRCh37.75
@@ -107,6 +108,8 @@ annotation:
     catalog: "/srv/shared/data/dccdipg/annotation/ExpansionHunter/tandem_repeat_disease_loci_v1.1.hg19.masked.json"
     trf: "/srv/shared/data/dccdipg/annotation/ExpansionHunter/tandem_repeat_disease_loci_v1.1.tsv"
     1000g: "/srv/shared/data/dccdipg/annotation/ExpansionHunter/1000G_EH_v1.0.tsv"
+  ehdn:
+    files: "/srv/shared/data/dccdipg/annotation/ExpansionHunterDenovo/"
   cre:
     database_path: "/srv/shared/data/dccdipg/annotation/C4R_database/"
 
@@ -119,7 +122,7 @@ params:
     markSplitReads: "-M"
     maxMem: ""
   gatk:
-    java_opts: "-Xms500m -Xmx9555m"
+    java_opts: "-Xms500m -Xmx9555m -Dsamjdk.compression_level=5"
     HaplotypeCaller: ""
     BaseRecalibrator: ""
     #BaseRecalibrator: "--interval-set-rule INTERSECTION -U LENIENT-VCF-PROCESSING --read-filter BadCigar --read-filter NotzPrimaryAlignment"
