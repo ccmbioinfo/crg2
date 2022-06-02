@@ -40,15 +40,11 @@ def write_config(family, filepath):
 def input_type(file, participant):
     # determine filetype of linked file based on file suffix
     if file.endswith("fastq.gz") or file.endswith("fq.gz"):
-        if "R1" in file:
+        filetype = fastq_regex(file)
+        if readtype == "R1":
             filetype = "fq1"
-        elif "R2" in file:
-            filetype = "fq2"
         else:
-            logging.error(
-                "Unrecognized fastq file format for %s, exiting" % participant
-            )
-            sys.exit(1)
+            filetype = "fq2"
     elif file.endswith("bam"):
         filetype = "bam"
     elif file.endswith("cram"):
@@ -57,6 +53,21 @@ def input_type(file, participant):
         filetype = None
     return filetype
 
+def fastq_regex(fastq):
+    # regex would capture reads such as 19-13210-A-02-00_BH2HKGBCX3_R1_1.fastq.gz, or 670513-P_HVWLCBCXX-2-ID01_1_sequence.fastq.gz
+    read1_regex = re.compile(r"_R1[_.]|_1_")
+    read2_regex = re.compile(r"_R2[_.]|_2_")
+    match1 = re.search(read1_regex, f)
+    match2 = re.search(read2_regex, f)
+    if match1:
+        return "fq1"
+    elif match2:
+        return "fq2"
+    else:
+        logging.error(
+            "Unrecognized fastq file format for %s, exiting" % participant
+        )
+        sys.exit(1)
 
 def dataset_to_dict(datasets):
     # create dict of dicts with participant/sample name and associated files
