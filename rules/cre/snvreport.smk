@@ -39,4 +39,16 @@ rule allsnvreport:
          unset type
          '''
 
+rule minio:
+    input: 
+        "report/coding/{family}"
+    output:
+        directory("/srv/minio/results-c4r/{family}")
+    log:
+        "logs/minio/{family}.log"
+    shell:
+        '''
+        mkdir {output}
+        cp {input}/*wes* {output}
+        '''
 
