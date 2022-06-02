@@ -15,7 +15,7 @@ FAMILY="$2"
 # DATA is a json string in the format { participant1: [linked files], participant2: ['linked files']...}
 DATA="$3"
 FILEPATH="/srv/shared/analyses/exomes"
-ANALYSIS_DIR="${FILEPATH}/${ANALYSIS_ID}/${FAMILY}"
+ANALYSIS_DIR="${FILEPATH}/${FAMILY}/${ANALYSIS_ID}"
 
 source /storage/modules/anaconda/2020.11/etc/profile.d/conda.sh
 conda activate /srv/shared/conda_envs/snakemake_5.10.0/
