@@ -71,8 +71,8 @@ def setup_directories(family, sample_list, filepath, step):
         print(f"Multiple ped files found: {ped}. Exiting!")
         exit()
     if len(ped) == 0:
-        print(f"No ped files found: {ped}. Exiting!")
-        break
+        print(f"No ped files found for family: {family}")
+        return False
     if len(ped) == 1 and os.path.isfile(config):
         ped = ped[0]
         pedi = pd.read_csv(
@@ -81,30 +81,32 @@ def setup_directories(family, sample_list, filepath, step):
             header=None,
             names=["fam_id", "individual_id", "pat_id", "mat_id", "sex", "phenotype"]
             )
-        for row in range(len(pedi)): #check whether any of the information is numeric (ie. unwanted information)
-            if not (str(pedi.loc[row, "individual_id"]).isnumeric() or str(pedi.loc[row, "pat_id"]).isnumeric() or str(pedi.loc[row, "mat_id"]).isnumeric()):
+        for index, row in pedi.iterrows():
+            individual_id = str(row.individual_id)
+            pat_id = str(row.pat_id)
+            mat_id = str(row.mat_id)
+            if not((individual_id.isnumeric() and len(individual_id) == 1) | (pat_id.isnumeric() and len(pat_id) == 1) | (mat_id.isnumeric() and len(mat_id) == 1 )):
                 #write and check sample
                 write_sample(filepath, family) 
                 samples = os.path.join(filepath, family, "samples.tsv")
-                samples = pd.read_csv(samples)
+                samples = pd.read_csv(samples, dtype = str)
                 samples = list(samples.iloc[:,0])
                 samples = [family + s for s in samples]
                 samples.sort()   
                 print(f"samples to be processed: {samples}")        
-                ped_samples = [pedi.loc[row, "individual_id"], pedi.loc[row, "pat_id"], pedi.loc[row, "mat_id"] ]
+                ped_samples = [individual_id, pat_id, mat_id]
                 ped_samples.sort()
-                print(f"sample trio in ped file: {ped_samples}")
-                if all(s in ped_samples for s in samples): 
+                if all(s in samples for s in ped_samples): 
                     replace = 's+ped: ""+ped: "{}"+'.format(ped)
                     cmd = ["sed", "-i", replace, config]
                     subprocess.check_call(cmd)
                     break
                 else:
-                    print(f"Individuals in ped file do not match with samples.tsv, double check: {ped}. Exiting!")
-                    break
+                    print(f"Individuals in ped file do not match with samples.tsv, double check: {ped}.")
+                    return False
             else:                         
-                print(f"Ped file is either not a trio or not linked, double check: {ped}. Exiting!")
-                break
+                print(f"Ped file is either not a trio or not linked, double check: {ped}.")
+                return False
 
     # bam: start after folder creation and symlink for step
     if step in ["mapped", "decoy_rm", "recal"]:
