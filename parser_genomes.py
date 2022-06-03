@@ -85,7 +85,8 @@ def setup_directories(family, sample_list, filepath, step):
             individual_id = str(row.individual_id)
             pat_id = str(row.pat_id)
             mat_id = str(row.mat_id)
-            if not((individual_id.isnumeric() and len(individual_id) == 1) | (pat_id.isnumeric() and len(pat_id) == 1) | (mat_id.isnumeric() and len(mat_id) == 1 )):
+            # individual_id, pat_id and mat_id cannot be both numeric and single number
+            if not ((individual_id.isnumeric() and len(individual_id) == 1) | (pat_id.isnumeric() and len(pat_id) == 1) | (mat_id.isnumeric() and len(mat_id) == 1 )):
                 #write and check sample
                 write_sample(filepath, family) 
                 samples = os.path.join(filepath, family, "samples.tsv")
