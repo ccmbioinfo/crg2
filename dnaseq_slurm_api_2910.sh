@@ -9,40 +9,35 @@
 
 
 # sample commands to be called by stager slurm.py with variable substitution
-# assumes crg2 is installed in home directory of user
-# in production, crg2 is located in /home/ccmmarvin
 
-SF=~/crg2/Snakefile; 
-CP="/home/slurm/conda_envs/crg2-conda";
-SLURM=~/crg2/slurm_profile;
+#set -euo pipefail
+# comment out above because leads to /storage/modules/anaconda/2020.11/etc/profile.d/conda.sh: line 55: PS1: unbound variable 
+
+SF="/srv/shared/pipelines/crg2/Snakefile"; 
+CP="/srv/shared/conda_envs/crg2-conda/";
+SLURM="/srv/shared/pipelines/crg2/slurm_profile";
 
 source /storage/modules/anaconda/2020.11/etc/profile.d/conda.sh
-conda activate snakemake
+conda activate /srv/shared/conda_envs/snakemake_5.10.0/
 
 family=2910
-analysis_id=1235
-data_dict=/storage/data/test_crg2_automation/2910.json
-filepath=/storage/data/test_crg2_automation
-analysis_dir=${filepath}/${analysis_id}/${family}
+analysis_id=1236
+data_dict='{"SK0418": ["skh/2190_SK0418/2020-163-144-NGSCUSTOM_markdup.bam","skh/2190_SK0418/2020-163-144-NGSCUSTOM_markdup.bam.bai","skh/2190_SK0418/2020-163-144-NGSCUSTOM_S16_L001_R1_001_211F.fastq.gz","skh/2190_SK0418/2020-163-144-NGSCUSTOM_S16_L001_R2_001_211F.fastq.gz","skh/2190_SK0418/2020-163-144-NGSCUSTOM_S16_L002_R1_001_211F.fastq.gz","skh/2190_SK0418/2020-163-144-NGSCUSTOM_S16_L002_R2_001_211F.fastq.gz"]}'
+filepath=/srv/shared/data/test_crg2_automation
+analysis_dir=${filepath}/${family}/${analysis_id}
 
 if [ ! -d $analysis_dir ];then
     mkdir -p $analysis_dir
 else
-    echo "Analysis directory ${filepath}/${family} exists, exiting"
+    echo "Analysis directory ${analysis_dir} exists"
     exit 1
 fi
 
 cd $analysis_dir
 
 python3 ~/crg2/exome_setup_stager.py \
-    -a $analysis_dir \
-    -f $family \
-    -d $data_dict
+    -a "$analysis_dir" \
+    -f "$family" \
+    -d "$data_dict"
 
-exit_code=`echo $?`
-if [ $exit_code == 0 ]; then
-    snakemake --use-conda -s $SF --conda-prefix $CP  --profile $SLURM -p 
-else
-    echo 'Analysis setup failed, exiting'
-    exit
-fi
+snakemake --use-conda -s $SF --conda-prefix $CP  --profile $SLURM -p 
