@@ -1,6 +1,7 @@
 import sys, os, subprocess, glob
 from collections import namedtuple
 import argparse
+import pandas as pd
 
 """
 Usage: python parser.py -f <input_sample.tsv> -d <absolute path to create directories> -s [mapped|recal|fastq|decoy_rm]
@@ -69,11 +70,44 @@ def setup_directories(family, sample_list, filepath, step):
     if len(ped) > 1:
         print(f"Multiple ped files found: {ped}. Exiting!")
         exit()
+    if len(ped) == 0:
+        print(f"No ped files found for family: {family}")
+        return False
     if len(ped) == 1 and os.path.isfile(config):
         ped = ped[0]
-        replace = 's+ped: ""+ped: "{}"+'.format(ped)
-        cmd = ["sed", "-i", replace, config]
-        subprocess.check_call(cmd)
+        pedi = pd.read_csv(
+            ped,
+            sep=" ",
+            header=None,
+            names=["fam_id", "individual_id", "pat_id", "mat_id", "sex", "phenotype"]
+            )
+        for index, row in pedi.iterrows():
+            individual_id = str(row.individual_id)
+            pat_id = str(row.pat_id)
+            mat_id = str(row.mat_id)
+            # individual_id, pat_id and mat_id cannot be both numeric and single number
+            if not ((individual_id.isnumeric() and len(individual_id) == 1) | (pat_id.isnumeric() and len(pat_id) == 1) | (mat_id.isnumeric() and len(mat_id) == 1 )):
+                #write and check sample
+                write_sample(filepath, family) 
+                samples = os.path.join(filepath, family, "samples.tsv")
+                samples = pd.read_csv(samples, dtype = str)
+                samples = list(samples.iloc[:,0])
+                samples = [family + s for s in samples]
+                samples.sort()   
+                print(f"samples to be processed: {samples}")        
+                ped_samples = [individual_id, pat_id, mat_id]
+                ped_samples.sort()
+                if all(s in samples for s in ped_samples): 
+                    replace = 's+ped: ""+ped: "{}"+'.format(ped)
+                    cmd = ["sed", "-i", replace, config]
+                    subprocess.check_call(cmd)
+                    break
+                else:
+                    print(f"Individuals in ped file do not match with samples.tsv, double check: {ped}.")
+                    return False
+            else:                         
+                print(f"Ped file is either not a trio or not linked, double check: {ped}.")
+                return False
 
     # bam: start after folder creation and symlink for step
     if step in ["mapped", "decoy_rm", "recal"]:
@@ -103,16 +137,18 @@ def setup_directories(family, sample_list, filepath, step):
         if len(sample_list) == len([i for i in sample_list if i.fq1]):
             return True
 
-
-def write_proj_files(sample_list, filepath):
-    units, samples = os.path.join(filepath, "units.tsv"), os.path.join(
-        filepath, "samples.tsv"
-    )
-    with open(units, "w") as u, open(samples, "w") as s:
+def write_sample(filepath, family):  
+    samples = os.path.join(filepath, family, "samples.tsv")
+    with open(samples, "w") as s:
         s.writelines("sample\n")
+        for i in sample_list:
+            s.writelines(f"{i.sample}\n") 
+
+def write_units(sample_list, filepath):
+    units = os.path.join(filepath, "units.tsv")
+    with open(units, "w") as u:
         u.writelines("sample\tplatform\tfq1\tfq2\tbam\n")
         for i in sample_list:
-            s.writelines(f"{i.sample}\n")
             u.writelines(f"{i.sample}\t{i.platform}\t{i.fq1}\t{i.fq2}\t{i.bam}\n")
 
 
@@ -207,7 +243,7 @@ if __name__ == "__main__":
         submit_flag = setup_directories(i, sample_list, args.dir, args.step)
 
         if submit_flag:
-            write_proj_files(sample_list, filepath)
+            write_units(sample_list, filepath)
             submit_jobs(filepath, i)
 
     print("DONE")
