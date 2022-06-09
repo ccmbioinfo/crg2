@@ -20,6 +20,7 @@ ANALYSIS_DIR="${FILEPATH}/${FAMILY}/${ANALYSIS_ID}"
 source /storage/modules/anaconda/2020.11/etc/profile.d/conda.sh
 conda activate /srv/shared/conda_envs/snakemake_5.10.0/
 
+umask 0022
 if [ ! -d "$ANALYSIS_DIR" ];then
     mkdir  -p "$ANALYSIS_DIR"
     python3 /srv/shared/pipelines/crg2/exome_setup_stager.py \
