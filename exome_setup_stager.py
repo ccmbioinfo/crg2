@@ -22,7 +22,7 @@ def replace_str(filename, target, replacement):
 
 def setup_directory(filepath):
     # copy config.yaml, pbs_config.yaml, and dnaseq_cluster.pbs
-    for i in ["config.yaml", "slurm_profile/slurm-config.yaml", "dnaseq_cluster.pbs"]:
+    for i in ["config.yaml", "slurm_profile/slurm-config.yaml", "dnaseq_cluster.sh"]:
         src = os.path.join(crg2_dir, i)
         if i == "slurm_profile/slurm-config.yaml":
             dest = os.path.join(filepath, "slurm-config.yaml")
