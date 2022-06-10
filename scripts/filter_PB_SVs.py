@@ -393,15 +393,15 @@ def annotate_repeats(annotsv_df, repeats):
         ]
     ]
     cols = [col for col in intersect.columns if "PB" in col]
-    # merge odd region dataframe with annotSV df
+    # merge repeat dataframe with annotSV df
     intersect = intersect.astype(str)
-    annotsv_odd_region_svs = pd.merge(
+    annotsv_repeat_svs = pd.merge(
         annotsv_df,
         intersect,
         how="left",
         on=["CHROM", "POS", "END", "SVTYPE", "ID"],
     ).fillna(value={col: "." for col in cols})
-    return annotsv_odd_region_svs
+    return annotsv_repeat_svs
 
 
 def calculate_sample_SV_overlap(sample_pos, sample_end, database_pos, database_end):
