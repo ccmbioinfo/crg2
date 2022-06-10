@@ -360,6 +360,49 @@ def annotate_odd_regions(annotsv_df, regions):
     ).fillna(value={col: "." for col in cols})
     return annotsv_odd_region_svs
 
+def annotate_repeats(annotsv_df, repeats): 
+    #  sample SV must be fully encompassed by repeat 
+    annotsv_bed = annotsv_df_to_bed(annotsv_df)
+    repeats = pd.read_csv(repeats, sep="\t")
+    repeats_bed = BedTool.from_dataframe(repeats)
+    intersect = annotsv_bed.intersect(
+        repeats_bed,
+        wa=True,
+        wb=True,
+        f=1,
+    ).to_dataframe()
+    intersect.columns = [
+        "CHROM",
+        "POS",
+        "END",
+        "SVTYPE",
+        "ID",
+        "CHROM_repeat",
+        "POS_repeat",
+        "END_repeat",
+        "PB_repeat_type",
+    ]
+    intersect = intersect[
+        [
+            "CHROM",
+            "POS",
+            "END",
+            "SVTYPE",
+            "ID",
+            "PB_repeat_type",
+        ]
+    ]
+    cols = [col for col in intersect.columns if "PB" in col]
+    # merge odd region dataframe with annotSV df
+    intersect = intersect.astype(str)
+    annotsv_odd_region_svs = pd.merge(
+        annotsv_df,
+        intersect,
+        how="left",
+        on=["CHROM", "POS", "END", "SVTYPE", "ID"],
+    ).fillna(value={col: "." for col in cols})
+    return annotsv_odd_region_svs
+
 
 def calculate_sample_SV_overlap(sample_pos, sample_end, database_pos, database_end):
     sample_len = sample_end - sample_pos
@@ -370,7 +413,7 @@ def calculate_sample_SV_overlap(sample_pos, sample_end, database_pos, database_e
     return overlap_perc
 
 
-def main(df, omim, hpo, vcf, prefix, exon_bed, cmh, hprc, gnomad, inhouse, odd_regions):
+def main(df, omim, hpo, vcf, prefix, exon_bed, cmh, hprc, gnomad, inhouse, odd_regions, repeats):
     # filter out SVs < 50bp
     df_len = df[apply_filter_length(df)]
     df_len = df_len.astype(str)
@@ -441,6 +484,9 @@ def main(df, omim, hpo, vcf, prefix, exon_bed, cmh, hprc, gnomad, inhouse, odd_r
     # add PacBio odd regions
     df_merge = annotate_odd_regions(df_merge, odd_regions)
 
+    # add PacBio repeats used in repeat expansion finding tool
+    df_merge = annotate_repeats(df_merge, repeats)
+
     # define columns to be included in report
     report_columns = (
         [
@@ -487,6 +533,7 @@ def main(df, omim, hpo, vcf, prefix, exon_bed, cmh, hprc, gnomad, inhouse, odd_r
             "PB_odd_region_type",
             "PB_odd_region",
             "PB_odd_region_perc_overlap",
+            "PB_repeat_type",
             "ENCODE_blacklist_characteristics_left",
             "ENCODE_blacklist_characteristics_right",
         ]
@@ -580,6 +627,12 @@ if __name__ == "__main__":
         type=str,
         required=True,
     )
+    parser.add_argument(
+        "-repeats",
+        help="PacBio repeats",
+        type=str,
+        required=True,
+    )
     args = parser.parse_args()
 
     df = pd.read_csv(args.annotsv, sep="\t", low_memory=False)
@@ -610,4 +663,5 @@ if __name__ == "__main__":
         args.gnomad,
         args.inhouse,
         args.odd_regions,
+        args.repeats
     )
