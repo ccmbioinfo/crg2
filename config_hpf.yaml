@@ -101,7 +101,7 @@ annotation:
     dir: "/hpf/largeprojects/ccmbio/nhanafi/c4r/downloads/executables/ensembl-vep/"
     dir_cache: "/hpf/largeprojects/ccmbio/nhanafi/c4r/downloads/databases/vep"
   snpeff:
-    dataDir: "/hpf/largeprojects/ccmbio/nhanafi/c4r/downloads/databases/snpeff/data/GRCh38.92"
+    dataDir: "/hpf/largeprojects/ccmbio/nhanafi/c4r/downloads/databases/snpeff/data"
   svscore:
     exon_bed: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/SVScore/refGene.exons.bed.gz"
     intron_bed: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/SVScore/refGene.introns.bed.gz"
