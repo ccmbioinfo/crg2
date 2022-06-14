@@ -156,3 +156,18 @@ rule multiqc:
         "logs/multiqc/multiqc.log"
     wrapper:
         get_wrapper_path("multiqc")
+
+
+rule remove_duplicates:
+    input: 
+        recal/{family}_{sample}.bam
+    params:
+        markDuplicates="REMOVE_DUPLICATES=false"
+        validationStringency=config["params"]["picard"]["ValidationStringency"]
+    output:
+        bam=temp(dups_removed/{family}_{sample}.bam),
+        metrics=dups_removed/{family}_{sample}.dup.metrics.txt
+    log:
+        logs/remove_duplicates/{family}_{sample}.log
+    wrapper:
+        get_wrapper_path("picard", "markduplicates")
