@@ -9,7 +9,7 @@ project = config["run"]["project"]
 if config["run"]["pipeline"] == "wes":
     rule all:
         input:
-            "/srv/minio/results-c4r/{}".format(project),
+            "report/coding/{}".format(project),
             "qc/multiqc/multiqc.html",
             [expand("recal/{family}_{sample}.bam.md5".format(family=config["run"]["project"], sample=s)) for s in samples.index]
 elif config["run"]["pipeline"] == "wgs":
