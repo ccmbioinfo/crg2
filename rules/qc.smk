@@ -160,14 +160,53 @@ rule multiqc:
 
 rule remove_duplicates:
     input: 
-        recal/{family}_{sample}.bam
+        "recal/{family}_{sample}.bam"
     params:
-        markDuplicates="REMOVE_DUPLICATES=false"
-        validationStringency=config["params"]["picard"]["ValidationStringency"]
+        markDuplicates="REMOVE_DUPLICATES=true",
+        java_opts = config["params"]["picard"]["java_opts"],
+        validationStringency=config["params"]["picard"]["ValidationStringency"],
+        assumeSortOrder=config["params"]["picard"]["AssumeSortOrder"]
     output:
-        bam=temp(dups_removed/{family}_{sample}.bam),
-        metrics=dups_removed/{family}_{sample}.dup.metrics.txt
+        bam="dups_removed/{family}_{sample}.bam",
+        metrics="dups_removed/{family}_{sample}.dup.metrics.txt"
     log:
-        logs/remove_duplicates/{family}_{sample}.log
+        "logs/remove_duplicates/{family}_{sample}.log"
     wrapper:
         get_wrapper_path("picard", "markduplicates")
+
+
+rule calculate_coverage:
+    input:
+        bam="dups_removed/{family}_{sample}.bam",
+        bed=config["annotation"]["svreport"]["exon_bed"],
+        bed_index=config["ref"]["bed_index"]
+    params:
+        crg2_dir=config['tools']['crg2']
+    output:
+        coverage=temp("coverage/{family}_{sample}/{family}_{sample}.dedup.cov"),
+        median="coverage/{family}_{sample}/{family}_{sample}.median"
+    log:
+        "logs/coverage/{family}_{sample}.log"
+    conda:
+        "../envs/coverage.yaml"
+    shell:
+        """
+        mkdir -p coverage/{wildcards.family}_{wildcards.sample}/
+        cd coverage/{wildcards.family}_{wildcards.sample}/
+
+        bedtools coverage -d -sorted -a {input.bed} -b ../../{input.bam} -g {input.bed_index} > {wildcards.family}_{wildcards.family}.dedup.cov
+
+        python {params.crg2_dir}/utils/bam.coverage.base_wise.stat.py {wildcards.family}_{wildcards.family}.dedup.cov 5 $'\\t' > {wildcards.family}_{wildcards.family}.coverage_stats.csv
+
+        echo {wildcards.family}_{wildcards.family}.dedup.cov","`cat {wildcards.family}_{wildcards.family}.dedup.cov | awk -F '\\t' '{{if ($6<20) {{print $4","$1":"$2+$5","$6}}}}' | wc -l` > {wildcards.family}_{wildcards.family}.less20x.stats.csv
+        {params.crg2_dir}/utils/bam.coverage.less20.sh {wildcards.family}_{wildcards.family}.dedup.cov > {wildcards.family}_{wildcards.family}.less20x_coverage.csv
+
+        {params.crg2_dir}/utils/bam.coverage.per_exon.sh {wildcards.family}_{wildcards.family}.dedup.cov > {wildcards.family}_{wildcards.family}.per_exon_coverage.csv
+        cat {wildcards.family}_{wildcards.family}.per_exon_coverage.csv | sed 1d  > {wildcards.family}_{wildcards.family}.per_exon_coverage.csv.tmp
+        python {params.crg2_dir}/utils/bam.coverage.base_wise.stat.py {wildcards.family}_{wildcards.family}.per_exon_coverage.csv.tmp 2 ',' > {wildcards.family}_{wildcards.family}.per_exon.distribution.csv
+        rm {wildcards.family}_{wildcards.family}.per_exon_coverage.csv.tmp
+
+        median_line=`cat {wildcards.family}_{wildcards.family}.dedup.cov | wc -l`
+        median_line=$(($median_line/2))
+        cat {wildcards.family}_{wildcards.family}.dedup.cov | awk '{{print $6}}' | sort -n | sed -n ${{median_line}}p > {wildcards.family}_{wildcards.family}.median
+        """
