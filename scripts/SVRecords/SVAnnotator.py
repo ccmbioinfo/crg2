@@ -677,6 +677,7 @@ class SVAnnotator:
 
     def make_gene_ref_df(self, biomart):
         df = pd.read_csv(biomart, sep="\t")
+        df["Associated Gene Name"]=df["Associated Gene Name"].astype(str)
         # df = df[['Ensembl Gene ID', 'Ensembl Transcript ID', 'Associated Gene Name', 'HGNC ID(s)', 'MIM Gene Accession']].drop_duplicates()
         df = df[
             [
