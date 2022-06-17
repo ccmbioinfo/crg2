@@ -96,9 +96,9 @@ annotation:
   snpeff:
     dataDir: "/hpf/largeprojects/ccmbio/nhanafi/c4r/downloads/databases/snpeff/data"
   svscore:
-    exon_bed: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/SVScore/refGene.exons.bed.gz"
-    intron_bed: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/SVScore/refGene.introns.bed.gz"
-    cadd: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/SVScore/whole_genome_SNVs.tsv.gz"
+    exon_bed: "/hpf/largeprojects/ccmbio/nhanafi/c4r/downloads/databases/svscore/refGene.txt.exons.bed.gz"
+    intron_bed: "/hpf/largeprojects/ccmbio/nhanafi/c4r/downloads/databases/svscore/refGene.txt.introns.bed.gz"
+    cadd: "/hpf/largeprojects/ccmbio/nhanafi/c4r/downloads/databases/CADD_v1.6_whole_genome_SNVs.tsv.gz"
   svreport:
     hgmd: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/HGMD_2018/hgmd_pro.db"
     protein_coding_genes: "/hpf/largeprojects/ccmbio/nhanafi/c4r/downloads/databases/protein_coding_genes.tsv"
