@@ -1,14 +1,6 @@
 #gatk VCF is missing because it is symlinked to ensemble VCF
 callers = [ gatk + "_haplotype", "samtools", "freebayes", "platypus" ] 
 
-def copy_cov(wildcards):
-    dups = pd.read_csv("qc/dedup/{family}_{sample}.metrics.txt", sep='\t', comment='#')
-    dups_perc =[float(dup) for dup in dups["PERCENT_DUPLICATION"].values.tolist()]
-    if max(dups_perc) >= 0.2:
-        return ["coverage/", "report/coding/{family}"]
-    else:
-        return ["report/coding/{family}"]
-
 rule allsnvreport:
     input:
         db="annotated/coding/{family}-gemini.db",
@@ -47,11 +39,38 @@ rule allsnvreport:
          unset type
          '''
 
+checkpoint dup_perc:
+    input:
+        [expand("qc/dedup/{family}_{sample}.metrics.txt", sample=samples.index,family=project)]
+    output:
+        "qc/dup_check.txt"
+    run:
+        for dups in input:
+            dups = pd.read_csv(dups, sep='\t', comment='#')
+            dups_perc = dups["PERCENT_DUPLICATION"][0]
+            if dups_perc >= 0.2:
+                with open(output[0], 'w') as f:
+                    f.write('TRUE')
+                    break
+            else:
+                with open(output[0], 'w') as f:
+                    f.write('FALSE')
+
+
+def check_dup(wildcards):
+    with checkpoints.dup_perc.get(**wildcards).output[0].open() as f:
+        if f.read().strip() == "TRUE":
+            return expand("coverage/{family}_{sample}/",sample=samples.index,family=project) +  ["report/coding/{family}"]
+        else:
+            return ["report/coding/{family}"]
+
+
 rule minio:
     input: 
-        copy_cov
+        # if duplication rate is >20% in any sample, generate coverage metrics and copy these to MinIO
+        check_dup
     output:
-        directory("/hpf/largeprojects/ccmbio/mcouse/C4R/development/test_coverage_report/minio/{family}")
+        directory("minio/{family}")
     log:
         "logs/minio/{family}.log"
     run:

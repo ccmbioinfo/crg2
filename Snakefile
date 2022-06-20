@@ -12,7 +12,7 @@ if config["run"]["pipeline"] == "wes":
             "report/coding/{}".format(project),
             "qc/multiqc/multiqc.html",
             [expand("recal/{family}_{sample}.bam.md5".format(family=config["run"]["project"], sample=s)) for s in samples.index],
-            [expand("coverage/{family}_{sample}/{family}_{sample}.median".format(family=config["run"]["project"], sample=s)) for s in samples.index]
+            "minio/{}".format(project)
 elif config["run"]["pipeline"] == "wgs":
     rule all:
         input:

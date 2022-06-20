@@ -184,6 +184,7 @@ rule calculate_coverage:
         crg2_dir=config['tools']['crg2']
     output:
         coverage=temp("coverage/{family}_{sample}/{family}_{sample}.dedup.cov"),
+        coverage_dir=directory("coverage/{family}_{sample}/"),
         median="coverage/{family}_{sample}/{family}_{sample}.median"
     log:
         "logs/coverage/{family}_{sample}.log"
