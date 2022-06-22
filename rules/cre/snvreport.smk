@@ -60,7 +60,7 @@ checkpoint dup_perc:
 def check_dup(wildcards):
     with checkpoints.dup_perc.get(**wildcards).output[0].open() as f:
         if f.read().strip() == "TRUE":
-            return expand("coverage/{family}_{sample}/",sample=samples.index,family=project) +  ["report/coding/{family}"]
+            return expand("coverage/{family}_{sample}/",sample=samples.index,family=project) +  ["report/coding/{family}"] + ["qc/multiqc/multiqc.html"]
         else:
             return ["report/coding/{family}"]
 
@@ -86,6 +86,9 @@ rule minio:
                 for r in reports:
                     print(f"copying {r} to MinIO")
                     shutil.copy(r, outdir)
+            elif "qc" in f:
+                print(f"copying {r} to MinIO")
+                shutil.copy(f, outdir)
             else:
                 coverage_sample = os.path.join(outdir, f)
                 coverage_parent = os.path.join(outdir, "coverage")
