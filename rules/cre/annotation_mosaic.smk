@@ -1,10 +1,10 @@
 rule vep_mosaic:
     input:
-        "filtered/{family}-freebayes_mosaic.uniq.normalized.decomposed.vcf.gz"
+        "filtered/{family}-{p}.uniq.normalized.decomposed.vcf.gz"
     output:
-        temp("annotated/mosaic/vep/{family}_mosaic.coding.vep.vcf")
+        temp("annotated/{p}/vep/{family}-mosaic.coding.vep.vcf")
     log:
-        "logs/vep/{family}_mosaic.vep.coding.log"
+        "logs/vep/{p}/{family}-mosaic.vep.coding.log"
     threads: 10
     resources:
         mem_mb = 30000
@@ -17,11 +17,11 @@ rule vep_mosaic:
 
 rule vcfanno_mosaic:
     input:
-        "annotated/mosaic/vep/{family}_mosaic.coding.vep.vcf"
+        "annotated/{p}/vep/{family}-mosaic.coding.vep.vcf"
     output:
-        "annotated/mosaic/vcfanno/{family}_mosaic.coding.vep.vcfanno.vcf"
+        "annotated/{p}/vcfanno/{family}-mosaic.coding.vep.vcfanno.vcf"
     log:
-        "logs/vcfanno/{family}_mosaic.vcfanno.coding.log"
+        "logs/vcfanno/{p}/{family}-mosaic.vcfanno.coding.log"
     threads: 10
     resources:
         mem_mb = 20000
@@ -34,14 +34,14 @@ rule vcfanno_mosaic:
 
 rule fix_dp_mosaic:
     input:
-        "annotated/mosaic/vcfanno/{family}_mosaic.coding.vep.vcfanno.vcf"
+        "annotated/{p}/vcfanno/{family}-mosaic.coding.vep.vcfanno.vcf"
     output:
-        "annotated/mosaic/vcfanno/{family}_mosaic.coding.vep.vcfanno.wDP.vcf"
+        "annotated/{p}/vcfanno/{family}-mosaic.coding.vep.vcfanno.wDP.vcf"
     threads: 1
     resources:
         mem_mb = 20000
     log:
-        "logs/rtg-tools/vcfsubset/{family}_mosaic.coding.vep.vcfanno.wDP.log"
+        "logs/rtg-tools/vcfsubset/{p}/{family}-mosaic.coding.vep.vcfanno.wDP.log"
     params:
         java_opts = config["params"]["rtg-tools"]["vcfsubset"]["java_opts"]
     wrapper:
@@ -50,11 +50,11 @@ rule fix_dp_mosaic:
 
 rule vcf2db_mosaic:
     input:
-        "annotated/mosaic/vcfanno/{family}_mosaic.coding.vep.vcfanno.wDP.vcf".format(family=project)
+        "annotated/{p}/vcfanno/{family}-mosaic.coding.vep.vcfanno.wDP.vcf"
     output:
-         db = "annotated/mosaic/{family}_mosaic-gemini.db"
+         db = "annotated/{p}/{family}-mosaic-gemini.db"
     log:
-        "logs/vcf2db/vcf2db.{family}_mosaic.log"
+        "logs/vcf2db/{p}/vcf2db.{family}-mosaic.log"
     params:
         ped = config["run"]["ped"],
     threads: 1

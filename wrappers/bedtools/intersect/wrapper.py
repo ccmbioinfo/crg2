@@ -9,12 +9,21 @@ from snakemake.shell import shell
 extra = snakemake.params.get("extra", "")
 log = snakemake.log_fmt_shell(stdout=True, stderr=True)
 
+if extra == "panel":
+    shell(
+        " bedtools intersect"
+        " -abam {snakemake.input.bams}"
+        " -b {snakemake.input.genes}"
+        " -ubam > {snakemake.output.bamslice}"
+        " && samtools index {snakemake.output.bamslice}"
+    )
 
-shell(
-    "(bedtools intersect"
-    " {extra}"
-    " -a {snakemake.input.left}"
-    " -b {snakemake.input.right}"
-    " | bgzip -c > {snakemake.output})"
-    " {log}"
-)
+elif extra == "-header":
+    shell(
+        "(bedtools intersect"
+        " {extra}"
+        " -a {snakemake.input.left}"
+        " -b {snakemake.input.right}"
+        " | bgzip -c > {snakemake.output})"
+        " {log}"
+    )
