@@ -1,4 +1,5 @@
 #!/bin/bash
+# script credit: https://github.com/naumenko-sa/bioscripts
 
 # reports holes in coverage: how many PB are below 20X per exon
 

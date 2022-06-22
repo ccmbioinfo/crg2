@@ -1,4 +1,5 @@
 #!/bin/bash
+# script credit: https://github.com/naumenko-sa/bioscripts
 
 # reports the distribution of lowest coverage in exons
 # each exon is characterized by a bp with the lowest coverage

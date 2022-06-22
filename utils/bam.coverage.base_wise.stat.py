@@ -1,4 +1,5 @@
 #!/bin/env python
+# script credit: https://github.com/naumenko-sa/bioscripts
 
 # $1 = file.bam.coverage = product of ~/bioscripts/bam.coverage.sh with -d on
 # $2 = No of the field with coverage, 0-based
