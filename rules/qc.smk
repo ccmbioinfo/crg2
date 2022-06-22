@@ -151,7 +151,8 @@ rule multiqc:
     params:
         config["params"]["multiqc"]["config"]
     output:
-        report("qc/multiqc/multiqc.html", caption="../report/multiqc.rst", category="Quality control") 
+        report = report("qc/multiqc/multiqc.html", caption="../report/multiqc.rst", category="Quality control"),
+        stats = "qc/multiqc/multiqc_data/multiqc_general_stats.txt"
     log:
         "logs/multiqc/multiqc.log"
     wrapper:
