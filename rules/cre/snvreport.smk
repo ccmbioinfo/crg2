@@ -39,30 +39,44 @@ rule allsnvreport:
          unset type
          '''
 
-checkpoint dup_perc:
+
+checkpoint qc_check:
     input:
-        [expand("qc/dedup/{family}_{sample}.metrics.txt", sample=samples.index,family=project)]
+        dups = [expand("qc/dedup/{family}_{sample}.metrics.txt", sample=samples.index,family=project)],
+        alignment = "qc/multiqc/multiqc_data/multiqc_general_stats.txt"
     output:
-        "qc/dup_check.txt"
+        "qc/qual_check.txt"
     run:
-        for dups in input:
+        qual_dict = {}
+        for dups in input['dups']:
             dups = pd.read_csv(dups, sep='\t', comment='#')
             dups_perc = dups["PERCENT_DUPLICATION"][0]
             if dups_perc >= 0.2:
-                with open(output[0], 'w') as f:
-                    f.write('TRUE')
-                    break
+                qual_dict['high_dup_percentage'] = [True]
+                print(qual_dict['high_dup_percentage'])
+                break
             else:
-                with open(output[0], 'w') as f:
-                    f.write('FALSE')
+                qual_dict['high_dup_percentage'] = [False]
+        for alignment in pd.read_csv(input['alignment'], sep='\t')['QualiMap_mqc-generalstats-qualimap-percentage_aligned'].values:
+            if float(alignment) < 90:
+                qual_dict['low_alignment_percentage'] = [True]
+                break
+            else:
+                qual_dict['low_alignment_percentage'] = [False]
+        qual_df = pd.DataFrame.from_dict(qual_dict, orient='columns')
+        qual_df.to_csv("qc/qual_check.txt", sep='\t', index=False)
 
 
 def check_dup(wildcards):
-    with checkpoints.dup_perc.get(**wildcards).output[0].open() as f:
-        if f.read().strip() == "TRUE":
-            return expand("coverage/{family}_{sample}/",sample=samples.index,family=project) +  ["report/coding/{family}"] + ["qc/multiqc/multiqc.html"]
-        else:
-            return ["report/coding/{family}"]
+    qual_check = pd.read_csv(checkpoints.qc_check.get(**wildcards).output[0], sep='\t')
+    dups_perc = qual_check['high_dup_percentage'].values[0]
+    alignment = qual_check['low_alignment_percentage'].values[0]
+    if dups_perc == True and alignment == True:
+        return expand("coverage/{family}_{sample}/",sample=samples.index,family=project) +  ["report/coding/{family}"] + ["qc/multiqc/multiqc.html"]
+    elif dups_perc == True:
+        return expand("coverage/{family}_{sample}/",sample=samples.index,family=project) +  ["report/coding/{family}"]
+    else:
+        return ["report/coding/{family}"]
 
 
 rule minio:
