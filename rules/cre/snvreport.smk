@@ -70,7 +70,7 @@ rule minio:
         # if duplication rate is >20% in any sample, generate coverage metrics and copy these to MinIO
         check_dup
     output:
-        directory("minio/{family}")
+        directory(config['run']['minio'] + "/{family}")
     log:
         "logs/minio/{family}.log"
     run:
@@ -78,7 +78,8 @@ rule minio:
         import glob
         import shutil
         outdir=output[0]
-        os.mkdir(outdir)
+        if not os.path.exists(outdir):
+            os.mkdir(outdir)
         for f in input:
             if "report" in f:
                 reports = glob.glob(os.path.join(f, '*wes*'))
@@ -86,8 +87,12 @@ rule minio:
                     print(f"copying {r} to MinIO")
                     shutil.copy(r, outdir)
             else:
+                coverage_sample = os.path.join(outdir, f)
+                coverage_parent = os.path.join(outdir, "coverage")
+                if not os.path.exists(coverage_parent):
+                    os.mkdir(coverage_parent)
                 print("copying coverage reports to MinIO")
-                shutil.copytree(f, os.path.join(outdir, "coverage"), copy_function = shutil.copy)
+                shutil.copytree(f, coverage_sample, copy_function = shutil.copy)
 
             
 

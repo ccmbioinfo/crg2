@@ -6,13 +6,14 @@ samples = pd.read_table(config["run"]["samples"]).set_index("sample", drop=False
 
 ##### Target rules #####
 project = config["run"]["project"]
+
 if config["run"]["pipeline"] == "wes":
     rule all:
         input:
             "report/coding/{}".format(project),
             "qc/multiqc/multiqc.html",
             [expand("recal/{family}_{sample}.bam.md5".format(family=config["run"]["project"], sample=s)) for s in samples.index],
-            "minio/{}".format(project)
+            expand("{minio}/{family}", minio=[config["run"]["minio"]], family=project) if config["run"]["minio"] else []
 elif config["run"]["pipeline"] == "wgs":
     rule all:
         input:
@@ -45,12 +46,12 @@ rule write_version:
 ##### Modules #####
 
 if config["run"]["pipeline"] == "wes":
-    include: "rules/mapping.smk"
-    include: "rules/stats.smk"
-    include: "rules/qc.smk"
+    #include: "rules/mapping.smk"
+    #include: "rules/stats.smk"
+    #include: "rules/qc.smk"
     base = "rules/cre/"
-    include: base + "calling.smk"
-    include: base + "filtering.smk"
+    #include: base + "calling.smk"
+    #include: base + "filtering.smk"
 elif config["run"]["pipeline"] == "wgs":
     include: "rules/mapping.smk"
     include: "rules/stats.smk"
