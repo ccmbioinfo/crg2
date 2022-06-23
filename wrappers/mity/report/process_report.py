@@ -91,6 +91,8 @@ def remove_cols(df):
 
     # List of column to be removed from the file
     remove_cols = [
+        "tier",
+        "ref_depth",
         "total_locus_depth",
         "variant_quality",
         "locus_mitomap",
@@ -179,7 +181,6 @@ def sort_by_sample(df):
     df2 = split_cols_by_sample(grouped_df)
 
     final = pd.merge(df, df2, on="HGVS", how="outer")
-    print(final)
     log_message("Report sorted by samples")
 
     return final.drop_duplicates(ignore_index=True)
@@ -237,7 +238,6 @@ def reorder_cols(df):
         "codon_number_mitomap",
         "num_disease_references_mitomap",
         "RNA_mitomap",
-        "tier",
         "commercial_panels",
         "phylotree_haplotype",
         "MitoTip_score",
@@ -253,9 +253,29 @@ def reorder_cols(df):
     final_col_list = (
         col_list + variant_heteroplasmy + alt_depth + total_sample_depth + col_list2
     )
-    print(final_col_list)
 
     reordered_df = df[final_col_list]
+
+    # replace '.'/'-' with '0' for some columns
+    replace_col_values = [
+        "allele_frequency_mitomap",
+        "GenBank_frequency_mitomap",
+        "gnomAD_AC_hom",
+        "gnomAD_AC_het",
+        "gnomAD_AF_hom",
+        "gnomAD_AF_het",
+        "gnomAD_max_hl",
+        "MGRB_frequency",
+        "MGRB_FILTER",
+        "MGRB_AC",
+        "MGRB_AN",
+    ]
+
+    reordered_df[replace_col_values] = reordered_df[replace_col_values].replace(".", 0)
+    reordered_df[variant_heteroplasmy + alt_depth] = reordered_df[
+        variant_heteroplasmy + alt_depth
+    ].replace("-", 0)
+
     log_message("Rearanged the columns in the dataframe")
     return reordered_df
 
