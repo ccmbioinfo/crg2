@@ -11,7 +11,7 @@ from os import path
 from snakemake.shell import shell
 
 
-input_dirs = set(path.dirname(fp) for fp in snakemake.input)
+input_dirs = set(path.dirname(fp) for fp in snakemake.input.report)
 output_dir = path.dirname(snakemake.output[0])
 output_name = path.basename(snakemake.output[0])
 log = snakemake.log_fmt_shell(stdout=True, stderr=True)
