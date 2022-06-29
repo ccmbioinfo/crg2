@@ -8,9 +8,8 @@ extra = snakemake.params.get("extra", "")
 
 family = snakemake.wildcards.family
 dir = os.path.dirname(snakemake.output[0])
-prefix = path.join(dir, family) #qc/peddy/412
+prefix = path.join(dir, family)  # qc/peddy/412
 
-shell("tabix -f {snakemake.input.vcf} && peddy {snakemake.params} --prefix {prefix} {snakemake.input.vcf} {snakemake.input.ped} {log} ")
-
-
-
+shell(
+    "peddy {snakemake.params} --prefix {prefix} {snakemake.input.vcf} {snakemake.input.ped} {log} "
+)

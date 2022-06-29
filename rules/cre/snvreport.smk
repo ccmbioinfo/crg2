@@ -60,7 +60,7 @@ checkpoint dup_perc:
 def check_dup(wildcards):
     with checkpoints.dup_perc.get(**wildcards).output[0].open() as f:
         if f.read().strip() == "TRUE":
-            return expand("coverage/{family}_{sample}/",sample=samples.index,family=project) +  ["report/coding/{family}"] + ["qc/multiqc/multiqc.html"]
+            return expand("coverage/{family}_{sample}/",sample=samples.index,family=project) +  ["report/coding/{family}"] 
         else:
             return ["report/coding/{family}"]
 
