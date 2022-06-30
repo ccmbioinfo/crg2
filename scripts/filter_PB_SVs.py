@@ -1,3 +1,4 @@
+import re
 import pandas as pd
 import numpy as np
 from pysam import VariantFile
@@ -6,6 +7,7 @@ from collections import defaultdict
 from pybedtools import BedTool
 from sigfig import round
 from datetime import date
+import io
 
 
 def rename_SV_cols(annotsv_df):
@@ -150,7 +152,7 @@ def add_hpo(hpo, gene):
     terms = []
     for g in gene:
         try:
-            term = str(hpo[hpo["Gene symbol"] == g]["Features"].values[0])
+            term = str(hpo[hpo["ensembl_gene_id"] == g]["Features"].values[0])
             term = term.replace("; ", ";").split(";")
             term = list(set(term))
             for t in term:
@@ -360,8 +362,9 @@ def annotate_odd_regions(annotsv_df, regions):
     ).fillna(value={col: "." for col in cols})
     return annotsv_odd_region_svs
 
-def annotate_repeats(annotsv_df, repeats): 
-    #  sample SV must be fully encompassed by repeat 
+
+def annotate_repeats(annotsv_df, repeats):
+    #  sample SV must be fully encompassed by repeat
     annotsv_bed = annotsv_df_to_bed(annotsv_df)
     repeats = pd.read_csv(repeats, sep="\t")
     repeats_bed = BedTool.from_dataframe(repeats)
@@ -404,6 +407,114 @@ def annotate_repeats(annotsv_df, repeats):
     return annotsv_repeat_svs
 
 
+def vcf_to_df(vcf_path):
+    with open(vcf_path, "r") as f:
+        lines = [l for l in f if not l.startswith("##")]
+    return pd.read_csv(
+        io.StringIO("".join(lines)),
+        dtype={
+            "#CHROM": str,
+            "POS": int,
+            "ID": str,
+            "REF": str,
+            "ALT": str,
+            "QUAL": str,
+            "FILTER": str,
+            "INFO": str,
+        },
+        sep="\t",
+    ).rename(columns={"#CHROM": "CHROM"})
+
+
+def parse_snpeff(snpeff_df):
+    svtype_list = []
+    end_list = []
+    ann_list = []
+    pos_list = []
+    # parse out svtype, end coordinate, ANN, and position
+    for index, row in snpeff_df.iterrows():
+        info = row["INFO"].split(";")
+        pos = row["POS"]
+        svtype = [i for i in info if "SVTYPE=" in i][0].split("=")[1]
+        svtype_list.append(svtype)
+        try:
+            end = [i for i in info if "END=" in i][0].split("=")[1]
+            if svtype == "BND" or svtype == "INS":
+                end = int(end) + 1
+        except IndexError:
+            end = int(pos) + 1
+        end_list.append(end)
+        try:
+            ann = [i for i in info if "ANN=" in i and "SVANN=" not in i][0]
+            ann_list.append(ann)
+        except IndexError:
+            ann_list.append("NA")
+        if svtype == "BND":
+            CIPOS = [i for i in info if "CIPOS=" in i][0].split("=")[1].split(",")[0]
+            pos = int(pos) + int(CIPOS)
+        pos_list.append(pos)
+    snpeff_df["SVTYPE"] = svtype_list
+    snpeff_df["END"] = end_list
+    snpeff_df["ANN"] = ann_list
+    snpeff_df["POS"] = pos_list
+    # from snpeff ANN field, parse out variant type, impact level (e.g. HIGH), gene name, and Ensembl gene ID
+    variant_list_all = []
+    impact_list_all = []
+    gene_list_all = []
+    ens_gene_list_all = []
+    for line in snpeff_df["ANN"].values:
+        variant_list = []
+        impact_list = []
+        gene_list = []
+        ens_gene_list = []
+        line = line.split(";")[-1]
+        for anno in line.split(","):
+            if "LOF=" in anno or "NMD=" in anno:
+                pass
+            else:
+                try:
+                    anno = anno.split("|")
+                    variant_list.append(anno[1])
+                    impact_list.append(anno[2])
+                    gene_list.append(anno[3])
+                    ens_gene_list.append(anno[4])
+                except:
+                    for l in [variant_list, impact_list, gene_list, ens_gene_list]:
+                        l.append("NA")
+        variant_list_all.append(";".join(set(variant_list)))
+        impact_list_all.append(";".join(set(impact_list)))
+        gene_list_all.append(";".join(set(gene_list)))
+        ens_gene_list_all.append(";".join(set(ens_gene_list)))
+    snpeff_df["IMPACT"] = impact_list_all
+    snpeff_df["GENE_NAME"] = gene_list_all
+    snpeff_df["ENSEMBL_GENE"] = ens_gene_list_all
+    snpeff_df["VARIANT"] = variant_list_all
+    snpeff_df["CHROM"] = [chr.replace("chr", "") for chr in snpeff_df["CHROM"].values]
+    snpeff_df = snpeff_df[
+        [
+            "CHROM",
+            "POS",
+            "END",
+            "ID",
+            "SVTYPE",
+            "ANN",
+            "VARIANT",
+            "IMPACT",
+            "GENE_NAME",
+            "ENSEMBL_GENE",
+        ]
+    ].astype(str)
+    return snpeff_df
+
+
+def merge_annotsv_snpeff(annotsv_df, snpeff_df):
+    merged = annotsv_df.merge(
+        snpeff_df, on=["CHROM", "POS", "END", "SVTYPE", "ID"], how="left"
+    )
+    merged = merged.drop(columns=["ANN"])
+    return merged
+
+
 def calculate_sample_SV_overlap(sample_pos, sample_end, database_pos, database_end):
     sample_len = sample_end - sample_pos
     overlap_start = max(sample_pos, database_pos)
@@ -413,7 +524,21 @@ def calculate_sample_SV_overlap(sample_pos, sample_end, database_pos, database_e
     return overlap_perc
 
 
-def main(df, omim, hpo, vcf, prefix, exon_bed, cmh, hprc, gnomad, inhouse, odd_regions, repeats):
+def main(
+    df,
+    snpeff_df,
+    omim,
+    hpo,
+    vcf,
+    prefix,
+    exon_bed,
+    cmh,
+    hprc,
+    gnomad,
+    inhouse,
+    odd_regions,
+    repeats,
+):
     # filter out SVs < 50bp
     df_len = df[apply_filter_length(df)]
     df_len = df_len.astype(str)
@@ -438,15 +563,21 @@ def main(df, omim, hpo, vcf, prefix, exon_bed, cmh, hprc, gnomad, inhouse, odd_r
     # filter out benign SVs with AF > 1%
     # df_merge_notbenign = df_merge[apply_filter_benign(df_merge)]
 
+    # add snpeff annos
+    snpeff_df = parse_snpeff(snpeff_df)
+
+    # merge snpeff and annotsv df
+    df_merge = merge_annotsv_snpeff(df_merge, snpeff_df)
+
     # add HPO terms by gene matching
-    df_merge["HPO"] = [add_hpo(hpo, gene) for gene in df_merge["Gene_name"].values]
+    df_merge["HPO"] = [add_hpo(hpo, gene) for gene in df_merge["ENSEMBL_GENE"].values]
 
     # add OMIM phenos and inheritance by gene matching
     df_merge["omim_phenotype"] = [
-        add_omim(omim, gene)[0] for gene in df_merge["Gene_name"].values
+        add_omim(omim, gene)[0] for gene in df_merge["GENE_NAME"].values
     ]
     df_merge["omim_inheritance"] = [
-        add_omim(omim, gene)[1] for gene in df_merge["Gene_name"].values
+        add_omim(omim, gene)[1] for gene in df_merge["GENE_NAME"].values
     ]
 
     # add SVs called by pbsv from Children's Mercy Hospital PacBio HiFi data
@@ -497,8 +628,10 @@ def main(df, omim, hpo, vcf, prefix, exon_bed, cmh, hprc, gnomad, inhouse, odd_r
             "SVTYPE",
             "ID",
             "INFO",
-            "Gene_name",
-            "Gene_count",
+            "GENE_NAME",
+            "ENSEMBL_GENE",
+            "VARIANT",
+            "IMPACT",
             "omim_phenotype",
             "omim_inheritance",
             "DDD_mode",
@@ -541,7 +674,7 @@ def main(df, omim, hpo, vcf, prefix, exon_bed, cmh, hprc, gnomad, inhouse, odd_r
 
     df_merge = df_merge[report_columns]
     df_merge = df_merge.drop(columns=["C4R_REF", "C4R_ALT"])
-    df_merge["Gene_name"] = df_merge["Gene_name"].replace("nan", ".")
+    df_merge["GENE_NAME"] = df_merge["GENE_NAME"].replace("nan", ".")
     df_merge["omim_phenotype"].fillna("nan", inplace=True)
     df_merge["omim_inheritance"].fillna("nan", inplace=True)
     today = date.today()
@@ -573,6 +706,7 @@ if __name__ == "__main__":
         description="Generates a structural variant report using an AnnotSV-annotated pbsv VCF generated from PacBio HiFi WGS"
     )
     parser.add_argument("-annotsv", type=str, help="AnnotSV tsv file", required=True)
+    parser.add_argument("-snpeff", type=str, help="Snpeff vcf file", required=True)
     parser.add_argument(
         "-hpo",
         help="Tab delimited file containing gene names and HPO terms",
@@ -636,6 +770,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     df = pd.read_csv(args.annotsv, sep="\t", low_memory=False)
+    snpeff_df = vcf_to_df(args.snpeff)
     df = rename_SV_cols(df)
     prefix = args.annotsv.strip(".tsv")
     vcf = VariantFile(args.vcf)
@@ -653,6 +788,7 @@ if __name__ == "__main__":
     hpo.columns = hpo.columns.str.strip()
     main(
         df,
+        snpeff_df,
         omim,
         hpo,
         vcf,
@@ -663,5 +799,5 @@ if __name__ == "__main__":
         args.gnomad,
         args.inhouse,
         args.odd_regions,
-        args.repeats
+        args.repeats,
     )
