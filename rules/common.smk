@@ -1,5 +1,6 @@
 
 import pandas as pd
+import os
 from snakemake.utils import validate
 from snakemake.utils import min_version
 from datetime import date
@@ -223,11 +224,12 @@ def peddy_ped(wildcards):
     sample_id = [family + "_" + str(sample) for sample in sample_id]
 
     ped = config["run"]["ped"]
-    if ped == "":
+    if os.path.exists(f"{family}_peddy.ped"):
+        pass
+    elif ped == "":
         data = {'#Family_ID': family, 'Individual_ID':sample_id, 'Paternal_ID': '-9', 'Maternal_ID': '-9', 'Sex': '0', 'Phenotype': '0', 'Ethnicity': '-9'}
         data_df = pd.DataFrame(data)
         data_df.to_csv(f"{family}_peddy.ped", sep="\t", index=False, header=True)
-
     else:
         ped = format_pedigree(wildcards) #family +'.ped' #f"{family}.ped"
         ped = pd.read_csv(
