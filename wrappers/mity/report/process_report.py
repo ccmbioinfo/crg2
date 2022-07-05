@@ -202,9 +202,9 @@ def reorder_cols(df):
 
     colnames = df.columns
 
-    variant_heteroplasmy = [x for x in colnames if x.endswith(".variant_heteroplasmy")]
-    alt_depth = [x for x in colnames if x.endswith(".alt_depth")]
-    total_sample_depth = [x for x in colnames if x.endswith(".total_sample_depth")]
+    variant_heteroplasmy = [x for x in colnames if x.endswith("variant_heteroplasmy")]
+    alt_depth = [x for x in colnames if x.endswith("alt_depth")]
+    total_sample_depth = [x for x in colnames if x.endswith("total_sample_depth")]
 
     col_list = [
         "CHR",
