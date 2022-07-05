@@ -276,7 +276,9 @@ def reorder_cols(df):
         variant_heteroplasmy + alt_depth
     ].replace("-", 0)
 
-    log_message("Rearanged the columns in the dataframe")
+    log_message(
+        "Replaced . and - with 0 for frequency columns and rearanged the columns in the dataframe"
+    )
     return reordered_df
 
 
