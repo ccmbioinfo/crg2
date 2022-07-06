@@ -590,6 +590,7 @@ class SVAnnotator:
 
         df = sv_record.df.join(ann_df)
         df[[prefix]] = df[[prefix]].fillna(0)
+        print(df.columns)
 
         return df
 
@@ -599,11 +600,12 @@ class SVAnnotator:
         """
         all_sv_bed_name = "all_sv.bed"
         annotated = "./{}.annotated.tsv".format(all_sv_bed_name)
+        print(sample_df.columns)
         sample_df.reset_index()[["CHROM", "POS", "END", "SVTYPE"]].to_csv(
             all_sv_bed_name, index=False, sep="\t"
         )
         subprocess.call(
-            "$ANNOTSV/bin/AnnotSV -SVinputFile {} -SVinputInfo 1 -outputFile {}".format(
+            "$ANNOTSV/bin/AnnotSV -genomeBuild GRCh38 -SVinputFile {} -SVinputInfo 1 -outputFile {}".format(
                 all_sv_bed_name, annotated
             ),
             shell=True,
