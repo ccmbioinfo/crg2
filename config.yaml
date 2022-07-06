@@ -8,7 +8,7 @@ run:
   flank: 100000
   gatk: "gatk"
   pipeline: "wes" #either wes (exomes) or wgs (genomes) or annot (to annotate and produce reports for an input vcf)
-  minio: ""
+  minio: "/srv/minio/results-c4r"
 
 genes:
   ensembl: "/srv/shared/data/dccdipg/annotation/genes_for_panels/Homo_sapiens.GRCh37.87.gtf_subset.csv"
