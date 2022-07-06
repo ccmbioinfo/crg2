@@ -109,7 +109,8 @@ rule bcftools_stats:
 rule peddy:
     input:
         vcf = get_gatk_vcf,
-        ped = peddy_ped
+        ped = peddy_ped,
+        vcf_tbi = get_gatk_vcf_tbi
     output:
         "qc/peddy/{family}.html",
         "qc/peddy/{family}.vs.html",

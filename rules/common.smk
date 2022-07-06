@@ -256,3 +256,11 @@ def get_gatk_vcf(wildcards):
     elif config["run"]["pipeline"] == "wgs":
         vcf = expand("genotyped/{family}.vcf.gz", family=wildcards.family)
     return vcf
+
+def get_gatk_vcf_tbi(wildcards):
+    """ Get vcf from gatk4 calling for the use in qc """
+    if config["run"]["pipeline"] == "wes":
+        vcf_tbi = expand("genotyped/{family}-gatk_haplotype.vcf.gz.tbi", family=wildcards.family)
+    elif config["run"]["pipeline"] == "wgs":
+        vcf_tbi = expand("genotyped/{family}.vcf.gz.tbi", family=wildcards.family)
+    return vcf_tbi
