@@ -1,0 +1,7 @@
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - python ==2.7.15
+  - bedtools ==2.29.0
+  - numpy >1.1
