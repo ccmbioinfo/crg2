@@ -42,10 +42,6 @@ def input_type(file, participant):
     # determine filetype of linked file based on file suffix
     if file.endswith("fastq.gz") or file.endswith("fq.gz"):
         filetype = fastq_regex(file)
-        if readtype == "R1":
-            filetype = "fq1"
-        else:
-            filetype = "fq2"
     elif file.endswith("bam"):
         filetype = "bam"
     elif file.endswith("cram"):
@@ -58,8 +54,8 @@ def fastq_regex(fastq):
     # regex would capture reads such as 19-13210-A-02-00_BH2HKGBCX3_R1_1.fastq.gz, or 670513-P_HVWLCBCXX-2-ID01_1_sequence.fastq.gz
     read1_regex = re.compile(r"_R1[_.]|_1_")
     read2_regex = re.compile(r"_R2[_.]|_2_")
-    match1 = re.search(read1_regex, f)
-    match2 = re.search(read2_regex, f)
+    match1 = re.search(read1_regex, fastq)
+    match2 = re.search(read2_regex, fastq)
     if match1:
         return "fq1"
     elif match2:
@@ -107,6 +103,8 @@ def write_units_samples(datasets_dict, filepath):
             bam = datasets_dict[participant]["bam"]
             cram = datasets_dict[participant]["cram"]
             fq1 = sorted(datasets_dict[participant]["fq1"])
+            print(fq1)
+            print(datasets_dict)
             fq2 = sorted(datasets_dict[participant]["fq2"])
             # if fastqs available, set these as input files
             if len(fq1) != 0:
