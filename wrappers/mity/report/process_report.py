@@ -303,7 +303,7 @@ def main(report, family):
     final_report = change_annot_9155(final_report)
 
     final_report.to_csv(
-        f"report/mitochondrial/{family}_mity_vcfanno_final_report.csv", index=False
+        f"report/mitochondrial/{family}.mitochondrial.report.csv", index=False
     )
 
     log_message(

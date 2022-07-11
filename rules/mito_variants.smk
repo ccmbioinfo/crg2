@@ -9,10 +9,10 @@ rule mity_call:
     input:
         bam=[expand("recal/{family}_{sample}.bam".format(family=config["run"]["project"], sample=s)) for s in samples.index]
     output:
-        protected("mitochondrial_variants/mito_{family}.mity.vcf.gz")
+        protected("mitochondrial_variants/{family}.mity.vcf.gz")
     params:
         outdir="mitochondrial_variants/",
-        prefix="mito_{family}",
+        prefix="{family}",
         tool=config["tools"]["mity"]
     log:
         "logs/mity/mity_call/{family}.mity_call.log"
@@ -22,11 +22,11 @@ rule mity_call:
 
 rule mito_vcfanno:
     input:
-        "mitochondrial_variants/mito_{family}.mity.vcf.gz"
+        "mitochondrial_variants/{family}.mity.vcf.gz"
     output:
-        "mitochondrial_variants/vcfanno/{family}_mito.vcfanno.vcf"
+        "mitochondrial_variants/vcfanno/{family}.mity.vcfanno.vcf"
     log:
-        "logs/mity/vcfanno/{family}.mito.vcfanno.log"
+        "logs/mity/vcfanno/{family}.mity.vcfanno.log"
     threads: 10
     resources:
         mem_mb = 20000
@@ -38,9 +38,9 @@ rule mito_vcfanno:
 
 rule mity_report:
     input:
-        "mitochondrial_variants/vcfanno/{family}_mito.vcfanno.vcf"
+        "mitochondrial_variants/vcfanno/{family}.mity.vcfanno.vcf"
     output:
-        "report/mitochondrial/{family}_mity_vcfanno_final_report.csv"
+        "report/mitochondrial/{family}.mitochondrial.report.csv"
     params:
         outdir="report/mitochondrial/",
         prefix="{family}_mito",

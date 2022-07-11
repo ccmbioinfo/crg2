@@ -7,7 +7,7 @@ run:
   hpo: "" # five-column TSV with HPO terms; leave this string empty is there are no hpo terms
   flank: 100000
   gatk: "gatk"
-  pipeline: "wes" #either wes (exomes) or wgs (genomes) or annot (to annotate and produce reports for an input vcf)
+  pipeline: "wes" #either wes (exomes) or wgs (genomes) or annot (to annotate and produce reports for an input vcf) or mity (to generate mitochondrial reports)
   minio: ""
 
 genes:
