@@ -146,19 +146,22 @@ def merge_full_split_annos(annotsv_df):
 
 def add_hpo(hpo, gene):
     try:
-        gene = gene.split(";")
+        genes = gene.split(";")
     except AttributeError:
         return "NA"
     terms = []
-    for g in gene:
-        try:
-            term = str(hpo[hpo["ensembl_gene_id"] == g]["Features"].values[0])
-            term = term.replace("; ", ";").split(";")
-            term = list(set(term))
-            for t in term:
-                terms.append(t)
-        except IndexError:
-            pass
+    for gene in genes:
+        # split by - for intergenic variants, which are annotated as <upstream_gene>-<downstream_gene>
+        gene = gene.split("-")
+        for g in gene:
+            try:
+                term = str(hpo[hpo["ensembl_gene_id"] == g]["Features"].values[0])
+                term = term.replace("; ", ";").split(";")
+                term = list(set(term))
+                for t in term:
+                    terms.append(t)
+            except IndexError:
+                pass
     if len(terms) == 0:
         return "nan"
     else:
@@ -167,19 +170,24 @@ def add_hpo(hpo, gene):
 
 
 def add_omim(omim_df, gene):
-    gene = gene.split(";")
+    genes = gene.split(";")
     phenos = []
     inheritance = []
-    for g in gene:
-        try:
-            phenos.append(
-                str(omim_df[omim_df["gene_name"] == g]["omim_phenotype"].values[0])
-            )
-            inheritance.append(
-                str(omim_df[omim_df["gene_name"] == g]["omim_inheritance"].values[0])
-            )
-        except IndexError:
-            pass
+    for gene in genes:
+        # split by - for intergenic variants, which are annotated as <upstream_gene>-<downstream_gene>
+        gene = gene.split("-")
+        for g in gene:
+            try:
+                phenos.append(
+                    str(omim_df[omim_df["gene_name"] == g]["omim_phenotype"].values[0])
+                )
+                inheritance.append(
+                    str(
+                        omim_df[omim_df["gene_name"] == g]["omim_inheritance"].values[0]
+                    )
+                )
+            except IndexError:
+                pass
     phenos = ",".join(phenos)
     inheritance = ",".join(inheritance)
     return [phenos, inheritance]
@@ -476,8 +484,17 @@ def parse_snpeff(snpeff_df):
                     anno = anno.split("|")
                     variant_list.append(anno[1])
                     impact_list.append(anno[2])
-                    gene_list.append(anno[3])
-                    ens_gene_list.append(anno[4])
+                    # for some BNDs, snpeff doesn't annotate against a gene?
+                    gene = anno[3]
+                    if gene == "":
+                        # add transcript instead
+                        gene = anno[6]
+                    gene_list.append(gene)
+                    # same as above
+                    ens_gene = anno[4]
+                    if ens_gene == "":
+                        ens_gene = anno[6]
+                    ens_gene_list.append(ens_gene)
                 except:
                     for l in [variant_list, impact_list, gene_list, ens_gene_list]:
                         l.append("NA")
