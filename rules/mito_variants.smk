@@ -31,8 +31,8 @@ rule mito_vcfanno:
     resources:
         mem_mb = 20000
     params:
-       	conf ="~/crg2/vcfanno/mt.vcfanno.conf",
-        base_path = "/hpf/largeprojects/ccmbio/ajain/mity/vcfanno"
+       	conf = config["annotation"]["mt.vcfanno"]["conf"],
+        base_path = config["annotation"]["mt.vcfanno"]["base_path"]
     wrapper:
         get_wrapper_path("vcfanno")
 

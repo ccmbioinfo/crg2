@@ -72,6 +72,7 @@ def change_annot_9155(df):
         return df
     else:
         df.loc[df.HGVS == "m.9155A>G", "status_mitomap"] = "Confirmed"
+        df.loc[df.HGVS == "m.9155A>G", "disease_mitomap"] = "MIDD, renal insufficiency"
         log_message(
             "Found variant m.9155A>G in the report and updated status_mitomap to confirmed."
         )
