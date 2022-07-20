@@ -23,7 +23,7 @@ tools:
   crg2: "~/crg2"
 
 ref:
-  name: GRCh38
+  name: GRCh38.86
   no_decoy_name: GRCh38
   genome: /hpf/largeprojects/ccmbio/nhanafi/c4r/genomes/Homo_sapiens_assembly38.fasta
   known-variants: /hpf/largeprojects/ccmbio/nhanafi/c4r/genomes/Homo_sapiens_assembly38.dbsnp138.vcf
