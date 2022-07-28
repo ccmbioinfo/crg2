@@ -109,7 +109,8 @@ rule bcftools_stats:
 rule peddy:
     input:
         vcf = get_gatk_vcf,
-        ped = peddy_ped
+        ped = peddy_ped,
+        vcf_tbi = get_gatk_vcf_tbi
     output:
         "qc/peddy/{family}.html",
         "qc/peddy/{family}.vs.html",
@@ -151,8 +152,63 @@ rule multiqc:
     params:
         config["params"]["multiqc"]["config"]
     output:
-        report("qc/multiqc/multiqc.html", caption="../report/multiqc.rst", category="Quality control") 
+        report = report("qc/multiqc/multiqc.html", caption="../report/multiqc.rst", category="Quality control"),
+        stats = "qc/multiqc/multiqc_data/multiqc_general_stats.txt"
     log:
         "logs/multiqc/multiqc.log"
     wrapper:
         get_wrapper_path("multiqc")
+
+
+rule remove_duplicates:
+    input: 
+        "recal/{family}_{sample}.bam"
+    params:
+        markDuplicates="REMOVE_DUPLICATES=true",
+        java_opts = config["params"]["picard"]["java_opts"],
+        validationStringency=config["params"]["picard"]["ValidationStringency"],
+        assumeSortOrder=config["params"]["picard"]["AssumeSortOrder"]
+    output:
+        bam="dups_removed/{family}_{sample}.bam",
+        metrics="dups_removed/{family}_{sample}.dup.metrics.txt"
+    log:
+        "logs/remove_duplicates/{family}_{sample}.log"
+    wrapper:
+        get_wrapper_path("picard", "markduplicates")
+
+
+rule calculate_coverage:
+    input:
+        bam="dups_removed/{family}_{sample}.bam",
+        bed=config["annotation"]["svreport"]["exon_bed"],
+        bed_index=config["ref"]["bed_index"]
+    params:
+        crg2_dir=config['tools']['crg2']
+    output:
+        coverage_dir=directory("coverage/{family}_{sample}/"),
+    log:
+        "logs/coverage/{family}_{sample}.log"
+    conda:
+        "../envs/coverage.yaml"
+    shell:
+        """
+        mkdir -p coverage/{wildcards.family}_{wildcards.sample}/
+        cd coverage/{wildcards.family}_{wildcards.sample}/
+
+        bedtools coverage -d -sorted -a {input.bed} -b ../../{input.bam} -g {input.bed_index} > {wildcards.family}_{wildcards.sample}.dedup.cov
+
+        python {params.crg2_dir}/utils/bam.coverage.base_wise.stat.py {wildcards.family}_{wildcards.sample}.dedup.cov 5 $'\\t' > {wildcards.family}_{wildcards.sample}.coverage_stats.csv
+
+        echo {wildcards.family}_{wildcards.sample}.dedup.cov","`cat {wildcards.family}_{wildcards.sample}.dedup.cov | awk -F '\\t' '{{if ($6<20) {{print $4","$1":"$2+$5","$6}}}}' | wc -l` > {wildcards.family}_{wildcards.sample}.less20x.stats.csv
+        {params.crg2_dir}/utils/bam.coverage.less20.sh {wildcards.family}_{wildcards.sample}.dedup.cov > {wildcards.family}_{wildcards.sample}.less20x_coverage.csv
+
+        {params.crg2_dir}/utils/bam.coverage.per_exon.sh {wildcards.family}_{wildcards.sample}.dedup.cov > {wildcards.family}_{wildcards.sample}.per_exon_coverage.csv
+        cat {wildcards.family}_{wildcards.sample}.per_exon_coverage.csv | sed 1d  > {wildcards.family}_{wildcards.sample}.per_exon_coverage.csv.tmp
+        python {params.crg2_dir}/utils/bam.coverage.base_wise.stat.py {wildcards.family}_{wildcards.sample}.per_exon_coverage.csv.tmp 2 ',' > {wildcards.family}_{wildcards.sample}.per_exon.distribution.csv
+        rm {wildcards.family}_{wildcards.sample}.per_exon_coverage.csv.tmp
+
+        median_line=`cat {wildcards.family}_{wildcards.sample}.dedup.cov | wc -l`
+        median_line=$(($median_line/2))
+        cat {wildcards.family}_{wildcards.sample}.dedup.cov | awk '{{print $6}}' | sort -n | sed -n ${{median_line}}p > {wildcards.family}_{wildcards.sample}.median
+        rm {wildcards.family}_{wildcards.sample}.dedup.cov
+        """

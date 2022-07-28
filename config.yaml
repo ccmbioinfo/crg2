@@ -8,6 +8,7 @@ run:
   flank: 100000
   gatk: "gatk"
   pipeline: "wes" #either wes (exomes) or wgs (genomes) or annot (to annotate and produce reports for an input vcf)
+  minio: ""
 
 genes:
   ensembl: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/Homo_sapiens.GRCh37.87.gtf_subset.csv"
@@ -34,6 +35,7 @@ ref:
   gatk-known: "/hpf/largeprojects/ccmbio/naumenko/tools/bcbio/genomes/Hsapiens/GRCh37/variation/Mills_and_1000G_gold_standard.indels.vcf.gz"
   old_cram_ref: "UR:/mnt/hnas/reference/hg19/hg19.fa"
   new_cram_ref: "/hpf/largeprojects/ccmbio/naumenko/tools/bcbio/genomes/Hsapiens/hg19/seq/hg19.fa"
+  bed_index: "/hpf/largeprojects/ccmbio/naumenko/tools/bcbio/genomes/Hsapiens/GRCh37/seq/GRCh37.fa.bedtoolsindex"
 
 filtering:
   vqsr: false
@@ -109,7 +111,7 @@ annotation:
     trf: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/ExpansionHunter/tandem_repeat_disease_loci_v1.1.tsv"
     1000g: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/ExpansionHunter/1000G_EH_v1.0.tsv"
   ehdn:
-    files: "/srv/shared/data/dccdipg/annotation/ExpansionHunterDenovo/"
+    files: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/ExpansionHunterDenovo/"
   cre:
      database_path: "/hpf/largeprojects/ccm_dccforge/dccforge/results/database/"
 
@@ -138,6 +140,8 @@ params:
     PrintReads: " -jdk_deflater -jdk_inflater -U LENIENT_VCF_PROCESSING --read_filter BadCigar --read_filter NotPrimaryAlignment "
   picard:
     MarkDuplicates: "REMOVE_DUPLICATES=false"
+    ValidationStringency: "VALIDATION_STRINGENCY=SILENT"
+    AssumeSortOrder: "ASSUME_SORT_ORDER=coordinate"
     java_opts: "-Xmx2g"
   qualimap:
     mem: "20G"
