@@ -79,34 +79,42 @@ def setup_directories(family, sample_list, filepath, step):
             ped,
             sep=" ",
             header=None,
-            names=["fam_id", "individual_id", "pat_id", "mat_id", "sex", "phenotype"]
-            )
+            names=["fam_id", "individual_id", "pat_id", "mat_id", "sex", "phenotype"],
+        )
         for index, row in pedi.iterrows():
             individual_id = str(row.individual_id)
             pat_id = str(row.pat_id)
             mat_id = str(row.mat_id)
             # individual_id, pat_id and mat_id cannot be both numeric and single number
-            if not ((individual_id.isnumeric() and len(individual_id) == 1) | (pat_id.isnumeric() and len(pat_id) == 1) | (mat_id.isnumeric() and len(mat_id) == 1 )):
-                #write and check sample
-                write_sample(filepath, family) 
+            if not (
+                (individual_id.isnumeric() and len(individual_id) == 1)
+                | (pat_id.isnumeric() and len(pat_id) == 1)
+                | (mat_id.isnumeric() and len(mat_id) == 1)
+            ):
+                # write and check sample
+                write_sample(filepath, family)
                 samples = os.path.join(filepath, family, "samples.tsv")
-                samples = pd.read_csv(samples, dtype = str)
-                samples = list(samples.iloc[:,0])
+                samples = pd.read_csv(samples, dtype=str)
+                samples = list(samples.iloc[:, 0])
                 samples = [family + s for s in samples]
-                samples.sort()   
-                print(f"samples to be processed: {samples}")        
+                samples.sort()
+                print(f"samples to be processed: {samples}")
                 ped_samples = [individual_id, pat_id, mat_id]
                 ped_samples.sort()
-                if all(s in samples for s in ped_samples): 
+                if all(s in samples for s in ped_samples):
                     replace = 's+ped: ""+ped: "{}"+'.format(ped)
                     cmd = ["sed", "-i", replace, config]
                     subprocess.check_call(cmd)
                     break
                 else:
-                    print(f"Individuals in ped file do not match with samples.tsv, double check: {ped}.")
+                    print(
+                        f"Individuals in ped file do not match with samples.tsv, double check: {ped}."
+                    )
                     return False
-            else:                         
-                print(f"Ped file is either not a trio or not linked, double check: {ped}.")
+            else:
+                print(
+                    f"Ped file is either not a trio or not linked, double check: {ped}."
+                )
                 return False
 
     # bam: start after folder creation and symlink for step
@@ -137,12 +145,14 @@ def setup_directories(family, sample_list, filepath, step):
         if len(sample_list) == len([i for i in sample_list if i.fq1]):
             return True
 
-def write_sample(filepath, family):  
+
+def write_sample(filepath, family):
     samples = os.path.join(filepath, family, "samples.tsv")
     with open(samples, "w") as s:
         s.writelines("sample\n")
         for i in sample_list:
-            s.writelines(f"{i.sample}\n") 
+            s.writelines(f"{i.sample}\n")
+
 
 def write_units(sample_list, filepath):
     units = os.path.join(filepath, "units.tsv")
@@ -241,9 +251,11 @@ if __name__ == "__main__":
         # copy config.yaml, dnaseq_cluster.pbs & replace family id; copy pbs_config.yaml
         print(f"\nStarting to setup project directories for family: {i}")
         submit_flag = setup_directories(i, sample_list, args.dir, args.step)
+        write_units(sample_list, filepath)
 
         if submit_flag:
-            write_units(sample_list, filepath)
             submit_jobs(filepath, i)
+        else:
+            write_sample(args.dir, i)
 
     print("DONE")
