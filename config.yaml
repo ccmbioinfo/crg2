@@ -102,13 +102,13 @@ annotation:
   svreport:
     hgmd: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/HGMD_2018/hgmd_pro.db"
     protein_coding_genes: "/hpf/largeprojects/ccmbio/nhanafi/c4r/downloads/databases/protein_coding_genes.tsv"
-    exon_bed: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/exons/hg19_UCSC_exons_canonical.bed"
+    exon_bed: "/hpf/largeprojects/ccmbio/nhanafi/c4r/downloads/databases/hg38_exons_from_biomart_20220802.txt"
     exac: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/ExAC/fordist_cleaned_nonpsych_z_pli_rec_null_data.txt"
     omim: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/OMIM_2020-04-09/genemap2.txt"
     gnomad: "/hpf/largeprojects/ccmbio/nhanafi/c4r/downloads/databases/gnomad_v2_sv.sites_hg38_liftover_FINAL.bed"
     biomart: "/hpf/largeprojects/ccmbio/nhanafi/c4r/downloads/databases/BioMaRt.GrCh38.p13.ensembl.mim.hgnc.entrez.tsv.gz"
-    mssng_manta_counts: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/MSSNG_COUNTS/Canadian_MSSNG_parent_SVs.Manta.counts.txt"
-    mssng_lumpy_counts: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/MSSNG_COUNTS/Canadian_MSSNG_parent_SVs.LUMPY.counts.txt"
+    mssng_manta_counts: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/MSSNG_COUNTS/Canadian_MSSNG_parent_SVs.Manta_nativehg38.tsv"
+    mssng_lumpy_counts: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/MSSNG_COUNTS/Canadian_MSSNG_parent_SVs.Lumpy_liftedhg38.tsv"
   eh:
     catalog: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/ExpansionHunter/tandem_repeat_disease_loci_v1.1.hg19.masked.json"
     trf: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/ExpansionHunter/tandem_repeat_disease_loci_v1.1.tsv"
