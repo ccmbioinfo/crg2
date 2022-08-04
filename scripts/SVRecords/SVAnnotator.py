@@ -9,6 +9,7 @@ from enum import Enum, auto
 
 # original code written by Dennis Kao: https://github.com/ccmbioinfo/crg/blob/master/SVRecords/SVAnnotator.py
 
+
 class SVTYPE(Enum):
     def _generate_next_value_(name, start, count, last_values):
         return name
@@ -160,7 +161,7 @@ class SVAnnotator:
                         position, boundaries
                     )
                     boundary_distances[breakpoint]["nearest_boundary"].append(
-                        gene + "|" + str(min_boundary)
+                        str(gene) + "|" + str(min_boundary)
                     )
                     boundary_distances[breakpoint]["nearest_distance"].append(
                         min_distance
@@ -579,18 +580,23 @@ class SVAnnotator:
                 "COUNT": "sum",
             }
         )
-        ann_df["COUNT_SV"] = ann_df[["COUNT_CHROM", "COUNT_START", "COUNT_END"]].apply(
-            lambda x: "{}:{}-{}".format(x[0], x[1], x[2]), axis=1
-        )
-        ann_df = ann_df.drop(
-            columns=["COUNT_CHROM", "COUNT_START", "COUNT_END", "COUNT_SVTYPE"]
-        )
+        if len(ann_df) != 0:
+            ann_df["COUNT_SV"] = ann_df[
+                ["COUNT_CHROM", "COUNT_START", "COUNT_END"]
+            ].apply(lambda x: "{}:{}-{}".format(x[0], x[1], x[2]), axis=1)
+            ann_df = ann_df.drop(
+                columns=["COUNT_CHROM", "COUNT_START", "COUNT_END", "COUNT_SVTYPE"]
+            )
 
-        ann_df.columns = ann_df.columns.str.replace("COUNT", prefix)
+            ann_df.columns = ann_df.columns.str.replace("COUNT", prefix)
 
-        df = sv_record.df.join(ann_df)
-        df[[prefix]] = df[[prefix]].fillna(0)
-
+            df = sv_record.df.join(ann_df)
+            df[[prefix]] = df[[prefix]].fillna(0)
+        else:
+            # sample SVs don't overlap any SVs in count table (eg no BNDs in Hg38 Manta), so ann_df is empty
+            df = sv_record.df
+            df[f"{prefix}"] = ["-"] * len(df)
+            df[f"{prefix}_SV"] = ["-"] * len(df)
         return df
 
     def annotsv(self, sample_df):
@@ -599,11 +605,12 @@ class SVAnnotator:
         """
         all_sv_bed_name = "all_sv.bed"
         annotated = "./{}.annotated.tsv".format(all_sv_bed_name)
+        print(sample_df.columns)
         sample_df.reset_index()[["CHROM", "POS", "END", "SVTYPE"]].to_csv(
             all_sv_bed_name, index=False, sep="\t"
         )
         subprocess.call(
-            "$ANNOTSV/bin/AnnotSV -SVinputFile {} -SVinputInfo 1 -outputFile {}".format(
+            "$ANNOTSV/bin/AnnotSV -genomeBuild GRCh38 -SVinputFile {} -SVinputInfo 1 -outputFile {}".format(
                 all_sv_bed_name, annotated
             ),
             shell=True,
@@ -677,6 +684,7 @@ class SVAnnotator:
 
     def make_gene_ref_df(self, biomart):
         df = pd.read_csv(biomart, sep="\t")
+        df["Associated Gene Name"] = df["Associated Gene Name"].astype(str)
         # df = df[['Ensembl Gene ID', 'Ensembl Transcript ID', 'Associated Gene Name', 'HGNC ID(s)', 'MIM Gene Accession']].drop_duplicates()
         df = df[
             [

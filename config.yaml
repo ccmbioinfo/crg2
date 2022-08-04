@@ -6,12 +6,12 @@ run:
   panel: "" # three-column BED file based on hpo file; leave this string empty if there is no panel
   hpo: "" # five-column TSV with HPO terms; leave this string empty is there are no hpo terms
   flank: 100000
-  gatk: "gatk"
+  gatk: "gatk" #or gatk3, or dragen (for dragen-gatk variant calling)
   pipeline: "wes" #either wes (exomes) or wgs (genomes) or annot (to annotate and produce reports for an input vcf)
   minio: ""
 
 genes:
-  ensembl: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/Homo_sapiens.GRCh37.87.gtf_subset.csv"
+  ensembl: "/hpf/largeprojects/ccmbio/nhanafi/c4r/downloads/databases/ensembl_genes_hg38_gtf.csv"
   refseq: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/GRCh37_latest_genomic.gff_subset.csv" 
   hgnc: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/HGNC_20210617.txt"
 
@@ -24,15 +24,16 @@ tools:
   ehdn: "/hpf/largeprojects/ccmbio/arun/Tools/EHDN.TCAG/ExpansionHunterDenovo-v0.7.0"
 
 ref:
-  name: GRCh37.75
-  no_decoy_name: GRCh37
-  genome: /hpf/largeprojects/ccm_dccforge/dccdipg/Common/genomes/GRCh37d5/GRCh37d5.fa
-  known-variants: /hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/dbsnp.b147.20160601.tidy.vcf.gz
-  no_decoy: /hpf/largeprojects/ccm_dccforge/dccdipg/Common/genomes/GRCh37/GRCh37.fa
+  name: GRCh38.86
+  no_decoy_name: GRCh38
+  genome: /hpf/largeprojects/ccmbio/nhanafi/c4r/genomes/GIAB/GCA_000001405.15_GRCh38_no_alt_analysis_set_maskedGRC_exclusions_v2.fasta
+  known-variants: /hpf/largeprojects/ccmbio/nhanafi/c4r/genomes/Homo_sapiens_assembly38.dbsnp138.vcf
+  no_decoy: /hpf/largeprojects/ccmbio/nhanafi/c4r/genomes/GIAB/GCA_000001405.15_GRCh38_no_alt_analysis_set_maskedGRC_exclusions_v2_EBV_removed.fasta
   decoy_bed: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/pipelines/cre/data/grch37d5.decoy.bed"
-  canon_bed: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/genomes/grch37.canon.bed"
+  canon_bed: "/hpf/largeprojects/ccmbio/nhanafi/c4r/genomes/illumina/grch38_canon.bed"
   split_genome: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/genomes/split_genome"
-  gatk-known: "/hpf/largeprojects/ccmbio/naumenko/tools/bcbio/genomes/Hsapiens/GRCh37/variation/Mills_and_1000G_gold_standard.indels.vcf.gz"
+  dragstr_table: "/hpf/largeprojects/ccmbio/nhanafi/c4r/genomes/illumina/hg38.str.zip"
+  gatk-known: "/hpf/largeprojects/ccmbio/nhanafi/c4r/genomes/Mills_and_1000G_gold_standard.indels.hg38.vcf.gz"
   old_cram_ref: "UR:/mnt/hnas/reference/hg19/hg19.fa"
   new_cram_ref: "/hpf/largeprojects/ccmbio/naumenko/tools/bcbio/genomes/Hsapiens/hg19/seq/hg19.fa"
   bed_index: "/hpf/largeprojects/ccmbio/naumenko/tools/bcbio/genomes/Hsapiens/GRCh37/seq/GRCh37.fa.bedtoolsindex"
@@ -46,6 +47,8 @@ filtering:
       "QD < 2.0 || FS > 60.0 || MQ < 30.0 || MQRankSum < -12.5 || ReadPosRankSum < -8.0"
     indels:
       "QD < 2.0 || FS > 200.0 || ReadPosRankSum < -20.0"
+    dragen:
+      "QUAL < 10.4139"
   soft:
     platypus:
       name: 'PlatQualDepth'
@@ -63,7 +66,9 @@ filtering:
       indel:
         name: 'GATKCutoffIndel'
         filter: 'TYPE="indel" && (ReadPosRankSum < -20.0 || QD < 2.0 || FS > 200.0 || SOR > 10.0)'
-
+    dragen:
+        name: 'DRAGENHardQUAL'
+        filter: 'QUAL < 10.4139'
 
 processing:
   mark-duplicates: true
@@ -82,30 +87,30 @@ annotation:
   cre.vcfanno:
     conf: "~/crg2/vcfanno/cre.vcfanno.conf"
     lua_script: "~/crg2/vcfanno/cre.vcfanno.lua"
-    base_path: "/hpf/largeprojects/ccmbio/naumenko/tools/bcbio/genomes/Hsapiens/GRCh37"
+    base_path: "/hpf/largeprojects/ccmbio/nhanafi/c4r/downloads/databases/"
   vcfanno:
     conf: "~/crg2/vcfanno/crg.vcfanno.conf" 
     lua_script: "~/crg2/vcfanno/crg.vcfanno.lua"
-    base_path: "/hpf/largeprojects/ccmbio/naumenko/tools/bcbio/genomes/Hsapiens/GRCh37/variation/"
+    base_path: "/hpf/largeprojects/ccmbio/nhanafi/c4r/downloads/databases/"
   vep:
-    dir: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/snakemake/6f4af8a1/share/ensembl-vep-104.0-0/"
-    dir_cache: "/hpf/largeprojects/ccmbio/naumenko/tools/bcbio/genomes/Hsapiens/GRCh37/vep/"
+    dir: "/hpf/largeprojects/ccmbio/nhanafi/c4r/downloads/executables/ensembl-vep/"
+    dir_cache: "/hpf/largeprojects/ccmbio/nhanafi/c4r/downloads/databases/vep"
   snpeff:
-    dataDir: "/hpf/largeprojects/ccmbio/naumenko/tools/bcbio/genomes/Hsapiens/GRCh37/snpeff"
+    dataDir: "/hpf/largeprojects/ccmbio/nhanafi/c4r/downloads/databases/snpeff/data"
   svscore:
-    exon_bed: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/SVScore/refGene.exons.bed.gz"
-    intron_bed: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/SVScore/refGene.introns.bed.gz"
-    cadd: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/SVScore/whole_genome_SNVs.tsv.gz"
+    exon_bed: "/hpf/largeprojects/ccmbio/nhanafi/c4r/downloads/databases/svscore/refGene.txt.exons.bed.gz"
+    intron_bed: "/hpf/largeprojects/ccmbio/nhanafi/c4r/downloads/databases/svscore/refGene.txt.introns.bed.gz"
+    cadd: "/hpf/largeprojects/ccmbio/nhanafi/c4r/downloads/databases/CADD_v1.6_whole_genome_SNVs.tsv.gz"
   svreport:
     hgmd: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/HGMD_2018/hgmd_pro.db"
-    protein_coding_genes: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/grch37.p13.ensembl.sorted.protein.coding.genes.bed"
-    exon_bed: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/exons/hg19_UCSC_exons_canonical.bed"
+    protein_coding_genes: "/hpf/largeprojects/ccmbio/nhanafi/c4r/downloads/databases/protein_coding_genes.tsv"
+    exon_bed: "/hpf/largeprojects/ccmbio/nhanafi/c4r/downloads/databases/hg38_exons_from_biomart_20220802.txt"
     exac: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/ExAC/fordist_cleaned_nonpsych_z_pli_rec_null_data.txt"
     omim: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/OMIM_2020-04-09/genemap2.txt"
-    gnomad: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/gnomad_v2_sv.sites.bed"
-    biomart: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/BioMaRt.GrCh37.75.ensembl.mim.hgnc.entrez.txt"
-    mssng_manta_counts: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/MSSNG_COUNTS/Canadian_MSSNG_parent_SVs.Manta.counts.txt"
-    mssng_lumpy_counts: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/MSSNG_COUNTS/Canadian_MSSNG_parent_SVs.LUMPY.counts.txt"
+    gnomad: "/hpf/largeprojects/ccmbio/nhanafi/c4r/downloads/databases/gnomad_v2_sv.sites_hg38_liftover_FINAL.bed"
+    biomart: "/hpf/largeprojects/ccmbio/nhanafi/c4r/downloads/databases/BioMaRt.GrCh38.p13.ensembl.mim.hgnc.entrez.tsv.gz"
+    mssng_manta_counts: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/MSSNG_COUNTS/Canadian_MSSNG_parent_SVs.Manta_nativehg38.tsv"
+    mssng_lumpy_counts: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/MSSNG_COUNTS/Canadian_MSSNG_parent_SVs.Lumpy_liftedhg38.tsv"
   eh:
     catalog: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/ExpansionHunter/tandem_repeat_disease_loci_v1.1.hg19.masked.json"
     trf: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/ExpansionHunter/tandem_repeat_disease_loci_v1.1.tsv"
@@ -138,6 +143,9 @@ params:
     IndelRealigner: " -U LENIENT_VCF_PROCESSING --read_filter BadCigar --read_filter NotPrimaryAlignment "
     BaseRecalibrator: " --interval_set_rule INTERSECTION -U LENIENT_VCF_PROCESSING --read_filter BadCigar --read_filter NotPrimaryAlignment "
     PrintReads: " -jdk_deflater -jdk_inflater -U LENIENT_VCF_PROCESSING --read_filter BadCigar --read_filter NotPrimaryAlignment "
+  dragen:
+    java_opts: "-Xms500m -Xmx9555m"
+    HaplotypeCaller: ""
   picard:
     MarkDuplicates: "REMOVE_DUPLICATES=false"
     ValidationStringency: "VALIDATION_STRINGENCY=SILENT"
@@ -170,5 +178,5 @@ params:
   rtg-tools:
     java_opts: "-Xmx20g"
     vcfeval:
-      sdf: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/rtg-tools/GRch37_SDF/"
+      sdf: "/hpf/largeprojects/ccmbio/nhanafi/c4r/genomes/illumina/hg38_SDF"
 

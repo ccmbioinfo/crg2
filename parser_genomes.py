@@ -4,6 +4,7 @@ import argparse
 import pandas as pd
 
 """
+
 Usage: python parser.py -f <input_sample.tsv> -d <absolute path to create directories> -s [mapped|recal|fastq|decoy_rm]
 Parse five-column(family,sample,fq1,fq2,bam) TSV file (1st argument) and sets up necessary directories (under 2nd argument), files as below:
 1. create family and directory passed as "-s"
@@ -120,6 +121,7 @@ def setup_directories(family, sample_list, filepath, step):
     # bam: start after folder creation and symlink for step
     if step in ["mapped", "decoy_rm", "recal"]:
         if len(sample_list) == len([i for i in sample_list if i.bam]):
+
             start_folder = os.path.join(d, step)
             if not os.path.isdir(start_folder):
                 os.mkdir(start_folder)

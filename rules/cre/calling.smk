@@ -54,7 +54,6 @@ rule call_variants:
     wrapper:
         get_wrapper_path("gatk", "haplotypecaller")
 
-
 rule combine_calls:
     input:
         ref=config["ref"]["genome"],

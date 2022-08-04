@@ -8,6 +8,7 @@ from pysam import VariantFile
 
 # original code written by Dennis Kao: https://github.com/ccmbioinfo/crg/blob/master/SVRecords/SVGrouper.py
 
+
 class SVGrouper:
     def __init__(self, vcfs, report_type, ann_fields=[]):
         def list2string(col):
@@ -138,7 +139,7 @@ class SVGrouper:
 
             # if 'chr' in CHROM field, remove
             vcf_dict["variants/CHROM"] = [
-                chrom.strip("chr") for chrom in vcf_dict["variants/CHROM"]
+                chrom.lower().replace("chr", "") for chrom in vcf_dict["variants/CHROM"]
             ]
 
             # grab alt allele
@@ -378,7 +379,7 @@ class SVGrouper:
                     pr = record.samples[sample]["PR"][1]
                     name = record.samples[sample].name
                 bnd = (
-                    record.chrom
+                    record.chrom.lower().replace("chr", "")
                     + ":"
                     + str(record.pos)
                     + "-"
