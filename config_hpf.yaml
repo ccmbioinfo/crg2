@@ -28,9 +28,9 @@ tools:
 ref:
   name: GRCh38.86
   no_decoy_name: GRCh38
-  genome: /hpf/largeprojects/ccmbio/nhanafi/c4r/genomes/Homo_sapiens_assembly38.fasta
+  genome: /hpf/largeprojects/ccmbio/nhanafi/c4r/genomes/GIAB/GCA_000001405.15_GRCh38_no_alt_analysis_set_maskedGRC_exclusions_v2.fasta
   known-variants: /hpf/largeprojects/ccmbio/nhanafi/c4r/genomes/Homo_sapiens_assembly38.dbsnp138.vcf
-  no_decoy: /hpf/largeprojects/ccmbio/nhanafi/c4r/genomes/illumina/Homo_sapiens_assembly38_masked_decoy_removed.fasta
+  no_decoy: /hpf/largeprojects/ccmbio/nhanafi/c4r/genomes/GIAB/GCA_000001405.15_GRCh38_no_alt_analysis_set_maskedGRC_exclusions_v2_EBV_removed.fasta
   decoy_bed: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/pipelines/cre/data/grch37d5.decoy.bed"
   canon_bed: "/hpf/largeprojects/ccmbio/nhanafi/c4r/genomes/illumina/grch38_canon.bed"
   split_genome: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/genomes/split_genome"
