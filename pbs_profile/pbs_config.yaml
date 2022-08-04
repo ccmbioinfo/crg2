@@ -52,3 +52,6 @@ manta:
 
 peddy:
   mem: "60g"
+
+minio:
+  mem: "60g"

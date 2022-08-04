@@ -6,9 +6,9 @@ run:
   panel: "" # three-column BED file based on hpo file; leave this string empty if there is no panel
   hpo: "" # five-column TSV with HPO terms; leave this string empty is there are no hpo terms
   flank: 100000
-  gatk: "gatk" #or gatk3 or dragen (for dragen-gatk variant calling)
-  input: "fastq"
+  gatk: "gatk" #or gatk3, or dragen (for dragen-gatk variant calling)
   pipeline: "wes" #either wes (exomes) or wgs (genomes) or annot (to annotate and produce reports for an input vcf)
+  minio: ""
 
 genes:
   ensembl: "/hpf/largeprojects/ccmbio/nhanafi/c4r/downloads/databases/ensembl_genes_hg38_gtf.csv"
@@ -21,6 +21,7 @@ tools:
   cre: "~/cre"
   crg: "~/crg"
   crg2: "~/crg2"
+  ehdn: "/hpf/largeprojects/ccmbio/arun/Tools/EHDN.TCAG/ExpansionHunterDenovo-v0.7.0"
 
 ref:
   name: GRCh38.86
@@ -35,6 +36,7 @@ ref:
   gatk-known: "/hpf/largeprojects/ccmbio/nhanafi/c4r/genomes/Mills_and_1000G_gold_standard.indels.hg38.vcf.gz"
   old_cram_ref: "UR:/mnt/hnas/reference/hg19/hg19.fa"
   new_cram_ref: "/hpf/largeprojects/ccmbio/naumenko/tools/bcbio/genomes/Hsapiens/hg19/seq/hg19.fa"
+  bed_index: "/hpf/largeprojects/ccmbio/naumenko/tools/bcbio/genomes/Hsapiens/GRCh37/seq/GRCh37.fa.bedtoolsindex"
 
 filtering:
   vqsr: false
@@ -113,6 +115,10 @@ annotation:
     catalog: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/ExpansionHunter/tandem_repeat_disease_loci_v1.1.hg19.masked.json"
     trf: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/ExpansionHunter/tandem_repeat_disease_loci_v1.1.tsv"
     1000g: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/ExpansionHunter/1000G_EH_v1.0.tsv"
+  ehdn:
+    files: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/ExpansionHunterDenovo/"
+  cre:
+     database_path: "/hpf/largeprojects/ccm_dccforge/dccforge/results/database/"
 
 validation:
   benchmark: "benchmark.tsv"
@@ -123,7 +129,7 @@ params:
     markSplitReads: "-M"
     maxMem: ""
   gatk:
-    java_opts: "-Xms500m -Xmx9555m"
+    java_opts: "-Xms500m -Xmx9555m -Dsamjdk.compression_level=5"
     HaplotypeCaller: ""
     BaseRecalibrator: ""
     #BaseRecalibrator: "--interval-set-rule INTERSECTION -U LENIENT-VCF-PROCESSING --read-filter BadCigar --read-filter NotzPrimaryAlignment"
@@ -142,6 +148,8 @@ params:
     HaplotypeCaller: ""
   picard:
     MarkDuplicates: "REMOVE_DUPLICATES=false"
+    ValidationStringency: "VALIDATION_STRINGENCY=SILENT"
+    AssumeSortOrder: "ASSUME_SORT_ORDER=coordinate"
     java_opts: "-Xmx2g"
   qualimap:
     mem: "20G"
