@@ -113,7 +113,7 @@ annotation:
   ehdn:
     files: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/ExpansionHunterDenovo/"
   cre:
-     database_path: "/hpf/largeprojects/ccm_dccforge/dccforge/results/database/"
+     database_path: "/hpf/largeprojects/ccmbio/nhanafi/c4r/downloads/databases/"
 
 validation:
   benchmark: "benchmark.tsv"
