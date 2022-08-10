@@ -113,7 +113,7 @@ annotation:
   ehdn:
     files: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/ExpansionHunterDenovo/"
   cre:
-     database_path: "/hpf/largeprojects/ccmbio/nhanafi/c4r/downloads/databases/"
+     database_path: "/hpf/largeprojects/ccmbio/naumenko/tools/bcbio/genomes/Hsapiens/GRCh37/variation/"
 
 validation:
   benchmark: "benchmark.tsv"
