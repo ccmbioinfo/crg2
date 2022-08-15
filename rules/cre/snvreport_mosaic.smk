@@ -23,7 +23,7 @@ rule allsnvreport_mosaic:
         cd {output}
         ln -s ../../../{input.db} {params.family}-ensemble.db
         
-        ln -s ../../../{input.caller_vcfs} {params.family}-freebayes_mosaic-annotated-decomposed.vcf.gz
+        ln -s ../../../{input.caller_vcfs} {params.family}-mosaic-annotated-decomposed.vcf.gz
         
         ln -s ../../../{input.vcf} {params.family}-ensemble-annotated-decomposed.vcf.gz
         tabix {params.family}-ensemble-annotated-decomposed.vcf.gz
@@ -120,7 +120,20 @@ if config["run"]["panel"]:
             get_wrapper_path("bcftools", "merge")
 
 
-    # filtering
+    # filtering: skip softfilter step to do rule pass. Changed file name to distinguish from  "uniq.normalized.decomposed.pass.vcf.gz"
+    rule pass_mosaic:
+        input:
+            "filtered/{prefix}.uniq.normalized.decomposed.vcf.gz", "filtered/{prefix}.uniq.normalized.decomposed.vcf.gz.tbi"
+        output:
+            "filtered/{prefix}_pass.uniq.normalized.decomposed.vcf.gz"
+        threads: 6
+        resources:
+            mem=lambda wildcards, threads: threads * 2
+        params: 
+            samples = get_sample_order,
+            filter = "-f 'PASS,.' "
+        wrapper:
+            get_wrapper_path("bcftools", "view")
 
     # make report
     # caller = "gatk_somatic"
