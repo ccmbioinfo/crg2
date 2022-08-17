@@ -85,11 +85,11 @@ qc:
   
 annotation:
   cre.vcfanno:
-    conf: "~/crg2/vcfanno/cre.vcfanno.conf"
+    conf: "~/crg2/vcfanno/cre.vcfanno_hg38.conf"
     lua_script: "~/crg2/vcfanno/cre.vcfanno.lua"
     base_path: "/hpf/largeprojects/ccmbio/nhanafi/c4r/downloads/databases/"
   vcfanno:
-    conf: "~/crg2/vcfanno/crg.vcfanno.conf" 
+    conf: "~/crg2/vcfanno/crg.vcfanno_hg38.conf" 
     lua_script: "~/crg2/vcfanno/crg.vcfanno.lua"
     base_path: "/hpf/largeprojects/ccmbio/nhanafi/c4r/downloads/databases/"
   vep:

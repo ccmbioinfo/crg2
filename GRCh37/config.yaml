@@ -80,11 +80,11 @@ qc:
   
 annotation:
   cre.vcfanno:
-    conf: "~/crg2/vcfanno/cre.vcfanno.conf"
+    conf: "~/crg2/vcfanno/cre.vcfanno_GRCh37.conf"
     lua_script: "~/crg2/vcfanno/cre.vcfanno.lua"
     base_path: "/hpf/largeprojects/ccmbio/naumenko/tools/bcbio/genomes/Hsapiens/GRCh37"
   vcfanno:
-    conf: "~/crg2/vcfanno/crg.vcfanno.conf" 
+    conf: "~/crg2/vcfanno/crg.vcfanno_GRCh37.conf" 
     lua_script: "~/crg2/vcfanno/crg.vcfanno.lua"
     base_path: "/hpf/largeprojects/ccmbio/naumenko/tools/bcbio/genomes/Hsapiens/GRCh37/variation/"
   vep:
