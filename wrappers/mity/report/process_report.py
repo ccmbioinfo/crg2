@@ -1,9 +1,11 @@
 import pandas as pd
 import logging
 import numpy as np
+import io
+import gzip
 
 
-def log_message(*message):
+def log_message(message):
     """write message to logfile and stdout"""
     if message:
         for i in message:
@@ -186,15 +188,37 @@ def sort_by_sample(df):
 
     return final.drop_duplicates(ignore_index=True)
 
+def get_vcf_info(vcf,report,samples):
+    for i in samples:
+        sample_depths=[]
+        vafs=[]
+        alt_depths=[]
+        for row in report.iterrows():
+            pos=row[1]["POS"]
+            ref=row[1]["REF"]
+            alt=row[1]["ALT"]
+            #If pos, ref and alt match with the respective columns in the VCF then get the sample depth for that sample
+            depth=list(vcf[(vcf["POS"]==pos) & (vcf["REF"]==ref) & (vcf["ALT"]==alt)][i])[0].split(":")[1]
+            vaf=list(vcf[(vcf["POS"]==pos) & (vcf["REF"]==ref) & (vcf["ALT"]==alt)][i])[0].split(":")[9]
+            AD=list(vcf[(vcf["POS"]==pos) & (vcf["REF"]==ref) & (vcf["ALT"]==alt)][i])[0].split(":")[6]
+            sample_depths.append(depth)
+            vafs.append(vaf)
+            alt_depths.append(AD)
+        report[f"{i}.total_sample_depth"]=sample_depths
+        report[f"{i}.variant_heteroplasmy"]=vafs
+        report[f"{i}.alt_depth"]=alt_depths
 
-def check_sort(df):
+    return report
+
+def check_sort(vcf,df):
     sample = df.SAMPLE.unique()
     if len(sample) == 1:
         log_message("Only one sample present in report")
-        return df
+        return df, sample
     else:
         log_message("Multiple samples present in report")
         updated_df = sort_by_sample(df)
+        updated_df=get_vcf_info(vcf,updated_df,sample)
         return updated_df
 
 
@@ -273,36 +297,47 @@ def reorder_cols(df):
     ]
 
     reordered_df[replace_col_values] = reordered_df[replace_col_values].replace(".", 0)
-    reordered_df[variant_heteroplasmy + alt_depth] = reordered_df[
-        variant_heteroplasmy + alt_depth
-    ].replace("-", 0)
 
     log_message(
         "Replaced . and - with 0 for frequency columns and rearanged the columns in the dataframe"
     )
     return reordered_df
 
+def read_vcf(vcf):
+    with gzip.open(vcf, 'r') as f:
+        lines = [l for l in f if not l.startswith(b'##')]
+        str_lines=[]
+        for l in lines:
+            str_lines.append(l.decode())
 
-def main(report, family):
+    vcf_df=pd.read_csv(
+        io.StringIO(''.join(str_lines)),
+        sep='\t'
+    )
+
+    return vcf_df
+
+def main(vcf, report, family):
     logfile = f"logs/mity/mity_report/{family}.mity_report.log"
     logging.basicConfig(
         filename=logfile,
         filemode="w",
-        level=logging.DEBUG,
+        level=logging.INFO,
         format="%(asctime)s:%(message)s",
         datefmt="%Y-%m-%d %H:%M",
     )
 
     report_df = pd.read_csv(report)
+    vcf_df=read_vcf(vcf)
 
     CV_gnomad_annots_df = get_INFO_annot(report_df)
     merged_report = concat_df(report_df, CV_gnomad_annots_df)
     final_report = remove_cols(merged_report)
-    final_report = check_sort(final_report)
+    final_report = check_sort(vcf_df,final_report)
     final_report = reorder_cols(final_report)
     final_report = correct_mitotip_interpretations(final_report)
     final_report = change_annot_9155(final_report)
-
+    
     final_report.to_csv(
         f"report/mitochondrial/{family}.mitochondrial.report.csv", index=False
     )
@@ -313,6 +348,7 @@ def main(report, family):
 
 
 if __name__ == "__main__":
-    report = snakemake.input.report
     family = snakemake.wildcards.family
-    main(report)
+    vcf= snakemake.input
+    report = f"report/mitochondrial/{family}_mito.annotated_variants.csv"
+    main(vcf,report,family)

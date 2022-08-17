@@ -17,7 +17,7 @@ remove_excel = " rm report/mitochondrial/{family}_mito.annotated_variants.xlsx; 
 shell("(" + mod1 + mod2 + bgzip + mity + remove_excel + ") {log}")
 
 report = f"report/mitochondrial/{family}_mito.annotated_variants.csv"
-process_report.main(report, family)
+process_report.main(f"{snakemake.input}.gz" ,report, family)
 
 remove_csv = " rm report/mitochondrial/{family}_mito.annotated_variants.csv; "
 shell("(" + remove_csv + ") {log}")
