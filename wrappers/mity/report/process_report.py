@@ -5,7 +5,7 @@ import io
 import gzip
 
 
-def log_message(message):
+def log_message(*message):
     """write message to logfile and stdout"""
     if message:
         for i in message:
@@ -214,7 +214,7 @@ def check_sort(vcf,df):
     sample = df.SAMPLE.unique()
     if len(sample) == 1:
         log_message("Only one sample present in report")
-        return df, sample
+        return df
     else:
         log_message("Multiple samples present in report")
         updated_df = sort_by_sample(df)
