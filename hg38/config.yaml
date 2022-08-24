@@ -102,6 +102,7 @@ annotation:
     intron_bed: "/hpf/largeprojects/ccmbio/nhanafi/c4r/downloads/databases/svscore/refGene.txt.introns.bed.gz"
     cadd: "/hpf/largeprojects/ccmbio/nhanafi/c4r/downloads/databases/CADD_v1.6_whole_genome_SNVs.tsv.gz"
   svreport:
+    reference: GRCh38
     hgmd: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/HGMD_2018/hgmd_pro.db"
     protein_coding_genes: "/hpf/largeprojects/ccmbio/nhanafi/c4r/downloads/databases/protein_coding_genes.tsv"
     exon_bed: "/hpf/largeprojects/ccmbio/nhanafi/c4r/downloads/databases/hg38_exons_from_biomart_20220802.txt"

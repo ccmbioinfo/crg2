@@ -23,7 +23,7 @@ class SVTYPE(Enum):
 
 
 class SVAnnotator:
-    def __init__(self, exon_bed, hgmd_db, hpo, exac, omim, biomart):
+    def __init__(self, reference, exon_bed, hgmd_db, hpo, exac, omim, biomart):
 
         self.make_gene_ref_df(biomart)
 
@@ -599,7 +599,7 @@ class SVAnnotator:
             df[f"{prefix}_SV"] = ["-"] * len(df)
         return df
 
-    def annotsv(self, sample_df):
+    def annotsv(self, reference, sample_df):
         """
         Handles DGV, DDD annotations
         """
@@ -610,8 +610,8 @@ class SVAnnotator:
             all_sv_bed_name, index=False, sep="\t"
         )
         subprocess.call(
-            "$ANNOTSV/bin/AnnotSV -genomeBuild GRCh38 -SVinputFile {} -SVinputInfo 1 -outputFile {}".format(
-                all_sv_bed_name, annotated
+            "$ANNOTSV/bin/AnnotSV -genomeBuild {} -SVinputFile {} -SVinputInfo 1 -outputFile {}".format(
+                reference, all_sv_bed_name, annotated
             ),
             shell=True,
         )
