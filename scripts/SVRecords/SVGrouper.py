@@ -139,7 +139,7 @@ class SVGrouper:
 
             # if 'chr' in CHROM field, remove
             vcf_dict["variants/CHROM"] = [
-                chrom.lower().replace("chr", "") for chrom in vcf_dict["variants/CHROM"]
+                chrom.replace("chr", "") for chrom in vcf_dict["variants/CHROM"]
             ]
 
             # grab alt allele
@@ -379,7 +379,7 @@ class SVGrouper:
                     pr = record.samples[sample]["PR"][1]
                     name = record.samples[sample].name
                 bnd = (
-                    record.chrom.lower().replace("chr", "")
+                    record.chrom.replace("chr", "")
                     + ":"
                     + str(record.pos)
                     + "-"
