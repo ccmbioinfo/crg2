@@ -20,6 +20,7 @@ def filter_report(svreport):
 
 
 def main(
+    reference,
     protein_coding_genes,
     exon_bed,
     hgmd_db,
@@ -64,14 +65,14 @@ def main(
     )
 
     print("Annotating structural variants ...")
-    ann_records = SVAnnotator(exon_bed, hgmd_db, hpo, exac, omim, biomart)
+    ann_records = SVAnnotator(reference, exon_bed, hgmd_db, hpo, exac, omim, biomart)
     sv_records.df = ann_records.annotate_genes(sv_records.df, Protein_coding_genes_col)
 
     for sv_count in sv_counts:
         prefix = Path(sv_count).stem
         sv_records.df = ann_records.annotate_counts(sv_count, sv_records, prefix=prefix)
 
-    sv_records.df = ann_records.annotsv(sv_records.df)
+    sv_records.df = ann_records.annotsv(reference,sv_records.df)
     sv_records.df = ann_records.calc_exons_spanned(sv_records.df, exon_bed)
     sv_records.df = ann_records.annotate_gnomad(gnomad, sv_records)
     sv_records.df = ann_records.annotate_hgmd(hgmd_db, sv_records.df)
@@ -237,6 +238,7 @@ if __name__ == "__main__":
     )
 
     main(
+        snakemake.params.reference,
         snakemake.params.protein_coding_genes,
         snakemake.params.exon_bed,
         snakemake.params.hgmd,
@@ -275,6 +277,7 @@ if __name__ == "__main__":
     )
 
     main(
+        snakemake.params.reference,
         snakemake.params.protein_coding_genes,
         snakemake.params.exon_bed,
         snakemake.params.hgmd,

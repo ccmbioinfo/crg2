@@ -97,6 +97,7 @@ annotation:
     intron_bed: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/SVScore/refGene.introns.bed.gz"
     cadd: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/SVScore/whole_genome_SNVs.tsv.gz"
   svreport:
+    reference: GRCh37
     hgmd: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/HGMD_2018/hgmd_pro.db"
     protein_coding_genes: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/grch37.p13.ensembl.sorted.protein.coding.genes.bed"
     exon_bed: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/exons/hg19_UCSC_exons_canonical.bed"
