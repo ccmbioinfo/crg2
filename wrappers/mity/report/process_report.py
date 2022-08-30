@@ -100,7 +100,7 @@ def remove_cols(df):
         "variant_quality",
         "locus_mitomap",
         "QUAL",
-        "FILTER",
+    #    "FILTER",
         "MQM_INFO",
         "MQMR_INFO",
         "QA_INFO",
@@ -221,6 +221,9 @@ def check_sort(vcf,df):
         updated_df=get_vcf_info(vcf,updated_df,sample)
         return updated_df
 
+def remove_blacklist_pos(report):
+    report=report[report["FILTER"]=="PASS"]
+    return report
 
 def reorder_cols(df):
     """Reorder columns in the report dataframe"""
@@ -230,6 +233,8 @@ def reorder_cols(df):
     variant_heteroplasmy = [x for x in colnames if x.endswith("variant_heteroplasmy")]
     alt_depth = [x for x in colnames if x.endswith("alt_depth")]
     total_sample_depth = [x for x in colnames if x.endswith("total_sample_depth")]
+
+    df=remove_blacklist_pos(df)
 
     col_list = [
         "CHR",
