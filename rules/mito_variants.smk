@@ -1,10 +1,3 @@
-import pandas as pd
-from datetime import datetime
-
-configfile: "config.yaml"
-
-samples = pd.read_table(config["run"]["samples"]).set_index("sample", drop=False)
-project = config["run"]["project"]
 
 rule mity_call:
     input:
