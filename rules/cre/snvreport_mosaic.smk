@@ -73,10 +73,11 @@ if config["run"]["panel"]:
             # bedtools intersect -abam ../recal/428_CH0034.bam -b 428.bed -ubam > 428_CH0034_test.bam
 
 
-
+else:
     rule gatk_call_mosaic:
         input:
-            map="genes/{family}_{sample}_slice.bam",
+            map = "recal/{family}_{sample}.bam",
+            #map="genes/{family}_{sample}_slice.bam",
             fasta=config["ref"]["genome"]
         output:
             vcf="called/gatk_mutect/{family}_{sample}.vcf",
