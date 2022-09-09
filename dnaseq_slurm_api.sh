@@ -16,6 +16,7 @@ FAMILY="$2"
 DATA="$3"
 FILEPATH="/srv/shared/analyses/exomes"
 ANALYSIS_DIR="${FILEPATH}/${FAMILY}/${ANALYSIS_ID}"
+CONFIG="${ANALYSIS_DIR}/config_cheo_ri.yaml"
 
 source /storage/modules/anaconda/2020.11/etc/profile.d/conda.sh
 conda activate /srv/shared/conda_envs/snakemake_5.10.0/
@@ -31,4 +32,4 @@ fi
 
 cd "$ANALYSIS_DIR"
 
-snakemake --use-conda -s "$SF" --conda-prefix "$CP"  --profile "$SLURM" -p 
+snakemake --use-conda -s "$SF" --conda-prefix "$CP" --configfile "$CONFIG" --profile "$SLURM" -p 

@@ -1,6 +1,7 @@
 channels:
   - conda-forge
   - bioconda
+  - defaults
   - r
 dependencies:
   - gemini =0.30.2

@@ -22,8 +22,8 @@ def replace_str(filename, target, replacement):
 
 
 def setup_directory(filepath):
-    # copy config.yaml, pbs_config.yaml, and dnaseq_cluster.pbs
-    for i in ["config.yaml", "slurm_profile/slurm-config.yaml", "dnaseq_slurm.sh"]:
+    # copy config_cheo_ri.yaml, slurm-config.yaml, and dnaseq_cluster.pbs
+    for i in ["config_cheo_ri.yaml", "slurm_profile/slurm-config.yaml", "dnaseq_slurm_cheo_ri.sh"]:
         src = os.path.join(crg2_dir, i)
         if i == "slurm_profile/slurm-config.yaml":
             dest = os.path.join(filepath, "slurm-config.yaml")
@@ -33,9 +33,12 @@ def setup_directory(filepath):
 
 
 def write_config(family, filepath):
-    # replace family ID in config.yaml & dnaseq_cluster.pbs
-    config = os.path.join(filepath, "config.yaml")
+    # replace family ID in config_cheo_ri.yaml and 
+    config = os.path.join(filepath, "config_cheo_ri.yaml")
     replace_str(config, "NA12878", family)
+    slurm = os.path.join(filepath, "dnaseq_slurm_cheo_ri.sh")
+    replace_str(slurm, "/srv/shared/data/crg2/config_cheo_ri.yaml", f"{filepath}/config_cheo_ri.yaml")
+
 
 
 def input_type(file, participant):
@@ -138,7 +141,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=description)
     # set up directory:
     # copy config files etc
-    # based on family, pipeline and input type, modify config.yaml
+    # based on family, pipeline and input type, modify config_cheo_ri.yaml
     # create units.tsv and samples.tsv based on input
     parser.add_argument(
         "-f",
@@ -182,6 +185,6 @@ if __name__ == "__main__":
     datasets_dict = dataset_to_dict(datasets)
     logging.info("Writing units.tsv and samples.tsv files")
     write_units_samples(datasets_dict, filepath)
-    logging.info("Parsing config.yaml")
+    logging.info("Parsing config_cheo_ri.yaml")
     write_config(family, filepath)
     logging.info("crg2 set up complete")
