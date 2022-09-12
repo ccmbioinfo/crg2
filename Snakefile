@@ -73,6 +73,7 @@ elif config["run"]["pipeline"] == "annot":
     base = "rules/"
 elif config["run"]["pipeline"] == "mity":
     base = "rules/"
+    include: "rules/mapping.smk"
     include: base + "mito_variants.smk"
 
 
