@@ -1,6 +1,4 @@
 #!/bin/bash
-#SBATCH -A slurm
-#SBATCH --partition=all
 #SBATCH --job-name=crg2
 #SBATCH --time=50:00:00
 #SBATCH --ntasks-per-node=1
