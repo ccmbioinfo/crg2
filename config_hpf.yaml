@@ -116,7 +116,7 @@ annotation:
      database_path: "/hpf/largeprojects/ccmbio/naumenko/tools/bcbio/genomes/Hsapiens/GRCh37/variation/"
 
 validation:
-  benchmark: "benchmark.tsv"
+  benchmark: "benchmark_hpf.tsv"
 
 params:
   bwa:

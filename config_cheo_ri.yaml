@@ -116,7 +116,7 @@ annotation:
     database_path: "/srv/shared/data/dccdipg/annotation/C4R_database/"
 
 validation:
-  benchmark: "benchmark.tsv"
+  benchmark: "benchmark_cheo_ri.tsv"
 
 params:
   bwa:
