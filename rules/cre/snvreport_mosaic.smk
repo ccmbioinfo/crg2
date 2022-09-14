@@ -28,7 +28,6 @@ rule allsnvreport_mosaic:
         ln -s ../../../{input.vcf} {params.family}-ensemble-annotated-decomposed.vcf.gz
         tabix {params.family}-ensemble-annotated-decomposed.vcf.gz
         cd ../
-        {params.cre}/cre.sh {params.family} 
         type=wes.mosaic {params.cre}/cre.sh {params.family}
         unset type
         '''
