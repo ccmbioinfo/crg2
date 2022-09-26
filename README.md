@@ -5,7 +5,7 @@ Clinical research pipeline for exploring variants in whole genome (WGS) and exom
     <img src="/crg2logolarge.png" width="800px"</img> 
 </div>
 
-crg2 is a research pipeline aimed at discovering clinically relevant variants (SNVs, SVs) in whole genome and exome sequencing data.
+crg2 is a research pipeline aimed at discovering clinically relevant variants (SNVs, indels, SVs, STRs) in whole genome and exome sequencing data.
 It aims to provide reproducible results, be computationally efficient, and transparent in it's workflow.
 
 crg2 uses Snakemake and Conda to manage jobs and software dependencies.
@@ -36,7 +36,7 @@ Make sure to replace ```~/crg2-conda``` with the path made in step 4. This will 
 
 7. Install these plugins for VEP: ```LoF, MaxEntScan, SpliceRegion```. Refer to this page for installation instructions: https://useast.ensembl.org/info/docs/tools/vep/script/vep_plugins.html. The INSTALL.pl script has been renamed to vep_install in the VEP's Conda build. It is located in the conda environment directory, under ```share/ensembl-vep-99.2-0/vep_install```. Therefore, your command should be similar to: ```fb5f2eb3/share/ensembl-vep-99.2-0/vep_install -a p --PLUGINS LoF,MaxEntScan,SpliceRegion```
 
-8. Git clone cre: ```git clone https://github.com/ccmbioinfo/cre``` to a safe place
+8. Git clone cre: ```git clone https://github.com/ccmbioinfo/cre``` to a safe place.
 
 9. Replace the VEP paths to the VEP directory installed from step 6. Replace the cre path in crg2/config_hpf.yaml with the one from step 7.
 
@@ -50,13 +50,13 @@ Make sure to replace ```~/crg2-conda``` with the path made in step 4. This will 
   - set ```-reciprocal             yes```
   - set ```-svtBEDcol:     4```
 
-11. To generate a gene panel from an HPO text file exported from PhenomeCentral or G4RD, add the HPO filepath to config["run"]["hpo"]. You will also need to generate Ensembl and RefSeq gene files as well as an HGNC gene mapping file.
+11. To generate a gene panel from an HPO text file exported from PhenomeCentral or G4RD, add the HPO filepath to `config["run"]["hpo"]`. You will also need to generate Ensembl and RefSeq gene files as well as an HGNC gene mapping file.
 - Download and unzip Ensembl gtf: ```wget -qO- http://ftp.ensembl.org/pub/grch37/current/gtf/homo_sapiens/Homo_sapiens.GRCh37.87.gtf.gz  | gunzip -c > Homo_sapiens.GRCh37.87.gtf```
 - Download and unzip RefSeq gff: ```wget https://ftp.ncbi.nlm.nih.gov/refseq/H_sapiens/annotation/GRCh37_latest/refseq_identifiers/GRCh37_latest_genomic.gff.gz | gunzip -c > GRCh37_latest_genomic.gff```
 - Download RefSeq chromosome mapping file: ```wget https://ftp.ncbi.nlm.nih.gov/refseq/H_sapiens/annotation/GRCh37_latest/refseq_identifiers/GRCh37_latest_assembly_report.txt```
 - Run script to parse the above files: ```python scripts/clean_gtf.py --ensembl_gtf /path/to/Homo_sapiens.GRCh37.87.gtf --refseq_gff3 /path/to/GRCh37_latest_genomic.gff --refseq_assembly /path/to/GRCh37_latest_assembly_report.txt```
-- Add the paths to the output files, Homo_sapiens.GRCh37.87.gtf_subset.csv and GRCh37_latest_genomic.gff_subset.csv, to the config["gene"]["ensembl"] and config["gene"]["refseq"] fields.
-- You will also need the HGNC alias file: download this from https://www.genenames.org/download/custom/ using the default fields. Add the path this file to config["gene"]["hgnc"].
+- Add the paths to the output files, Homo_sapiens.GRCh37.87.gtf_subset.csv and GRCh37_latest_genomic.gff_subset.csv, to the `config["gene"]["ensembl"]` and `config["gene"]["refseq"]` fields.
+- You will also need the HGNC alias file: download this from https://www.genenames.org/download/custom/ using the default fields. Add the path this file to `config["gene"]["hgnc"]`.
 
 12. You will need to have R in your $PATH to generate the str (EH and EHDN) reports. You will also need to install the following packages: dbscan, doSNOW. 
     ```
@@ -65,23 +65,24 @@ Make sure to replace ```~/crg2-conda``` with the path made in step 4. This will 
     > install.packages("doSNOW")
     ```
 ## Running the pipeline
-1. Make a folder in a directory with sufficient space. Copy over the template files samples.tsv, units.tsv, config_hpf.yaml, pbs_profile/pbs_config.yaml.
-You may need to re-copy config_hpf.yaml and pbs_config.yaml if the files were recently updated in repo from previous crg2 runs. Note that 'pbs_config.yaml' is for submitting each rule as cluster jobs, so ignore this if not running on cluster.
+1. Make a folder in a directory with sufficient space. Copy over the template files samples.tsv, units.tsv, config_hpf.yaml, crg2/dnaseq_cluster.pbs, pbs_profile/pbs_config.yaml .
+You may need to re-copy config_hpf.yaml and pbs_config.yaml if the files were recently updated in the repo from previous crg2 runs. Note that 'pbs_config.yaml' is for submitting each rule as cluster jobs, so ignore this if not running on cluster.
 ```
 mkdir NA12878
 cp crg2/samples.tsv crg2/units.tsv crg2/config_hpf.yaml crg2/dnaseq_cluster.pbs crg2/pbs_profile/pbs_config.yaml NA12878
+cd NA12878
 ```
 
 2. Set up pipeline run 
   * Reconfigure 'samples.tsv', 'units.tsv' to reflect sample names and input files.
+  * If you are using cram files as input, make sure that you are specifying the correct cram references in 'config_hpf.yaml'- `old_cram_ref` refers to the original reference the cram was aligned to, and `new_cram_ref` refers to the new reference used to convert the cram to fastq. You can get the `old_cram_ref` from the cram file header by running `samtools view -H file_name.cram`.  If there are multiple fastqs per read end, these must be comma-delimited within the units.tsv file. 
   * Modify 'dnaseq_cluster.pbs' to reflect `configfile` location (working directory path, in this case NA12878). 
   * Modify 'config_hpf.yaml': 
     * change `project` to refer to the family ID (here, NA12878).
     * set `pipeline` to `wes`, `wgs` or `annot` for exome sequences, whole genome sequences, or to simply annotate a VCF respectively.
-    * inclusion of a panel bed file (`panel`) or hpofile (`hpo`) will generate 2 SNV reports with all variants falling within these regions, one which includes variants in flanking regions as specificied by `flank`.
-    * inclusion of a `ped` file with parents and a proband/probands will allow generation of a genome-wide de novo report if `pipeline` is `wgs`.
-    * `minio` refers to the path of the file system mount that backs MinIO in the CHEO HPC4Health tenancy.
-    * If you using cram files as input, make sure that you are specifying the correct cram references - old_cram_ref refers to the original reference the cram was aligned to, and new_cram_ref refers to the new reference used to convert the cram to fastq. You can get the old_cram_ref from the cram file header by running samtools view -H file_name.cram.  If there are multiple fastqs per read end, these must be comma-delimited within the units.tsv file. 
+    * inclusion of a panel bed file (`panel`) or hpofile (`hpo`) will generate 2 SNV reports with all variants falling within these regions, one which includes variants in flanking regions as specified by `flank`.
+    * inclusion of a `ped` file with parents and a proband(s) will allow generation of a genome-wide de novo report if `pipeline` is `wgs`.
+    * `minio` refers to the path of the file system mount that backs MinIO in the CHEO HPC4Health tenancy. Exome reports (and coverage reports, if duplication percentage is >20%) will be copied to this path if specified. 
 
 samples.tsv
 ```
@@ -119,10 +120,10 @@ run:
 5.10.0
 ```
 
-4. Test that the pipeline will run by adding the flag "-n" to the command in dnaseq.pbs. 
+4. Test that the pipeline will run by adding the flag "-n" to the command in dnaseq_cluster.pbs. 
 
 ```
-(snakemake) [dennis.kao@qlogin5 crg2]$ snakemake --use-conda -s /hpf/largeprojects/ccm_dccforge/dccdipg/Common/pipelines/crg2/Snakefile --cores 4 --conda-prefix ~/crg2-conda -n
+(snakemake) [dennis.kao@qlogin5 crg2]$ snakemake --use-conda -s ~/crg2/Snakefile --cores 4 --conda-prefix /hpf/largeprojects/ccm_dccforge/dccdipg/Common/snakemake --profile ~/crg2/pbs_profile --configfile config_hpf.yaml -n
 Building DAG of jobs...
 Job counts:
 	count	jobs
@@ -171,9 +172,9 @@ rule call_variants:
 ...
 ```
 
-5. Run the pipeline
+5. Submit pipeline job to the cluster
 
-    Job scheduler: PBS
+    Job scheduler: PBS on SickKids hpf
       * Serialized jobs:
       ```qsub dnaseq.pbs```
       * Parallelized jobs:
@@ -219,37 +220,6 @@ The script performs the following operations for each familyID present in the sa
   - copy the following files to run folder and update settings where applicable:
     - config.yaml: update run name, input type, panel and ped (if avaialble in /hpf/largeprojects/ccmbio/dennis.kao/gene_data/{HPO,Pedigrees})
     - units.tsv: add sample name, and input file paths
-    - samples.tsv: add sample names
-    - dnaseq_cluser.pbs: rename job (#PBS -N \<familyID\>)
-    - pbs_config.yaml
-  - submit Snakemake job 
-
-### Exomes
-`parser_exomes.py` script can be used to automate the above process for a batch of exomes. 
-
-```
-usage: parser_exomes.py [-h] -f FILE -d path -s {fastq,mapped,recal,decoy_rm}
-                        -b BIOINFOS [BIOINFOS ...]
-
-Reads sample info from csv file (-f) and creates directory (-d) necessary to
-start crg2 from step (-s) requested.
-
-optional arguments:
-  -h, --help            show this help message and exit
-  -f FILE, --file FILE  Analyses csv output from STAGER
-  -d path, --dir path   Absolute path where crg2 directory structure will be
-                        created under familyID as base directory
-  -s {fastq,mapped,recal,decoy_rm}, --step {fastq,mapped,recal,decoy_rm}
-                        start running from this folder creation(step)
-  -b BIOINFOS [BIOINFOS ...], --bioinfos BIOINFOS [BIOINFOS ...]
-                        Names of bioinformaticians who will be assigned cases
-                        separated by spaces, e.g. MC NH PX
-```
-The script performs the following operations for each familyID present in the analyses request file
-  - create run folder: \<familyID\>
-  - copy the following files to run folder and update settings where applicable:
-    - config.yaml: update run name, input type
-    - units.tsv: add sample name, and input file paths from MinIO uploads or previously run analyses
     - samples.tsv: add sample names
     - dnaseq_cluser.pbs: rename job (#PBS -N \<familyID\>)
     - pbs_config.yaml
@@ -377,11 +347,11 @@ CNV and SV comparison outputs are not yet part of the pipeline. Please follow th
 
 SNV calls from WES and WGS pipeline can be benchmarked using the GIAB dataset _HG001_NA12878_ (family_sample) and truth calls from NISTv3.3.2
 
-0. Copy all required files for run as [here](#running-the-pipeline).
-  The inputs in `units.tsv` is downsampled for testing purposes. Edit the tsv to use the inputs from HPF: `ccmmarvin_shared/validation/benchmarking/benchmark-datasets`
-1. Copy `crg2/benchmark.tsv` to current directory. _Note: benchmark.tsv uses HG001_NA12878 as family_sample name, so you should edit the "project" name in `config_hpf.yaml`_
-2. Edit the `config_hpf.yaml` to set "wes" or "wgs" pipeline
-3. Edit `dnaseq_cluster.pbs` to include the target `validation/HG001`
+1. Copy all required files for run as [here](#running-the-pipeline).
+  The inputs in `units.tsv` are downsampled for testing purposes. Edit the tsv to use the inputs from HPF: `ccmmarvin_shared/validation/benchmarking/benchmark-datasets` or CHEO-RI: `/srv/shared/data/benchmarking-datasets/HG001`. 
+2. Copy `crg2/benchmark_hpf.tsv` or `crg2/benchmark_cheo_ri.tsv` to current directory. _Note_: benchmark_x.tsv uses HG001_NA12878 as family_sample name, so you should edit the "project" name in `config_hpf.yaml`
+3. Edit the `config_hpf.yaml` to set "wes" or "wgs" pipeline
+4. Edit `dnaseq_cluster.pbs` to include the target `validation/HG001`
 
 
 
