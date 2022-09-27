@@ -14,8 +14,8 @@ if config["run"]["pipeline"] == "wes":
             "qc/multiqc/multiqc.html",
             [expand("recal/{family}_{sample}.bam.md5".format(family=config["run"]["project"], sample=s)) for s in samples.index],
             expand("{minio}/{family}", minio=[config["run"]["minio"]], family=project) if config["run"]["minio"] else [],
-            expand("report/{p}/{family}", p="gatk_somatic", family=project)
-            "report_upload/PT_ids.txt"
+            expand("report/{p}/{family}", p="gatk_somatic", family=project),
+            "report_upload/demultiplexed_reports"
 elif config["run"]["pipeline"] == "wgs":
     rule all:
         input:
