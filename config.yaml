@@ -130,7 +130,8 @@ params:
     #BaseRecalibrator: "--interval-set-rule INTERSECTION -U LENIENT-VCF-PROCESSING --read-filter BadCigar --read-filter NotzPrimaryAlignment"
     GenotypeGVCFs: ""
     VariantRecalibrator: ""
-    Mutect: ""
+    Mutect2: 
+      gnomad_germline: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/af-only-gnomad.raw.sites.vcf"
     FilterMutectCalls: ""
   gatk3:
     java_opts: "-Xms500m -Xmx9555m"
@@ -167,7 +168,8 @@ params:
   bcftools:
     mpileup: "-a DP -a AD "
     call: " -m -v "
-    merge: ""
+    # -F x sets the output filter to PASS if any of the variant filters is PASS in sample VCFs to be merged
+    merge: "-F x"
   freebayes:
     call: " --genotype-qualities --strict-vcf --ploidy 2 --no-partial-observations --min-repeat-entropy 1 "
     mosaic_call: "--pooled-discrete --pooled-continuous --report-genotype-likelihood-max --allele-balance-priors-off --min-alternate-fraction 0.05"

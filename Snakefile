@@ -14,7 +14,7 @@ if config["run"]["pipeline"] == "wes":
             "qc/multiqc/multiqc.html",
             [expand("recal/{family}_{sample}.bam.md5".format(family=config["run"]["project"], sample=s)) for s in samples.index],
             expand("{minio}/{family}", minio=[config["run"]["minio"]], family=project) if config["run"]["minio"] else [],
-            expand("report/{p}/{family}", p=["gatk_somatic", "freebayes_mosaic"], family=project) if config["run"]["panel"] else expand("report/{p}/{family}", p= ["freebayes_mosaic"], family=project)
+            expand("report/{p}/{family}", p="gatk_somatic", family=project)
 elif config["run"]["pipeline"] == "wgs":
     rule all:
         input:
