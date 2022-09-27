@@ -15,6 +15,7 @@ if config["run"]["pipeline"] == "wes":
             [expand("recal/{family}_{sample}.bam.md5".format(family=config["run"]["project"], sample=s)) for s in samples.index],
             expand("{minio}/{family}", minio=[config["run"]["minio"]], family=project) if config["run"]["minio"] else [],
             expand("report/{p}/{family}", p="gatk_somatic", family=project)
+            "report_upload/PT_ids.txt"
 elif config["run"]["pipeline"] == "wgs":
     rule all:
         input:
@@ -62,6 +63,7 @@ if config["run"]["pipeline"] == "wes":
     include: base + "calling_mosaic.smk"
     include: base + "annotation_mosaic.smk"
     include: base + "snvreport_mosaic.smk"
+    include: base + "report_upload.smk"
 elif config["run"]["pipeline"] == "wgs":
     include: "rules/mapping.smk"
     include: "rules/stats.smk"
