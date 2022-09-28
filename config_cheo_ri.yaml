@@ -22,6 +22,7 @@ tools:
   crg: "/srv/shared/pipelines/crg"
   crg2: "/srv/shared/pipelines/crg2"
   ehdn: "/srv/shared/data/dccdipg/crg2-non-conda-tools/EHDN/ExpansionHunterDenovo-v0.7.0"
+  mity: ""
 
 ref:
   name: GRCh37.75
