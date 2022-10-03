@@ -83,7 +83,7 @@ annotation:
   cre.vcfanno:
     conf: "~/crg2/vcfanno/cre.vcfanno.conf"
     lua_script: "~/crg2/vcfanno/cre.vcfanno.lua"
-    base_path: "/hpf/largeprojects/ccmbio/naumenko/tools/bcbio/genomes/Hsapiens/GRCh37"
+    base_path: "/hpf/largeprojects/ccmbio/naumenko/tools/bcbio/genomes/Hsapiens/GRCh37/variation/"
   vcfanno:
     conf: "~/crg2/vcfanno/crg.vcfanno.conf" 
     lua_script: "~/crg2/vcfanno/crg.vcfanno.lua"
