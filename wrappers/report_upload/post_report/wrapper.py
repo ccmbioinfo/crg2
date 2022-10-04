@@ -1,4 +1,4 @@
-wrappers/report_upload/post_report/wrapper.pyimport requests
+import requests
 from json import loads
 import pandas as pd
 import os
