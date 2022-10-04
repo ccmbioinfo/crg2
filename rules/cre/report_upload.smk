@@ -9,6 +9,8 @@ rule PT_identifier:
         credentials=config["run"]["PT_credentials"]
     output:
         "report_upload/PT_ids.txt"
+    log:
+        "logs/report_upload/PT_identifer.log"
     wrapper:
         get_wrapper_path("report_upload", "PT_identifier")
 
@@ -22,5 +24,7 @@ rule post_report:
         credentials=config["run"]["PT_credentials"]
     output:
         directory("report_upload/demultiplexed_reports")
+    log:
+        "logs/report_upload/post_report.log"
     wrapper:
         get_wrapper_path("report_upload", "post_report")
