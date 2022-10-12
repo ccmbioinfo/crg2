@@ -1,3 +1,8 @@
+def get_cre_bams(ext="bam"):
+    if gatk == "gatk3":
+        return expand("recal/gatk3/{family}_{sample}.{ext}", family=project, sample=samples.index, ext=ext)
+    return expand("recal/{family}_{sample}.{ext}", family=project, sample=samples.index, ext=ext)
+
 
 rule gatk3:
     input:

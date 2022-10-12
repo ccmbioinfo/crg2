@@ -117,11 +117,6 @@ def get_sample_bams(wildcards):
                   sample=wildcards.sample,
                   family=wildcards.family)
 
-def get_cre_bams(ext="bam"):
-    """Get bam and bam.bai for given sample. Used in freebayes variant calling"""
-    if gatk == "gatk3":
-        return expand("recal/gatk3/{family}_{sample}.{ext}", family=project, sample=samples.index, ext=ext)
-    return expand("recal/{family}_{sample}.{ext}", family=project, sample=samples.index, ext=ext)
 
 def get_regions_param(regions=config["processing"].get("restrict-regions"), default=""):
     if regions:
