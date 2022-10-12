@@ -1,6 +1,6 @@
 rule vep_mosaic:
     input:
-        "filtered/{family}-{p}.uniq.normalized.decomposed.pass.mosaic.vcf.gz"
+        "filtered/{family}-{p}.pass.mosaic.uniq.normalized.decomposed.vcf.gz"
     output:
         temp("annotated/{p}/vep/{family}-mosaic.coding.vep.vcf")
     log:

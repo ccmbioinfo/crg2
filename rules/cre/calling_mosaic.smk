@@ -66,9 +66,9 @@ rule filter_mutect_call:
 # filtering: skip softfilter step to do rule pass. Changed file name to distinguish from  "uniq.normalized.decomposed.pass.vcf.gz"
 rule pass_mosaic:
     input:
-        "filtered/{family}_{sample}-gatk_somatic.uniq.normalized.decomposed.vcf.gz", "filtered/{family}_{sample}-gatk_somatic.uniq.normalized.decomposed.vcf.gz.tbi"
+        "genotyped/{family}_{sample}-gatk_somatic.vcf.gz", "genotyped/{family}_{sample}-gatk_somatic.vcf.gz.tbi"
     output:
-        "filtered/{family}_{sample}-gatk_somatic.uniq.normalized.decomposed.pass.mosaic.vcf.gz"
+        "genotyped/{family}_{sample}-gatk_somatic.pass.mosaic.vcf.gz"
     threads: 6
     resources:
         mem=lambda wildcards, threads: threads * 2
@@ -84,8 +84,8 @@ rule merge_mutect_sample:
         vcf=get_gatk_somatic_vcf(),
         index=get_gatk_somatic_vcf(ext="vcf.gz.tbi")
     output:
-        vcf_unsort=temp("filtered/{family}-gatk_somatic.uniq.normalized.decomposed.unsorted.pass.mosaic.vcf"),
-        vcf="filtered/{family}-gatk_somatic.uniq.normalized.decomposed.pass.mosaic.vcf"
+        vcf_unsort=temp("genotyped/{family}-gatk_somatic.pass.mosaic.unsorted.vcf"),
+        vcf="genotyped/{family}-gatk_somatic.pass.mosaic.vcf"
     log: 
         "logs/bcftools/merge/{family}_gatk_somatic.log"
     params:
