@@ -1,9 +1,6 @@
-if config["run"]["panel"]:
-    callers = [ gatk + "_somatic", gatk + "_haplotype", "samtools", "freebayes", "platypus", "freebayes_mosaic" ] 
-    
-else:
-    callers = [ gatk + "_haplotype", "samtools", "freebayes", "platypus", "freebayes_mosaic"]
-    #callers = [ gatk + "_haplotype" ]
+
+callers = [ gatk + "_haplotype", "samtools", "freebayes", "platypus", "freebayes_mosaic"]
+#callers = [ gatk + "_haplotype" ]
 
 #list used for annotating VCFs with INFO/CALLERS
 if len(callers) > 1:

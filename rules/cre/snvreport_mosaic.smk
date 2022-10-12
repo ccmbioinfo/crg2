@@ -1,5 +1,4 @@
-#callers = [ "freebayes_mosaic" ]
-# {p} wildcard is ["freebayes_mosaic", "gatk_somatic"]
+# {p} wildcard is "gatk_somatic"
 rule allsnvreport_mosaic:
     input:
         db="annotated/{p}/{family}-mosaic-gemini.db",
