@@ -3,7 +3,7 @@ run:
   samples: samples.tsv
   units: units.tsv
   ped: "" # leave this string empty if there is no ped
-  panel: "" # a tsv file with a list of "Gene ID" (used in mosaic-panel pipeline)
+  panel: "" # three-column BED file based on hpo file; leave this string empty if there is no panel
   hpo: "" # five-column TSV with HPO terms; leave this string empty is there are no hpo terms
   flank: 100000
   gatk: "gatk"
