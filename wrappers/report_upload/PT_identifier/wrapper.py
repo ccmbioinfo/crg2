@@ -2,6 +2,7 @@ import requests
 from json import loads
 import logging
 import pandas as pd
+import sys
 
 logfile = snakemake.log[0]
 logging.basicConfig(
@@ -43,8 +44,10 @@ def get_PT_id(family,eid_df,base_url,token):
             logging.info(f"Query successful; participant {eid} has Phenotips id {pid_id}")
             id_dict["pids"].append(pid_id)
         else:
-            logging.error(f"Query unsuccessful; participant {eid} is not present in Phenotips")
-            id_dict["pids"].append("")
+            # if any participant is not present in Phenotips, exit with error
+            message = f"Query unsuccessful; participant {eid} is not present in Phenotips"
+            logging.error(message)
+            sys.exit(message)
         id_dict["status"].append(pid.status_code)
         id_dict["eids"].append(eid)
     

@@ -10,7 +10,7 @@ rule PT_identifier:
     output:
         "report_upload/PT_ids.txt"
     log:
-        "logs/report_upload/PT_identifer.log"
+        "logs/report_upload/PT_identifier.log"
     wrapper:
         get_wrapper_path("report_upload", "PT_identifier")
 
