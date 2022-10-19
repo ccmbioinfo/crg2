@@ -113,23 +113,16 @@ for (family_participant_identifier, family,  date_report_generated, sample_df) i
         formatted_ptp_report.to_csv(ptp_fn, index=False)
 
         logging.info(f"POST variants for {family_participant_identifier} to Phenotips")
-        # ---------------------------------------------------------------------------
-        # START - UNCOMMENT THE CHUNK BELOW TO ATTEMPT A DEMULTIPLEXED REPORT UPLOAD 
-
         post_status_code = query.clean_and_post_report(pt_id, ptp_fn)
-
-        if post_status_code != 200:
-            logging.error(f"Report POST failed for {family_participant_identifier} with code {post_status_code}")
-            print(f"Report POST failed for {family_participant_identifier} with code {post_status_code}")
-        else:
-            logging.info(f"Report POST successfuly for {family_participant_identifier} with code {post_status_code}")
-            print(f"Report POST successfuly for {family_participant_identifier} with code {post_status_code}")
-                    
-                    
         ptp_dict["post_status_code"] = post_status_code
-                    
-        # END - UNCOMMENT THE CHUNK ABOVE TO ATTEMPT A DEMULTIPLEXED REPORT UPLOAD 
-            # ------------------------- END --------------------------------------------
         report_dict["participants"].append(ptp_dict)
 
+        if post_status_code != 200:
+            message = f"Report POST failed for {family_participant_identifier} with code {post_status_code}"
+            logging.info(f"Summary: {report_dict}")
+            logging.error(message)
+            sys.exit(message)
+        else:
+            message = f"Report POST successful for {family_participant_identifier} with code {post_status_code}"
+            logging.info(message)
 logging.info(f"Summary: {report_dict}")
