@@ -259,7 +259,7 @@ class PTQuery:
             params["patientOffset"] += PAGE_SIZE
             return self.get_job_metadata_for_patient(patient_id, complete, params)
         else:
-            raise Exception("NOT FOUND!")
+            return []
 
     '''def get_all_job_metadata(self, params={}) -> list[dict]:
         """paginates through all job metadata, saves and returns as a list of dictionaries. useful for sanity checking whether reports were successfully processed."""

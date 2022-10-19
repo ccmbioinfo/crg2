@@ -3,6 +3,7 @@ from json import loads
 import pandas as pd
 import os
 import sys
+import time
 from PTQuery import *
 from report_reshape_upload import *
 
@@ -73,6 +74,7 @@ for (family_participant_identifier, family,  date_report_generated, sample_df) i
     except IndexError:
         logging.error(f"No Phenotips identifier found for {family_participant_identifier}")
         ptp_dict["variants_found"] = None
+        ptp_dict["variants_removed"] = None
         ptp_dict["missing_cols"] = None
         ptp_dict["extra_cols"] = None
         ptp_dict["post_status_code"] = None
@@ -82,51 +84,51 @@ for (family_participant_identifier, family,  date_report_generated, sample_df) i
 
         # query variant-source-files/metadata endpoint to retrieve IDs of patients who have had reports uploaded already
         metadata = query.get_job_metadata_for_patient(pt_id)
-        reports = metadata[0].get("filename")
-        logging.info(f"report name{reports}")
-
-        #variants_exist = 0 
-        variants_exist=query.get_variant_info(pt_id) #This line was initially commented but I'm using it
-        #as a sanity check to make sure double reports don't get uploaded.
-                    
-        if variants_exist:
-            logging.info(f"Variants found for {family_participant_identifier}")
+        try:
+            report = metadata[0].get("fileName")
+            logging.info(f"Variants found for {family_participant_identifier} in report: {report}")
             ptp_dict["variants_found"] = 1
-            # TODO: add in logic to remove variants from this participant
-
-        # no variants found so report will be formatted and POSTed
-        else:
-            logging.info(f"No variants found in Phenotips for {family_participant_identifier}, formatting variants")
+            ptp_dict["variants_removed"] = 1
+            logging.info(f"Removing variants for {family_participant_identifier}")
+            query.delete_report(pt_id, report)
+            # add a two minute wait so subsequent report upload does not fail with 409 error
+            time.sleep(120)
+        except IndexError:
             ptp_dict["variants_found"] = 0
-            extra_cols, missing_cols, formatted_ptp_report = format_for_phenotips(sample_df)
+            ptp_dict["variants_removed"] = 0
+            logging.info(f"No variants found for {pt_id}")
 
-            ptp_dict["missing_cols"] = list(missing_cols)
-            ptp_dict["extra_cols"] = list(extra_cols)
+        # format and POST report
+        logging.info(f"Formatting report")
+        extra_cols, missing_cols, formatted_ptp_report = format_for_phenotips(sample_df)
 
-            ptp_fn = os.path.join(
-                folder_to_store_csvs,
-                f"{family_participant_identifier}_{date_report_generated}-formatted.csv",
-            )
+        ptp_dict["missing_cols"] = list(missing_cols)
+        ptp_dict["extra_cols"] = list(extra_cols)
 
-            formatted_ptp_report.to_csv(ptp_fn, index=False)
+        ptp_fn = os.path.join(
+            folder_to_store_csvs,
+            f"{family_participant_identifier}_{date_report_generated}-formatted.csv",
+        )
 
-            logging.info(f"POST variants for {family_participant_identifier} to Phenotips")
-            # ---------------------------------------------------------------------------
-            # START - UNCOMMENT THE CHUNK BELOW TO ATTEMPT A DEMULTIPLEXED REPORT UPLOAD 
+        formatted_ptp_report.to_csv(ptp_fn, index=False)
 
-            post_status_code = query.clean_and_post_report(pt_id, ptp_fn)
+        logging.info(f"POST variants for {family_participant_identifier} to Phenotips")
+        # ---------------------------------------------------------------------------
+        # START - UNCOMMENT THE CHUNK BELOW TO ATTEMPT A DEMULTIPLEXED REPORT UPLOAD 
 
-            if post_status_code != 200:
-               logging.error(f"Report POST failed for {family_participant_identifier} with code {post_status_code}")
-               print(f"Report POST failed for {family_participant_identifier} with code {post_status_code}")
-            else:
-               logging.info(f"Report POST successfuly for {family_participant_identifier} with code {post_status_code}")
-               print(f"Report POST successfuly for {family_participant_identifier} with code {post_status_code}")
-                        
-                        
-            ptp_dict["post_status_code"] = post_status_code
-                        
-            # END - UNCOMMENT THE CHUNK ABOVE TO ATTEMPT A DEMULTIPLEXED REPORT UPLOAD 
+        post_status_code = query.clean_and_post_report(pt_id, ptp_fn)
+
+        if post_status_code != 200:
+            logging.error(f"Report POST failed for {family_participant_identifier} with code {post_status_code}")
+            print(f"Report POST failed for {family_participant_identifier} with code {post_status_code}")
+        else:
+            logging.info(f"Report POST successfuly for {family_participant_identifier} with code {post_status_code}")
+            print(f"Report POST successfuly for {family_participant_identifier} with code {post_status_code}")
+                    
+                    
+        ptp_dict["post_status_code"] = post_status_code
+                    
+        # END - UNCOMMENT THE CHUNK ABOVE TO ATTEMPT A DEMULTIPLEXED REPORT UPLOAD 
             # ------------------------- END --------------------------------------------
         report_dict["participants"].append(ptp_dict)
 
