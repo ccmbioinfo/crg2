@@ -2,3 +2,6 @@ channels:
   - bioconda
   - conda-forge
   - defaults
+dependencies:
+  - tabix =0.2.6
+  - peddy =0.4.1

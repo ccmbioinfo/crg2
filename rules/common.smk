@@ -10,7 +10,7 @@ min_version("5.7.1")
 report: "../report/workflow.rst"
 
 ###### Config file and sample sheets #####
-configfile: "config.yaml"
+#configfile: "config.yaml"
 validate(config, schema="../schemas/config.schema.yaml")
 
 samples = pd.read_table(config["run"]["samples"], dtype=str).set_index("sample", drop=False)

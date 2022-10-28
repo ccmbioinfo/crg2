@@ -1,0 +1,175 @@
+run:
+  project: "NA12878"
+  samples: samples.tsv
+  units: units.tsv
+  ped: "" # leave this string empty if there is no ped
+  panel: "" # three-column BED file based on hpo file; leave this string empty if there is no panel
+  hpo: "" # five-column TSV with HPO terms; leave this string empty is there are no hpo terms
+  flank: 100000
+  gatk: "gatk"
+  pipeline: "wes" #either wes (exomes) or wgs (genomes) or annot (to annotate and produce reports for an input vcf)
+  minio: "/srv/minio/results-c4r"
+
+genes:
+  ensembl: "/srv/shared/data/dccdipg/annotation/genes_for_panels/Homo_sapiens.GRCh37.87.gtf_subset.csv"
+  refseq: "/srv/shared/data/dccdipg/annotation/genes_for_panels/GRCh37_latest_genomic.gff_subset.csv"
+  hgnc: "/srv/shared/data/dccdipg/annotation/genes_for_panels/HGNC_20210617.txt"
+
+tools:
+  svscore_script: "/srv/shared/data/dccdipg/crg2-non-conda-tools/SVScore/svscore.pl"
+  annotsv: "/srv/shared/data/dccdipg/crg2-non-conda-tools/AnnotSV_2.1"
+  cre: "/srv/shared/pipelines/cre"
+  crg: "/srv/shared/pipelines/crg"
+  crg2: "/srv/shared/pipelines/crg2"
+  ehdn: "/srv/shared/data/dccdipg/crg2-non-conda-tools/EHDN/ExpansionHunterDenovo-v0.7.0"
+  mity: ""
+
+ref:
+  name: GRCh37.75
+  no_decoy_name: GRCh37
+  genome: /srv/shared/data/dccdipg/genomes/GRCh37d5/GRCh37d5.fa
+  known-variants: /srv/shared/data/dccdipg/annotation/dbsnp.b147.20160601.tidy.vcf.gz
+  no_decoy: /srv/shared/data/dccdipg/genomes/GRCh37/GRCh37.fa
+  decoy_bed: "/srv/shared/pipelines/cre/data/grch37d5.decoy.bed"
+  canon_bed: "/srv/shared/data/dccdipg/genomes/grch37.canon.bed"
+  split_genome: "/srv/shared/data/dccdipg/genomes/split_genome/"
+  gatk-known: "/srv/shared/data/dccdipg/annotation/vcfanno/Mills_and_1000G_gold_standard.indels.vcf.gz"
+  old_cram_ref: "UR:/mnt/hnas/reference/hg19/hg19.fa"
+  new_cram_ref: "/srv/shared/data/dccdipg/genomes/hg19.fa"
+  bed_index: "/srv/shared/data/dccdipg/genomes/GRCh37/GRCh37.fa.bedtoolsindex"
+
+filtering:
+  vqsr: false
+  hard:
+    # hard filtering as outlined in GATK docs
+    # (https://gatkforums.broadinstitute.org/gatk/discussion/2806/howto-apply-hard-filters-to-a-call-set)
+    snvs:
+      "QD < 2.0 || FS > 60.0 || MQ < 30.0 || MQRankSum < -12.5 || ReadPosRankSum < -8.0"
+    indels:
+      "QD < 2.0 || FS > 200.0 || ReadPosRankSum < -20.0"
+  soft:
+    platypus:
+      name: 'PlatQualDepth'
+      filter: '(FR[0] <= 0.5 && TC < 4 && %QUAL < 20) || (TC < 13 && %QUAL < 10) || (FR[0] > 0.5 && TC < 4 && %QUAL < 50)'
+    freebayes:
+      name: 'FBQualDepth'
+      filter: '(AF[0] <= 0.5 && (max(FORMAT/DP) < 4 || (max(FORMAT/DP) < 13 && %QUAL < 10))) || (AF[0] > 0.5 && (max(FORMAT/DP) < 4 && %QUAL < 50))'
+    samtools:
+      name: 'stQualDepth'
+      filter: '((AC[0] / AN) <= 0.5 && max(FORMAT/DP) < 4 && %QUAL < 20) || (max(FORMAT/DP) < 13 && %QUAL < 10) || ((AC[0] / AN) > 0.5 && max(format/DP) < 4 && %QUAL < 50)'
+    gatk:
+      snvs:
+        name: 'GATKCutoffSNP'
+        filter: 'TYPE="snp" && (MQRankSum < -12.5 || ReadPosRankSum < -8.0 || QD < 2.0 || FS > 60.0 || MQ < 30.0)'
+      indel:
+        name: 'GATKCutoffIndel'
+        filter: 'TYPE="indel" && (ReadPosRankSum < -20.0 || QD < 2.0 || FS > 200.0 || SOR > 10.0)'
+
+
+processing:
+  mark-duplicates: true
+  # Uncomment and point to a bed file with, e.g., captured regions if necessary,
+  # see https://gatkforums.broadinstitute.org/gatk/discussion/4133/when-should-i-use-l-to-pass-in-a-list-of-intervals.
+  # restrict-regions: captured_regions.bed
+  # If regions are restricted, uncomment this to enlarge them by the given value in order to include
+  # flanking areas.
+  # region-padding: 100
+
+qc:
+  fastq_screen:
+    conf: "/srv/shared/data/dccdipg/qc/qc/FastQ_Screen_Genomes/fastq_screen.conf"
+  
+annotation:
+  cre.vcfanno:
+    conf: "/srv/shared/pipelines/crg2/vcfanno/cre.vcfanno.conf"
+    lua_script: "/srv/shared/pipelines/crg2/vcfanno/cre.vcfanno.lua"
+    base_path: "/srv/shared/data/dccdipg/annotation/vcfanno"
+  vcfanno:
+    conf: "/srv/shared/pipelines/crg2/vcfanno/crg.vcfanno.conf" 
+    lua_script: "/srv/shared/pipelines/crg2/vcfanno/crg.vcfanno.lua"
+    base_path: "/srv/shared/data/dccdipg/annotation/vcfanno"
+  vep:
+    dir: "/srv/shared/data/dccdipg/snakemake/6ea37454/share/ensembl-vep-101.0-0/"
+    dir_cache: "/srv/shared/data/dccdipg/annotation/vep-cache"
+  snpeff:
+    dataDir: "/srv/shared/data/snpeff/"
+  svscore:
+    exon_bed: "/srv/shared/data/dccdipg/annotation/SVScore/refGene.exons.bed.gz"
+    intron_bed: "/srv/shared/data/dccdipg/annotation/SVScore/refGene.introns.bed.gz"
+    cadd: "/srv/shared/data/dccdipg/annotation/SVScore/whole_genome_SNVs.tsv.gz"
+  svreport:
+    hgmd: "/srv/shared/data/dccdipg/annotation/HGMD_2018/hgmd_pro.db"
+    protein_coding_genes: "/srv/shared/data/dccdipg/annotation/grch37.p13.ensembl.sorted.protein.coding.genes.bed"
+    exon_bed: "/srv/shared/data/dccdipg/annotation/exons/hg19_UCSC_exons_canonical.bed"
+    exac: "/srv/shared/data/dccdipg/annotation/ExAC/fordist_cleaned_nonpsych_z_pli_rec_null_data.txt"
+    omim: "/srv/shared/data/dccdipg/annotation/OMIM_2020-04-09/genemap2.txt"
+    gnomad: "/srv/shared/data/dccdipg/annotation/gnomad_v2_sv.sites.bed"
+    biomart: "/srv/shared/data/dccdipg/annotation/BioMaRt.GrCh37.75.ensembl.mim.hgnc.entrez.txt"
+    mssng_manta_counts: "/srv/shared/data/dccdipg/annotation/MSSNG_COUNTS/Canadian_MSSNG_parent_SVs.Manta.counts.txt"
+    mssng_lumpy_counts: "/srv/shared/data/dccdipg/annotation/MSSNG_COUNTS/Canadian_MSSNG_parent_SVs.LUMPY.counts.txt"
+  eh:
+    catalog: "/srv/shared/data/dccdipg/annotation/ExpansionHunter/tandem_repeat_disease_loci_v1.1.hg19.masked.json"
+    trf: "/srv/shared/data/dccdipg/annotation/ExpansionHunter/tandem_repeat_disease_loci_v1.1.tsv"
+    1000g: "/srv/shared/data/dccdipg/annotation/ExpansionHunter/1000G_EH_v1.0.tsv"
+  ehdn:
+    files: "/srv/shared/data/dccdipg/annotation/ExpansionHunterDenovo/"
+  cre:
+    database_path: "/srv/shared/data/dccdipg/annotation/C4R_database/"
+
+validation:
+  benchmark: "benchmark_cheo_ri.tsv"
+
+params:
+  bwa:
+    verbosity: "-v 1"
+    markSplitReads: "-M"
+    maxMem: ""
+  gatk:
+    java_opts: "-Xms500m -Xmx9555m -Dsamjdk.compression_level=5"
+    HaplotypeCaller: ""
+    BaseRecalibrator: ""
+    #BaseRecalibrator: "--interval-set-rule INTERSECTION -U LENIENT-VCF-PROCESSING --read-filter BadCigar --read-filter NotzPrimaryAlignment"
+    GenotypeGVCFs: ""
+    VariantRecalibrator: ""
+  gatk3:
+    java_opts: "-Xms500m -Xmx9555m"
+    HaplotypeCaller: "-drf DuplicateRead --interval_set_rule INTERSECTION --pair_hmm_implementation VECTOR_LOGLESS_CACHING -ploidy 2 -U LENIENT_VCF_PROCESSING --read_filter BadCigar --read_filter NotPrimaryAlignment"
+    annotation: "MappingQualityRankSumTest MappingQualityZero QualByDepth ReadPosRankSumTest RMSMappingQuality BaseQualityRankSumTest FisherStrand GCContent HaplotypeScore HomopolymerRun DepthPerAlleleBySample Coverage ClippingRankSumTest DepthPerSampleHC"
+    RealignerTargetCreator: " -l INFO --interval_set_rule INTERSECTION -U LENIENT_VCF_PROCESSING --read_filter BadCigar --read_filter NotPrimaryAlignment "
+    IndelRealigner: " -U LENIENT_VCF_PROCESSING --read_filter BadCigar --read_filter NotPrimaryAlignment "
+    BaseRecalibrator: " --interval_set_rule INTERSECTION -U LENIENT_VCF_PROCESSING --read_filter BadCigar --read_filter NotPrimaryAlignment "
+    PrintReads: " -jdk_deflater -jdk_inflater -U LENIENT_VCF_PROCESSING --read_filter BadCigar --read_filter NotPrimaryAlignment "
+  picard:
+    MarkDuplicates: "REMOVE_DUPLICATES=false"
+    ValidationStringency: "VALIDATION_STRINGENCY=SILENT"
+    AssumeSortOrder: "ASSUME_SORT_ORDER=coordinate"
+    java_opts: "-Xmx2g"
+  qualimap:
+    mem: "20G"
+    nw: 400
+    c: "-c"
+    hm: 3
+    gtf: "/srv/shared/data/dccdipg/annotation/exons/hg19_UCSC_exons_canonical_placeholder.bed"
+    extra: ""
+  verifybamid2:
+    svd_prefix: "1000g.phase3 100k b37"
+    # --DisableSanityCheck ensures verifybamid2 does not fail for exomes with < 10,000 markers
+    extra: "--DisableSanityCheck"
+  multiqc:
+    config: "/srv/shared/pipelines/crg2/rules/multiqc_config.yaml"
+  snpeff:
+    java_opts: "-Xms750m -Xmx20g"
+  svscore:
+    operations: "max,sum,top5,top10,mean"
+  samtools:
+    mpileup: " -t DP -t AD -u -g "
+  bcftools:
+    mpileup: "-a DP -a AD "
+    call: " -m -v "
+  freebayes: " --genotype-qualities --strict-vcf --ploidy 2 --no-partial-observations --min-repeat-entropy 1 "
+  platypus: "--filterDuplicates=0"
+  rtg-tools:
+    java_opts: "-Xmx20g"
+    vcfeval:
+      sdf: "/srv/shared/data/dccdipg/Common/rtg-tools/GRch37_SDF/"
+

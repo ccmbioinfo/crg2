@@ -139,6 +139,8 @@ rule merge_freebayes:
         protected("genotyped/{family}-freebayes.vcf")
     log:
         "logs/freebayes/{family}-merge.log"
+    conda:
+        "../../envs/common.yaml"
     shell:
         '''
         bcftools concat {input} | bcftools sort > {output}  
