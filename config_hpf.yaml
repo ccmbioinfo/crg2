@@ -83,7 +83,7 @@ annotation:
   cre.vcfanno:
     conf: "~/crg2/vcfanno/cre.vcfanno.conf"
     lua_script: "~/crg2/vcfanno/cre.vcfanno.lua"
-    base_path: "/hpf/largeprojects/ccmbio/naumenko/tools/bcbio/genomes/Hsapiens/GRCh37"
+    base_path: "/hpf/largeprojects/ccmbio/naumenko/tools/bcbio/genomes/Hsapiens/GRCh37/variation/"
   vcfanno:
     conf: "~/crg2/vcfanno/crg.vcfanno.conf" 
     lua_script: "~/crg2/vcfanno/crg.vcfanno.lua"
@@ -120,7 +120,7 @@ annotation:
      database_path: "/hpf/largeprojects/ccmbio/naumenko/tools/bcbio/genomes/Hsapiens/GRCh37/variation/"
 
 validation:
-  benchmark: "benchmark.tsv"
+  benchmark: "benchmark_hpf.tsv"
 
 params:
   bwa:
@@ -175,4 +175,3 @@ params:
     java_opts: "-Xmx20g"
     vcfeval:
       sdf: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/rtg-tools/GRch37_SDF/"
-

@@ -5,3 +5,4 @@ dependencies:
   - tabix ==0.2.6
   - bcftools ==1.9
   - parallel==20190522
+  - bedtools==2.29.0

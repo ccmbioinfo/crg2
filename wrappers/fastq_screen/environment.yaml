@@ -5,3 +5,5 @@ channels:
 dependencies:
   - fastq-screen ==0.13.0
   - bowtie2 ==2.4.1
+  - libwebp ==0.5.2
+  - libiconv ==1.16
