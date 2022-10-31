@@ -1,5 +1,5 @@
 
-callers = [ gatk + "_haplotype", "samtools", "freebayes", "platypus" ] 
+callers = [ gatk + "_haplotype", "samtools", "freebayes", "platypus" ]
 #callers = [ gatk + "_haplotype" ]
 
 #list used for annotating VCFs with INFO/CALLERS

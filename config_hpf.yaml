@@ -134,6 +134,9 @@ params:
     #BaseRecalibrator: "--interval-set-rule INTERSECTION -U LENIENT-VCF-PROCESSING --read-filter BadCigar --read-filter NotzPrimaryAlignment"
     GenotypeGVCFs: ""
     VariantRecalibrator: ""
+    Mutect2: 
+      gnomad_germline: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/Mutect2/af-only-gnomad.raw.sites.vcf"
+    FilterMutectCalls: ""
   gatk3:
     java_opts: "-Xms500m -Xmx9555m"
     HaplotypeCaller: "-drf DuplicateRead --interval_set_rule INTERSECTION --pair_hmm_implementation VECTOR_LOGLESS_CACHING -ploidy 2 -U LENIENT_VCF_PROCESSING --read_filter BadCigar --read_filter NotPrimaryAlignment"
@@ -169,9 +172,14 @@ params:
   bcftools:
     mpileup: "-a DP -a AD "
     call: " -m -v "
-  freebayes: " --genotype-qualities --strict-vcf --ploidy 2 --no-partial-observations --min-repeat-entropy 1 "
+    # -F x sets the output filter to PASS if any of the variant filters is PASS in sample VCFs to be merged
+    merge: "-F x"
+  freebayes:
+    call: " --genotype-qualities --strict-vcf --ploidy 2 --no-partial-observations --min-repeat-entropy 1 "
   platypus: "--filterDuplicates=0"
   rtg-tools:
     java_opts: "-Xmx20g"
     vcfeval:
       sdf: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/rtg-tools/GRch37_SDF/"
+    vcfsubset:
+      java_opts: "-Xmx2048m"
