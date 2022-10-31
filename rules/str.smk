@@ -77,7 +77,8 @@ rule EHdn_report:
         outdir = "str/EHDN",
     shell:
         '''
-        sh {params.crg}/ehdn_report.sh {params.family} {params.outdir}
+        PATH="/hpf/largeprojects/ccmbio/naumenko/tools/bcbio/bin/:$PATH"
+	sh {params.crg}/ehdn_report.sh {params.family} {params.outdir}
         date=`date +%Y-%m-%d`;
         f={params.outdir}/outliers/{params.family}.EHDN.${{date}}.xlsx;
         if [ -f $f ]; then 
