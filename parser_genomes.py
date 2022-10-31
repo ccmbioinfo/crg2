@@ -8,7 +8,7 @@ Usage: python parser.py -f <input_sample.tsv> -d <absolute path to create direct
 Parse five-column(family,sample,fq1,fq2,bam) TSV file (1st argument) and sets up necessary directories (under 2nd argument), files as below:
 1. create family and directory passed as "-s"
 2. symlink BAM files if "-s" is not fastq
-3. copy config.yaml, pbs_config.yaml and dnaseq_cluster.pbs from crg2 repo and replace necessary string
+3. copy config_hpf.yaml, slurm-config.yaml and dnaseq_slurm_hpf.sh from crg2 repo and replace necessary string
 4. create units.tsv and samples.tsv for snakemake
 5. submit job if all the above goes well
 """
@@ -32,24 +32,27 @@ def setup_directories(family, sample_list, filepath, step):
     if not os.path.isdir(d):
         os.mkdir(d)
 
-    # copy config.yaml, pbs_config.yaml, and dnaseq_cluster.pbs
-    for i in ["config.yaml", "pbs_profile/pbs_config.yaml", "dnaseq_cluster.pbs"]:
+    # copy config_hpf.yaml, slurm_config.yaml, and dnaseq_slurm_hpf.sh
+    for i in ["config_hpf.yaml", "slurm_profile/slurm-config.yaml", "dnaseq_slurm_hpf.sh"]:
         cmd = ["cp", os.path.join(crg2_dir, i), d]
         subprocess.check_call(cmd)
 
-    # replace family ID and pipeline in config.yaml & dnaseq_cluster.pbs
+    # replace family ID and pipeline in config_hpf.yaml & dnaseq_slurm_hpf.sh
     replace = "s/NA12878/{}/".format(family)
     pipeline = "s/wes/wgs/"
-    config = os.path.join(d, "config.yaml")
+    config = os.path.join(d, "config_hpf.yaml")
     if os.path.isfile(config):
         cmd = ["sed", "-i", replace, config]
         subprocess.check_call(cmd)
         cmd = ["sed", "-i", pipeline, config]
         subprocess.check_call(cmd)
-    replace = "s/crg2_pbs/{}/".format(family)
-    pbs = os.path.join(d, "dnaseq_cluster.pbs")
-    if os.path.isfile(pbs):
-        cmd = ["sed", "-i", replace, pbs]
+    replace = "s/job-name=crg2/job-name={}/".format(family)
+    config_path = "s+~/crg2/config_hpf.yaml+{}/config_hpf.yaml+".format(d)
+    slurm = os.path.join(d, "dnaseq_slurm_hpf.sh")
+    if os.path.isfile(slurm):
+        cmd = ["sed", "-i", replace, slurm]
+        subprocess.check_call(cmd)
+        cmd = ["sed", "-i", config_path, slurm]
         subprocess.check_call(cmd)
 
     # glob hpo
@@ -138,7 +141,7 @@ def setup_directories(family, sample_list, filepath, step):
         return True
 
     # fastq: no directory creations required; inputs can be fastq or bam
-    # set input: bam or fastq(default) in config.yaml
+    # set input: bam or fastq(default) in config_hpf.yaml
     if step == "fastq":
         if len(sample_list) == len([i for i in sample_list if i.bam]):
             return True
@@ -166,16 +169,16 @@ def submit_jobs(directory, family):
     if not os.path.isdir(directory):
         print(f"{directory} not found. Exiting!")
         exit()
-    pbs = "dnaseq_cluster.pbs"
-    if os.path.isfile(os.path.join(directory, pbs)):
+    slurm = "dnaseq_slurm_hpf.sh"
+    if os.path.isfile(os.path.join(directory, slurm)):
         cwd = os.getcwd()
         os.chdir(directory)
-        cmd = ["qsub", pbs]
+        cmd = ["sbatch", slurm]
         jobid = subprocess.check_output(cmd).decode("UTF-8").rstrip()
         print(f"Submitted snakemake job for {family}: {jobid}")
         os.chdir(cwd)
     else:
-        print(f"{pbs} not found, not submitting jobs for {family}.")
+        print(f"{slurm} not found, not submitting jobs for {family}.")
 
 
 def valid_dir(dir):
@@ -248,7 +251,7 @@ if __name__ == "__main__":
         filepath = os.path.join(args.dir, i)
 
         # create project directory
-        # copy config.yaml, dnaseq_cluster.pbs & replace family id; copy pbs_config.yaml
+        # copy config_hpf.yaml, dnaseq_slurm_hpf.sh & replace family id; copy slurm_config.yaml
         print(f"\nStarting to setup project directories for family: {i}")
         submit_flag = setup_directories(i, sample_list, args.dir, args.step)
         write_units(sample_list, filepath)

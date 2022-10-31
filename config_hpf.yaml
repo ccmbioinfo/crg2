@@ -7,7 +7,7 @@ run:
   hpo: "" # five-column TSV with HPO terms; leave this string empty is there are no hpo terms
   flank: 100000
   gatk: "gatk"
-  pipeline: "wes" #either wes (exomes) or wgs (genomes) or annot (to annotate and produce reports for an input vcf)
+  pipeline: "wes" #either wes (exomes) or wgs (genomes) or annot (to annotate and produce reports for an input vcf) or mity (to generate mitochondrial reports)
   minio: ""
 
 genes:
@@ -22,6 +22,7 @@ tools:
   crg: "~/crg"
   crg2: "~/crg2"
   ehdn: "/hpf/largeprojects/ccmbio/arun/Tools/EHDN.TCAG/ExpansionHunterDenovo-v0.7.0"
+  mity: "/hpf/largeprojects/ccmbio/ajain/mity/mity_package/bin"
 
 ref:
   name: GRCh37.75
@@ -82,11 +83,14 @@ annotation:
   cre.vcfanno:
     conf: "~/crg2/vcfanno/cre.vcfanno.conf"
     lua_script: "~/crg2/vcfanno/cre.vcfanno.lua"
-    base_path: "/hpf/largeprojects/ccmbio/naumenko/tools/bcbio/genomes/Hsapiens/GRCh37"
+    base_path: "/hpf/largeprojects/ccmbio/naumenko/tools/bcbio/genomes/Hsapiens/GRCh37/variation/"
   vcfanno:
     conf: "~/crg2/vcfanno/crg.vcfanno.conf" 
     lua_script: "~/crg2/vcfanno/crg.vcfanno.lua"
     base_path: "/hpf/largeprojects/ccmbio/naumenko/tools/bcbio/genomes/Hsapiens/GRCh37/variation/"
+  mt.vcfanno:
+    conf: "~/crg2/vcfanno/mt.vcfanno.conf"
+    base_path: "/hpf/largeprojects/ccmbio/ajain/mity/vcfanno"
   vep:
     dir: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/snakemake/6f4af8a1/share/ensembl-vep-104.0-0/"
     dir_cache: "/hpf/largeprojects/ccmbio/naumenko/tools/bcbio/genomes/Hsapiens/GRCh37/vep/"
@@ -116,7 +120,7 @@ annotation:
      database_path: "/hpf/largeprojects/ccmbio/naumenko/tools/bcbio/genomes/Hsapiens/GRCh37/variation/"
 
 validation:
-  benchmark: "benchmark.tsv"
+  benchmark: "benchmark_hpf.tsv"
 
 params:
   bwa:
