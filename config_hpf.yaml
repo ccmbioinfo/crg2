@@ -131,7 +131,7 @@ params:
     GenotypeGVCFs: ""
     VariantRecalibrator: ""
     Mutect2: 
-      gnomad_germline: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/af-only-gnomad.raw.sites.vcf"
+      gnomad_germline: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/Mutect2/af-only-gnomad.raw.sites.vcf"
     FilterMutectCalls: ""
   gatk3:
     java_opts: "-Xms500m -Xmx9555m"
