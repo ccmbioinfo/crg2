@@ -124,7 +124,7 @@ rule freebayes:
     log:
         "logs/freebayes/{contig}.log"
     params:
-        extra=config["params"]["freebayes"],         # optional parameters
+        extra=config["params"]["freebayes"]["call"],         # optional parameters
         chunksize=100000  # reference genome chunk size for parallelization (default: 100000)
     threads: 1
     resources:

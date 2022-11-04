@@ -7,7 +7,7 @@ run:
   hpo: "" # five-column TSV with HPO terms; leave this string empty is there are no hpo terms
   flank: 100000
   gatk: "gatk"
-  pipeline: "wes" #either wes (exomes) or wgs (genomes) or annot (to annotate and produce reports for an input vcf)
+  pipeline: "wes" #either wes (exomes) or wgs (genomes) or annot (to annotate and produce reports for an input vcf) or mity (to generate mitochondrial reports)
   minio: "/srv/minio/results-c4r"
 
 genes:
@@ -88,6 +88,9 @@ annotation:
     conf: "/srv/shared/pipelines/crg2/vcfanno/crg.vcfanno.conf" 
     lua_script: "/srv/shared/pipelines/crg2/vcfanno/crg.vcfanno.lua"
     base_path: "/srv/shared/data/dccdipg/annotation/vcfanno"
+  mt.vcfanno:
+    conf: "~/crg2/vcfanno/mt.vcfanno.conf"
+    base_path: "/hpf/largeprojects/ccmbio/ajain/mity/vcfanno"
   vep:
     dir: "/srv/shared/data/dccdipg/snakemake/6ea37454/share/ensembl-vep-101.0-0/"
     dir_cache: "/srv/shared/data/dccdipg/annotation/vep-cache"
@@ -131,6 +134,9 @@ params:
     #BaseRecalibrator: "--interval-set-rule INTERSECTION -U LENIENT-VCF-PROCESSING --read-filter BadCigar --read-filter NotzPrimaryAlignment"
     GenotypeGVCFs: ""
     VariantRecalibrator: ""
+    Mutect2: 
+      gnomad_germline: "/srv/shared/data/dccdipg/annotation/Mutect2/af-only-gnomad.raw.sites.vcf"
+    FilterMutectCalls: ""
   gatk3:
     java_opts: "-Xms500m -Xmx9555m"
     HaplotypeCaller: "-drf DuplicateRead --interval_set_rule INTERSECTION --pair_hmm_implementation VECTOR_LOGLESS_CACHING -ploidy 2 -U LENIENT_VCF_PROCESSING --read_filter BadCigar --read_filter NotPrimaryAlignment"
@@ -166,10 +172,15 @@ params:
   bcftools:
     mpileup: "-a DP -a AD "
     call: " -m -v "
-  freebayes: " --genotype-qualities --strict-vcf --ploidy 2 --no-partial-observations --min-repeat-entropy 1 "
+    # -F x sets the output filter to PASS if any of the variant filters is PASS in sample VCFs to be merged
+    merge: "-F x"
+  freebayes:
+    call: " --genotype-qualities --strict-vcf --ploidy 2 --no-partial-observations --min-repeat-entropy 1 "
   platypus: "--filterDuplicates=0"
   rtg-tools:
     java_opts: "-Xmx20g"
     vcfeval:
       sdf: "/srv/shared/data/dccdipg/Common/rtg-tools/GRch37_SDF/"
-
+    vcfsubset:
+      java_opts: "-Xmx2048m"
+      

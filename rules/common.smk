@@ -257,6 +257,11 @@ def get_gatk_vcf(wildcards):
         vcf = expand("genotyped/{family}.vcf.gz", family=wildcards.family)
     return vcf
 
+def get_gatk_somatic_vcf(ext="vcf.gz"):
+    """Get gatk_mutect call vcfs (exome only)"""
+    vcf = expand("genotyped/{family}_{sample}-gatk_somatic.pass.mosaic.{ext}", sample=samples.index, family=project, ext=ext)
+    return vcf
+
 def get_gatk_vcf_tbi(wildcards):
     """ Get vcf from gatk4 calling for the use in qc """
     if config["run"]["pipeline"] == "wes":
