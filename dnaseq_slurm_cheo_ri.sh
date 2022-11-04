@@ -10,7 +10,7 @@
 SF="/srv/shared/pipelines/crg2/Snakefile"
 CP="/srv/shared/conda_envs/crg2-conda/"
 SLURM="/srv/shared/pipelines/crg2/slurm_profile/"
-CONFIG="/srv/shared/pipelines/crg2/config_cheo_ri.yaml"
+CONFIG="config_cheo_ri.yaml"
 
 source /storage/modules/anaconda/2020.11/etc/profile.d/conda.sh
 conda activate /srv/shared/conda_envs/snakemake_5.10.0/

@@ -8,7 +8,7 @@
 SF=~/crg2/Snakefile
 CP="/hpf/largeprojects/ccm_dccforge/dccdipg/Common/snakemake"
 SLURM=~/crg2/slurm_profile/
-CONFIG=~/crg2/config_hpf.yaml
+CONFIG=config_hpf.yaml
 
 source /hpf/largeprojects/ccm_dccforge/dccdipg/Common/anaconda3/etc/profile.d/conda.sh
 conda activate snakemake
