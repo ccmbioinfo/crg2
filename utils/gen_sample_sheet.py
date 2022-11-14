@@ -72,7 +72,7 @@ else:
 
 
 with open(folder_name + "-samples_for_crg2-new.tsv", "w") as f, open(
-    folder_name + "-samples_for_crg.tsv", "w"
+    folder_name + "-samples_WGS_master_list.tsv", "w"
 ) as f1:
     f1.writelines(f"sampleid\tfastq\tbam\n")
     for i in sorted(projects):
@@ -83,4 +83,4 @@ with open(folder_name + "-samples_for_crg2-new.tsv", "w") as f, open(
         # for crg2
         f.writelines(f"{project}\t{sample}\t{fq1}\t{fq2}\t\n")
         # for crg
-        f1.writelines(f"{i}\t{fq1}\t\n")
+        f1.writelines(f"{project}\t{project}_{sample}\t\t{fq1}\t\n")
