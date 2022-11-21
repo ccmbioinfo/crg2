@@ -72,11 +72,11 @@ def check_dup(wildcards):
     dups_perc = qual_check['high_dup_percentage'].values[0]
     alignment = qual_check['low_alignment_percentage'].values[0]
     if dups_perc == True and alignment == True:
-        return expand("coverage/{family}_{sample}/",sample=samples.index,family=project) +  ["report/coding/{family}"] + ["qc/multiqc/multiqc.html"]
+        return expand("coverage/{family}_{sample}/",sample=samples.index,family=project) +  ["report/coding/{family}"] + ["report/gatk_somatic/{family}"] + ["qc/multiqc/multiqc.html"]
     elif dups_perc == True:
-        return expand("coverage/{family}_{sample}/",sample=samples.index,family=project) +  ["report/coding/{family}"]
+        return expand("coverage/{family}_{sample}/",sample=samples.index,family=project) +  ["report/coding/{family}"] + ["report/gatk_somatic/{family}"]
     else:
-        return ["report/coding/{family}"]
+        return ["report/coding/{family}"] + ["report/gatk_somatic/{family}"]
 
 
 rule minio:
@@ -91,12 +91,16 @@ rule minio:
         import os 
         import glob
         import shutil
-        outdir=output[0]
+        outdir = output[0]
+        family = outdir.split('/')[-1]
         if not os.path.exists(outdir):
             os.mkdir(outdir)
         for f in input:
             if "report" in f:
-                reports = glob.glob(os.path.join(f, '*wes*'))
+                if "gatk_somatic" in f:
+                    reports = glob.glob(os.path.join(f, f'{family}.wes*'))
+                else:
+                    reports = glob.glob(os.path.join(f, '*wes*'))
                 for r in reports:
                     print(f"copying {r} to MinIO")
                     shutil.copy(r, outdir)
