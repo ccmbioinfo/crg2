@@ -31,7 +31,7 @@ ALLOWED_FIELDS = [
     "orphanet",
     "clinvar",
     "frequency_in_c4r",
-    #"seen_in_c4r_samples",
+    # "seen_in_c4r_samples",
     "hgmd_id",
     "hgmd_gene",
     "hgmd_tag",
@@ -78,8 +78,10 @@ class BearerAuth(requests.auth.AuthBase):
         return r
 
 
-#def get_bearer_token(data: dict, url = "https://genomics4rd-phenotips.us.auth0.com/oauth/token") -> str:
-def get_bearer_token(data: dict, url = "https://genomics4rd-phenotips-staging.us.auth0.com/oauth/token") -> str:
+# def get_bearer_token(data: dict, url = "https://genomics4rd-phenotips.us.auth0.com/oauth/token") -> str:
+def get_bearer_token(
+    data: dict, url="https://genomics4rd-phenotips-staging.us.auth0.com/oauth/token"
+) -> str:
     """
     get bearer token from g4rd auth0 instance
     see: https://auth0.com/docs/authorization/flows/call-your-api-using-resource-owner-password-flow for appropriate shape of 'data'
@@ -89,8 +91,8 @@ def get_bearer_token(data: dict, url = "https://genomics4rd-phenotips-staging.us
     res = requests.post(url, data=data, headers=headers)
 
     res2 = loads(res.text)
-    
-    token = res2.get("id_token") 
+
+    token = res2.get("id_token")
     return token
 
 
@@ -136,13 +138,13 @@ class PTQuery:
             res = requests.get(
                 f"{self.base_url}/rest/patients?start=0&number={number}",
                 **self.base_request_args,
-                #auth=self.request_auth,
+                # auth=self.request_auth,
             )
         else:
             res = requests.get(
                 f"{self.base_url}/rest/patients/{patient_id}",
                 **self.base_request_args,
-                #auth=self.request_auth,
+                # auth=self.request_auth,
             )
         if res.ok:
             return res.json()
@@ -159,6 +161,7 @@ class PTQuery:
                         "patientId": patient_id,
                         "refGenome": "GRCh37",
                         "fileName": filename,
+                        "updateAnnotations": "true",
                     }
                 ),
             },
@@ -291,8 +294,8 @@ class PTQuery:
             else:
                 FLAG = 1
 
-        return job_metadata''' #was giving a def get_all_job_metadata(self, params={}) -> list[dict]: TypeError: 'type' object is not subscriptable
-        # so commented this function for now
+        return job_metadata'''  # was giving a def get_all_job_metadata(self, params={}) -> list[dict]: TypeError: 'type' object is not subscriptable
+    # so commented this function for now
 
     def get_patient_external_id_by_internal_id(self, patient_id: str) -> str:
         """get the patient's external ID from the internal ID"""
@@ -375,7 +378,7 @@ class PTQuery:
             f"{self.base_url}/rest/variants/",
             params=params,
             **self.base_request_args,
-            #auth=self.request_auth,
+            # auth=self.request_auth,
         )
         content = res.json().get("data", [])
 

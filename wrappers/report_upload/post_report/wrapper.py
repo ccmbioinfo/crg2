@@ -17,68 +17,80 @@ logging.basicConfig(
     datefmt="%Y-%m-%d %H:%M",
 )
 
-report=str(snakemake.input.report)
+report = str(snakemake.input.report)
 logging.info(f"Report name: {report}")
-ids=pd.read_csv(snakemake.input.ids)
+ids = pd.read_csv(snakemake.input.ids)
 logging.info(f"Participant IDs: {ids}")
 
-credentials=pd.read_csv(snakemake.params.credentials)
+credentials = pd.read_csv(snakemake.params.credentials)
 
-data={"client_id" :credentials["client_id"][0],
-      "username":credentials["username"][0],
-      "password":credentials["password"][0],
-      "grant_type": credentials["grant_type"][0],
-      "scope" : credentials["scope"][0]}
+data = {
+    "client_id": credentials["client_id"][0],
+    "username": credentials["username"][0],
+    "password": credentials["password"][0],
+    "grant_type": credentials["grant_type"][0],
+    "scope": credentials["scope"][0],
+}
 
-#staging
-base_url = 'https://staging.phenotips.genomics4rd.ca'
-auth0_url = "https://genomics4rd-phenotips-staging.us.auth0.com/oauth/token"
+# staging
+base_url = "https://phenotips.genomics4rd.ca"
+auth0_url = "https://genomics4rd-phenotips.us.auth0.com/oauth/token"
 
-bearer_token = get_bearer_token(data,url = auth0_url)
-BASE_REQUEST_ARGS = {"headers":{"authorization": "Bearer {}".format(bearer_token)}}
+bearer_token = get_bearer_token(data, url=auth0_url)
+BASE_REQUEST_ARGS = {"headers": {"authorization": "Bearer {}".format(bearer_token)}}
 
-#establish a connection with Phenotips
+# establish a connection with Phenotips
 logging.info(f"Connecting to Phenotips...")
-query = PTQuery(base_url = base_url, 
-                        base_request_args= BASE_REQUEST_ARGS, 
-                       bearer_token = bearer_token)
+query = PTQuery(
+    base_url=base_url, base_request_args=BASE_REQUEST_ARGS, bearer_token=bearer_token
+)
 
 ## Adpated from Delvin's code to Post report
 
-#Directory to store the demultiplexed reports
-folder_to_store_csvs = 'report_upload/demultiplexed_reports/'
+# Directory to store the demultiplexed reports
+folder_to_store_csvs = "report_upload/demultiplexed_reports/"
 
-#Create the directory if it doesn't exist
+# Create the directory if it doesn't exist
 logging.info(f"Creating report directory {folder_to_store_csvs}")
 if not os.path.exists(folder_to_store_csvs):
     os.makedirs(folder_to_store_csvs, exist_ok=True)
 
-#Dictionary to store information
+# Dictionary to store information
 report_dict = {"report_name": None, "family": None, "participants": []}
 report_dict["report_name"] = report
 
 logging.info(f"Generating normalized report")
-participants, df = preprocess_report(report) # a list of participants and a normalized report
+participants, df = preprocess_report(
+    report
+)  # a list of participants and a normalized report
 
 logging.info(f"Reshaping reports by participant")
-for (family_participant_identifier, family,  date_report_generated, sample_df) in reshape_reports(participants, df, report):
+for (
+    family_participant_identifier,
+    family,
+    date_report_generated,
+    sample_df,
+) in reshape_reports(participants, df, report):
     ptp_dict = {}
 
-    report_dict["family"] = family                
+    report_dict["family"] = family
 
     try:
-        pt_id=ids.loc[ids["eids"]==family_participant_identifier,"pids"].values[0]
+        pt_id = ids.loc[ids["eids"] == family_participant_identifier, "pids"].values[0]
         ptp_dict["eid"] = family_participant_identifier
         ptp_dict["iid"] = pt_id
-        logging.info(f"Phenotips identifier for {family_participant_identifier}: {pt_id}")
+        logging.info(
+            f"Phenotips identifier for {family_participant_identifier}: {pt_id}"
+        )
     except IndexError:
-        logging.error(f"No Phenotips identifier found for {family_participant_identifier}")
+        logging.error(
+            f"No Phenotips identifier found for {family_participant_identifier}"
+        )
         ptp_dict["variants_found"] = None
         ptp_dict["variants_removed"] = None
         ptp_dict["missing_cols"] = None
         ptp_dict["extra_cols"] = None
         ptp_dict["post_status_code"] = None
-        
 
     if pt_id:
 
@@ -86,7 +98,9 @@ for (family_participant_identifier, family,  date_report_generated, sample_df) i
         metadata = query.get_job_metadata_for_patient(pt_id)
         try:
             report = metadata[0].get("fileName")
-            logging.info(f"Variants found for {family_participant_identifier} in report: {report}")
+            logging.info(
+                f"Variants found for {family_participant_identifier} in report: {report}"
+            )
             ptp_dict["variants_found"] = 1
             ptp_dict["variants_removed"] = 1
             logging.info(f"Removing variants for {family_participant_identifier}")
