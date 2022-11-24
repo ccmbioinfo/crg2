@@ -9,6 +9,7 @@ run:
   gatk: "gatk"
   pipeline: "wes" #either wes (exomes) or wgs (genomes) or annot (to annotate and produce reports for an input vcf) or mity (to generate mitochondrial reports)
   minio: ""
+  PT_credentials: ""
 
 genes:
   ensembl: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/Homo_sapiens.GRCh37.87.gtf_subset.csv"
