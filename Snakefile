@@ -63,13 +63,10 @@ if config["run"]["pipeline"] == "wes":
     base = "rules/cre/"
     include: base + "calling.smk"
     include: base + "filtering.smk"
-<<<<<<< HEAD
     include: base + "calling_mosaic.smk"
     include: base + "annotation_mosaic.smk"
     include: base + "snvreport_mosaic.smk"
     include: base + "report_upload.smk"
-=======
->>>>>>> upload reports for genomes too
 elif config["run"]["pipeline"] == "wgs":
     include: "rules/mapping.smk"
     include: "rules/stats.smk"
@@ -80,11 +77,8 @@ elif config["run"]["pipeline"] == "wgs":
     include: base + "sv.smk"
     include: base + "svreport.smk"
     include: base + "str.smk"
-<<<<<<< HEAD
     include: base + "mito_variants.smk"
-=======
     include: base + "report_upload.smk"
->>>>>>> upload reports for genomes too
 elif config["run"]["pipeline"] == "annot":
     base = "rules/"
 elif config["run"]["pipeline"] == "mity":
