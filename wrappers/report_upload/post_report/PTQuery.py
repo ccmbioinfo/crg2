@@ -80,7 +80,7 @@ class BearerAuth(requests.auth.AuthBase):
 
 # def get_bearer_token(data: dict, url = "https://genomics4rd-phenotips.us.auth0.com/oauth/token") -> str:
 def get_bearer_token(
-    data: dict, url="https://genomics4rd-phenotips-staging.us.auth0.com/oauth/token"
+    data: dict, url="https://genomics4rd-phenotips.us.auth0.com/oauth/token"
 ) -> str:
     """
     get bearer token from g4rd auth0 instance

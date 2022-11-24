@@ -30,7 +30,9 @@ elif config["run"]["pipeline"] == "wgs":
             #"plots/allele-freqs.svg"
             "programs-{}.txt".format(PIPELINE_VERSION),
             "report/mitochondrial/{family}.mitochondrial.report.csv".format(family=project),
-            [expand("recal/{family}_{sample}.bam.md5".format(family=config["run"]["project"], sample=s)) for s in samples.index]
+            [expand("recal/{family}_{sample}.bam.md5".format(family=config["run"]["project"], sample=s)) for s in samples.index],
+            "report_upload/demultiplexed_reports"
+
 elif config["run"]["pipeline"] == "annot":
     rule all:
         input:
@@ -57,13 +59,17 @@ if config["run"]["pipeline"] == "wes":
     include: "rules/mapping.smk"
     include: "rules/stats.smk"
     include: "rules/qc.smk"
+    include: "rules/report_upload.smk"
     base = "rules/cre/"
     include: base + "calling.smk"
     include: base + "filtering.smk"
+<<<<<<< HEAD
     include: base + "calling_mosaic.smk"
     include: base + "annotation_mosaic.smk"
     include: base + "snvreport_mosaic.smk"
     include: base + "report_upload.smk"
+=======
+>>>>>>> upload reports for genomes too
 elif config["run"]["pipeline"] == "wgs":
     include: "rules/mapping.smk"
     include: "rules/stats.smk"
@@ -74,7 +80,11 @@ elif config["run"]["pipeline"] == "wgs":
     include: base + "sv.smk"
     include: base + "svreport.smk"
     include: base + "str.smk"
+<<<<<<< HEAD
     include: base + "mito_variants.smk"
+=======
+    include: base + "report_upload.smk"
+>>>>>>> upload reports for genomes too
 elif config["run"]["pipeline"] == "annot":
     base = "rules/"
 elif config["run"]["pipeline"] == "mity":

@@ -105,8 +105,8 @@ for (
             ptp_dict["variants_removed"] = 1
             logging.info(f"Removing variants for {family_participant_identifier}")
             query.delete_report(pt_id, report)
-            # add a two minute wait so subsequent report upload does not fail with 409 error
-            time.sleep(120)
+            # add a four minute wait so subsequent report upload does not fail with 409 error
+            time.sleep(240)
         except IndexError:
             ptp_dict["variants_found"] = 0
             ptp_dict["variants_removed"] = 0
