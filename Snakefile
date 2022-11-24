@@ -66,7 +66,6 @@ if config["run"]["pipeline"] == "wes":
     include: base + "calling_mosaic.smk"
     include: base + "annotation_mosaic.smk"
     include: base + "snvreport_mosaic.smk"
-    include: base + "report_upload.smk"
 elif config["run"]["pipeline"] == "wgs":
     include: "rules/mapping.smk"
     include: "rules/stats.smk"
