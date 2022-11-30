@@ -15,7 +15,7 @@ if config["run"]["pipeline"] == "wes":
             [expand("recal/{family}_{sample}.bam.md5".format(family=config["run"]["project"], sample=s)) for s in samples.index],
             expand("{minio}/{family}", minio=[config["run"]["minio"]], family=project) if config["run"]["minio"] else [],
             expand("report/{p}/{family}", p="gatk_somatic", family=project),
-            "report_upload/demultiplexed_reports" if config["run"]["PT_credentials"] else []
+            "report_upload/demultiplexed_reports/{}".format(project) if config["run"]["PT_credentials"] else []
 elif config["run"]["pipeline"] == "wgs":
     rule all:
         input:
@@ -31,7 +31,7 @@ elif config["run"]["pipeline"] == "wgs":
             "programs-{}.txt".format(PIPELINE_VERSION),
             "report/mitochondrial/{family}.mitochondrial.report.csv".format(family=project),
             [expand("recal/{family}_{sample}.bam.md5".format(family=config["run"]["project"], sample=s)) for s in samples.index],
-            "report_upload/demultiplexed_reports" if config["run"]["PT_credentials"] else []
+            "report_upload/demultiplexed_reports/{}".format(project) if config["run"]["PT_credentials"] else []
 
 elif config["run"]["pipeline"] == "annot":
     rule all:
