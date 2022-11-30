@@ -17,7 +17,7 @@ logging.basicConfig(
     datefmt="%Y-%m-%d %H:%M",
 )
 
-report = str(snakemake.input.report)
+report = glob(str(snakemake.input.report) + f"/{snakemake.params.family}.wes.regular.*.csv")[0]
 logging.info(f"Report name: {report}")
 ids = pd.read_csv(snakemake.input.ids)
 logging.info(f"Participant IDs: {ids}")
@@ -48,7 +48,7 @@ query = PTQuery(
 ## Adpated from Delvin's code to Post report
 
 # Directory to store the demultiplexed reports
-folder_to_store_csvs = "report_upload/demultiplexed_reports/"
+folder_to_store_csvs = f"report_upload/demultiplexed_reports/{snakemake.params.family}"
 
 # Create the directory if it doesn't exist
 logging.info(f"Creating report directory {folder_to_store_csvs}")

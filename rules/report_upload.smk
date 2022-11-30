@@ -18,13 +18,13 @@ rule PT_identifier:
 rule post_report:
     input:
         ids="report_upload/PT_ids.txt",
-        report=glob.glob("report/coding/*/*.wes.regular.*.csv")
+        report="report/coding/{family}"
     params:
         family=config["run"]["project"],
         credentials=config["run"]["PT_credentials"]
     output:
-        directory("report_upload/demultiplexed_reports")
+        directory("report_upload/demultiplexed_reports/{family}")
     log:
-        "logs/report_upload/post_report.log"
+        "logs/report_upload/{family}_post_report.log"
     wrapper:
         get_wrapper_path("report_upload", "post_report")
