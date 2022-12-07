@@ -12,7 +12,8 @@ if config["run"]["pipeline"] == "wes":
         input:
             "report/coding/{}".format(project),
             "qc/multiqc/multiqc.html",
-            [expand("recal/{family}_{sample}.bam.md5".format(family=config["run"]["project"], sample=s)) for s in samples.index],
+            [expand("recal/{family}_{sample}.cram.crai".format(family=config["run"]["project"], sample=s)) for s in samples.index],
+            [expand("recal/{family}_{sample}.cram.md5".format(family=config["run"]["project"], sample=s)) for s in samples.index],
             expand("{minio}/{family}", minio=[config["run"]["minio"]], family=project) if config["run"]["minio"] else [],
             expand("report/{p}/{family}", p="gatk_somatic", family=project)
 elif config["run"]["pipeline"] == "wgs":
@@ -29,7 +30,8 @@ elif config["run"]["pipeline"] == "wgs":
             #"plots/allele-freqs.svg"
             "programs-{}.txt".format(PIPELINE_VERSION),
             "report/mitochondrial/{family}.mitochondrial.report.csv".format(family=project),
-            [expand("recal/{family}_{sample}.bam.md5".format(family=config["run"]["project"], sample=s)) for s in samples.index]
+            [expand("recal/{family}_{sample}.cram.crai".format(family=config["run"]["project"], sample=s)) for s in samples.index],
+            [expand("recal/{family}_{sample}.cram.md5".format(family=config["run"]["project"], sample=s)) for s in samples.index]
 elif config["run"]["pipeline"] == "annot":
     rule all:
         input:
