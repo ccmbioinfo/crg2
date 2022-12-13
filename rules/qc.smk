@@ -185,7 +185,7 @@ rule calculate_coverage:
     params:
         crg2_dir=config['tools']['crg2']
     output:
-        coverage_dir=directory("coverage/{family}_{sample}/"),
+        coverage_dir=directory("coverage/{family}_{sample}")
     log:
         "logs/coverage/{family}_{sample}.log"
     conda:

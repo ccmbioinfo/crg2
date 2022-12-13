@@ -30,6 +30,7 @@ elif config["run"]["pipeline"] == "wgs":
             "programs-{}.txt".format(PIPELINE_VERSION),
             "report/mitochondrial/{family}.mitochondrial.report.csv".format(family=project),
             [expand("recal/{family}_{sample}.bam.md5".format(family=config["run"]["project"], sample=s)) for s in samples.index]
+
 elif config["run"]["pipeline"] == "annot":
     rule all:
         input:
@@ -38,6 +39,10 @@ elif config["run"]["pipeline"] == "mity":
     rule all:
         input:
             "report/mitochondrial/{family}.mitochondrial.report.csv".format(family=project)
+elif config["run"]["pipeline"] == "coverage":
+    rule all:
+        input:
+            [expand("coverage/{family}_{sample}".format(family=config["run"]["project"], sample=s)) for s in samples.index]
 
 
 
@@ -79,8 +84,15 @@ elif config["run"]["pipeline"] == "mity":
     base = "rules/"
     include: base + "mapping.smk"
     include: base + "mito_variants.smk"
+elif config["run"]["pipeline"] == "coverage":
+    base = "rules/"
+    include: base + "qc.smk"
 
 
 include: base + "annotation.smk"
 include: base + "snvreport.smk"
 include: base + "validation.smk"
+
+
+
+
