@@ -50,7 +50,7 @@ elif input_type == ["cram"]:
 
     sed_cmd = " sed -i 's+{snakemake.params.old_cram_ref}+UR:{snakemake.params.new_cram_ref}+g' fastq/{family}_{sample}_header.sam; "
 
-    reheader_cmd = " samtools reheader -i fastq/{family}_{sample}_header.sam {dest}; "
+    reheader_cmd = " samtools reheader  fastq/{family}_{sample}_header.sam {dest}; "
 
     fastq_cmd = (
         " samtools sort -n -T {snakemake.params.outdir}/{snakemake.wildcards.sample} {dest} | samtools fastq - --reference {snakemake.params.new_cram_ref} "
