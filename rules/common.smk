@@ -242,8 +242,8 @@ def peddy_ped(wildcards):
         mat_id = list(ped['mat_id'])
         sex = list(ped['sex'])
         phenotype = list(ped['phenotype'])
-
-        data = {'#Family_ID': family, 'Individual_ID':sample_id, 'Paternal_ID': pat_id, 'Maternal_ID': mat_id, 'Sex': sex, 'Phenotype': phenotype, 'Ethnicity': '-9'}
+        indiv_id = list(ped['individual_id'])
+        data = {'#Family_ID': family, 'Individual_ID': indiv_id, 'Paternal_ID': pat_id, 'Maternal_ID': mat_id, 'Sex': sex, 'Phenotype': phenotype, 'Ethnicity': '-9'}
         data_df = pd.DataFrame(data)
         data_df.to_csv(f"{family}_peddy.ped", sep="\t", index=False, header=True)
 
