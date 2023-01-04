@@ -9,6 +9,7 @@ run:
   gatk: "gatk" #or gatk3, or dragen (for dragen-gatk variant calling)
   pipeline: "wes" #either wes (exomes) or wgs (genomes) or annot (to annotate and produce reports for an input vcf)
   minio: ""
+  PT_credentials: ""
 
 genes:
   ensembl: "/hpf/largeprojects/ccmbio/nhanafi/c4r/downloads/databases/ensembl_genes_hg38_gtf.csv"

@@ -24,12 +24,12 @@ elif config["run"]["pipeline"] == "wgs":
             expand("report/{p}/{family}", p=["panel", "panel-flank", "denovo"], family=project) if (config["run"]["hpo"] or config["run"]["panel"]) and config["run"]["ped"] else [],
             "report/coding/{family}".format(family=project),
             "report/sv",
-            expand("report/str/{family}.{report_name}.xlsx", family=project, report_name=["EH-v1.1","EHDN"]),
+            #expand("report/str/{family}.{report_name}.xlsx", family=project, report_name=["EH-v1.1","EHDN"]),
             "qc/multiqc/multiqc.html",
             #"plots/depths.svg",
             #"plots/allele-freqs.svg"
             "programs-{}.txt".format(PIPELINE_VERSION),
-            "report/mitochondrial/{family}.mitochondrial.report.csv".format(family=project),
+            "report/mitochondrial/{family}.mitochondrial.report.csv".format(family=project) if config["tools"]["mity"] else [],
             [expand("recal/{family}_{sample}.bam.md5".format(family=config["run"]["project"], sample=s)) for s in samples.index],
             "report_upload/demultiplexed_reports/{}".format(project) if config["run"]["PT_credentials"] else []
 
