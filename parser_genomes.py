@@ -2,7 +2,12 @@ import sys, os, subprocess, glob
 from collections import namedtuple
 import argparse
 
+<<<<<<< HEAD
 '''
+=======
+"""
+
+>>>>>>> 3c5d678d0fee2c2492072798a04fb2663bc1e247
 Usage: python parser.py -f <input_sample.tsv> -d <absolute path to create directories> -s [mapped|recal|fastq|decoy_rm]
 Parse five-column(family,sample,fq1,fq2,bam) TSV file (1st argument) and sets up necessary directories (under 2nd argument), files as below:
 1. create family and directory passed as "-s"
@@ -68,9 +73,10 @@ def setup_directories(family, sample_list, filepath, step):
         cmd = ["sed", "-i", replace, config]
         subprocess.check_call(cmd)
 
-    #bam: start after folder creation and symlink for step
-    if step in ["mapped", "decoy_rm", "recal" ]:
-        if len(sample_list) == len([i for i in sample_list if i.bam ]):
+    # bam: start after folder creation and symlink for step
+    if step in ["mapped", "decoy_rm", "recal"]:
+        if len(sample_list) == len([i for i in sample_list if i.bam]):
+
             start_folder = os.path.join(d, step)
             if not os.path.isdir(start_folder):
                 os.mkdir(start_folder)
@@ -203,4 +209,3 @@ if __name__ == "__main__":
             submit_jobs(filepath, i)
 
     print("DONE")
-
