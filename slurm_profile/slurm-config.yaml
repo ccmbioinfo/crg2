@@ -44,7 +44,8 @@ smoove:
 manta:
   mem: "100G"
 
-
+recalibrate_base_qualities:
+  time: "100:00:00"
 
 
 
