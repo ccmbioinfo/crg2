@@ -225,6 +225,26 @@ The script performs the following operations for each familyID present in the sa
     - pbs_config.yaml
   - submit Snakemake job 
 
+### Exomes for re-analysis
+`exome_reanalysis.py` script can be used to automate the above process for exome re-analysis. 
+```
+usage: exome_reanalysis.py [-h] -f FILE -d path
+
+Reads sample info from Stager analysis csv file (-f) and creates directory (-d) necessary to run crg2.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -f FILE, --file FILE  Analyses csv output from STAGER
+  -d path, --dir path   Absolute path where crg2 directory structure will be created under familyID/analysisID as base directory
+  ```
+
+The script parses an analysis request csv from Stager for exome re-analyses and sets up necessary directories (under 2nd argument), files as below:
+1. create family analysis directory under directory provided
+3. copy config_cheo_ri.yaml, slurm-config.yaml and dnaseq_slurm_cheo_ri.sh from crg2 repo and replace necessary strings
+4. search results directory /srv/shared/hpf/exomes/results for crams from previous analyses
+5. create units.tsv and samples.tsv for snakemake
+6. set old_cram_ref and new_cram_ref to either GRCh37 or GRCh37d5 depending on which pipeline generated cram (bcbio or crg2)
+6. submit job if all the above goes well
 
 ## Pipeline details
 

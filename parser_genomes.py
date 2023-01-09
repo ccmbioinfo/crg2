@@ -33,18 +33,27 @@ def setup_directories(family, sample_list, filepath, step):
         os.mkdir(d)
 
     # copy config_hpf.yaml, slurm_config.yaml, and dnaseq_slurm_hpf.sh
-    for i in ["config_hpf.yaml", "slurm_profile/slurm-config.yaml", "dnaseq_slurm_hpf.sh"]:
+    for i in [
+        "config_hpf.yaml",
+        "slurm_profile/slurm-config.yaml",
+        "dnaseq_slurm_hpf.sh",
+    ]:
         cmd = ["cp", os.path.join(crg2_dir, i), d]
         subprocess.check_call(cmd)
 
     # replace family ID and pipeline in config_hpf.yaml & dnaseq_slurm_hpf.sh
     replace = "s/NA12878/{}/".format(family)
     pipeline = "s/wes/wgs/"
+    PT_credentials = "s+PT_credentials: ""+PT_credentials: {}+".format(
+        "~/crg2/credentials.csv"
+    )
     config = os.path.join(d, "config_hpf.yaml")
     if os.path.isfile(config):
         cmd = ["sed", "-i", replace, config]
         subprocess.check_call(cmd)
         cmd = ["sed", "-i", pipeline, config]
+        subprocess.check_call(cmd)
+        cmd = ["sed", "-i", PT_credentials, config]
         subprocess.check_call(cmd)
     replace = "s/job-name=crg2/job-name={}/".format(family)
     config_path = "s+~/crg2/config_hpf.yaml+{}/config_hpf.yaml+".format(d)
