@@ -62,7 +62,7 @@ rule recalibrate_base_qualities:
         known = config["ref"]["known-variants"],
         bed = "mapped/{family}_{sample}-callable.bed" 
     output:
-        bam = protected("recal/{family}_{sample}.bam")
+        bam = temp("recal/{family}_{sample}.bam")
     params:
         extra = get_regions_param() + config["params"]["gatk"]["BaseRecalibrator"],
         java_opts = config["params"]["gatk"]["java_opts"],
@@ -166,14 +166,15 @@ rule printreads:
         "../wrappers/gatk3/haplotypecaller/environment.yaml"
     wrapper:
         get_wrapper_path("gatk3", "printreads")
+
 rule md5:
     input: 
-        bam = "recal/{family}_{sample}.bam"
+        cram = "recal/{family}_{sample}.cram"
     output:
-        md5 = "recal/{family}_{sample}.bam.md5"
+        md5 = "recal/{family}_{sample}.cram.md5"
     shell:
         """
-        md5sum {input.bam} > {output.md5}
+        md5sum {input.cram} > {output.md5}
         """
 
 rule remove_decoy:
@@ -237,4 +238,24 @@ rule contigwise_bed:
         """
             awk '{{ if($1=="{wildcards.contig}") print $0; }}' {input} > {output} 2>{log}
         """
+
+rule bam_to_cram:
+    input:
+        bam = "recal/{family}_{sample}.bam",
+        ref = config["ref"]["genome"]
+    output:
+        protected("recal/{family}_{sample}.cram")
+    threads: 8 
+    log:
+        "logs/samtools/view/{family}_{sample}.log"
+    wrapper:
+        get_wrapper_path("samtools", "view")
     
+
+rule samtools_index_cram:
+    input:
+        "{prefix}.cram"
+    output:
+        "{prefix}.cram.crai"
+    wrapper:
+        get_wrapper_path("samtools", "index")
