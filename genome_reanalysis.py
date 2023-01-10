@@ -8,31 +8,40 @@ import pathlib
 import re
 import subprocess
 from collections import namedtuple
+from itertools import chain
 
 
 """
-Usage: python3 exome_reanalysis.py -f <input_sample.tsv> -d <absolute path to create directories> 
-Parses analyses request csv from Stager for exome re-analyses and sets up necessary directories (under 2nd argument), files as below:
+Usage: python3 genome_reanalysis.py -f <input_sample.tsv> -d <absolute path to create directories> 
+Parses analyses request csv from Stager for genome re-analyses and sets up necessary directories (under 2nd argument), files as below:
 1. create family analysis directory under directory provided
-3. copy config_cheo_ri.yaml, slurm-config.yaml and dnaseq_slurm_cheo_ri.sh from crg2 repo and replace necessary strings
-4. search results directory /srv/shared/hpf/exomes/results for crams from previous analyses
+3. copy config_hpf.yaml, slurm-config.yaml and dnaseq_slurm_hpf.sh from crg2 repo and replace necessary strings
+4. search results directory /hpf/largeprojects/ccmbio/ccmmarvin_shared/genomes and /hpf/largeprojects/ccm_dccforge/dccdipg/c4r_wgs/results for crams from previous analyses
 5. create units.tsv and samples.tsv for snakemake
 6. submit job if all the above goes well
 """
 
-crg2_dir = "/srv/shared/pipelines/crg2/"
+crg2_dir = "/home/mcouse/crg2/"
 
 
 def find_input(family, participant):
     """Given family and participant codenames, check if individuals have already been analyzed"""
-    RESULTS_DIR = glob.glob((f"/srv/shared/hpf/exomes/results/*/{family}"))
+    RESULTS_DIR_dccdipg = glob.glob(
+        (f"/hpf/largeprojects/ccm_dccforge/dccdipg/c4r_wgs/results/{family}")
+    )
+    RESULTS_DIR_ccmmarvin = glob.glob(
+        (f"/hpf/largeprojects/ccmbio/ccmmarvin_shared/genomes/{family}")
+    )
+    RESULTS_DIR = RESULTS_DIR_dccdipg + RESULTS_DIR_ccmmarvin
     try:
         RESULTS_DIR = pathlib.Path(RESULTS_DIR[0])
     except IndexError:
         RESULTS_DIR = None
     if RESULTS_DIR:
         print(RESULTS_DIR)
-        cram = RESULTS_DIR.rglob(f"{family}_{participant}.cram")
+        cram_crg2 = RESULTS_DIR.rglob(f"{family}_{participant}.cram")
+        cram_bcbio = RESULTS_DIR.rglob(f"{family}_{participant}-ready.cram")
+        cram = chain(cram_crg2, cram_bcbio)
         print(f"{family}_{participant}.cram")
         try:
             input = str([c for c in cram][0])
@@ -70,29 +79,105 @@ def valid_file(filename):
 
 
 def setup_directories(family, sample_list, filepath, analysis_id):
-    d = os.path.join(filepath, family, analysis_id)
+    # leave out analysis id for genomes for now
+    d = os.path.join(filepath, family)
     if not os.path.isdir(d):
         os.makedirs(d)
         # copy config.yaml, pbs_config.yaml, and dnaseq_cluster.pbs
     for i in [
-        "config_cheo_ri.yaml",
+        "config_hpf.yaml",
         "slurm_profile/slurm-config.yaml",
-        "dnaseq_slurm_cheo_ri.sh",
+        "dnaseq_slurm_hpf.sh",
     ]:
         cmd = ["cp", os.path.join(crg2_dir, i), d]
         subprocess.check_call(cmd)
 
     # replace family ID in config_hpf.yaml & dnaseq_slurm_cheo_ri.sh
     replace = f"s/NA12878/{family}/"
-    config = os.path.join(d, "config_cheo_ri.yaml")
+    pipeline = "s/wes/wgs/"
+    PT_credentials = 's+PT_credentials: ""+PT_credentials: {}+'.format(
+        "~/crg2/credentials.csv"
+    )
+    config = os.path.join(d, "config_hpf.yaml")
     if os.path.isfile(config):
         cmd = ["sed", "-i", replace, config]
         subprocess.check_call(cmd)
-    replace = f"s/crg2_pbs/{family}/"
-    pbs = os.path.join(d, "dnaseq_slurm_cheo_ri.sh")
-    if os.path.isfile(pbs):
-        cmd = ["sed", "-i", replace, pbs]
+        cmd = ["sed", "-i", pipeline, config]
         subprocess.check_call(cmd)
+        cmd = ["sed", "-i", PT_credentials, config]
+        subprocess.check_call(cmd)
+    replace = "s/job-name=crg2/job-name={}/".format(family)
+    slurm = os.path.join(d, "dnaseq_slurm_hpf.sh")
+    if os.path.isfile(slurm):
+        cmd = ["sed", "-i", replace, slurm]
+        subprocess.check_call(cmd)
+
+    # glob hpo
+    hpo_path = os.path.expanduser("~/gene_data/HPO")
+    hpo = glob.glob(("{}/{}_HPO.txt").format(hpo_path, family))
+    if len(hpo) > 1:
+        print(f"Multiple HPO files found: {hpo}. Exiting!")
+        exit()
+    if len(hpo) == 1 and os.path.isfile(config):
+        hpo = hpo[0]
+        replace = 's+hpo: ""+hpo: "{}"+'.format(hpo)
+        cmd = ["sed", "-i", replace, config]
+        subprocess.check_call(cmd)
+
+    #  write samples
+    write_sample(filepath, family)
+
+    # glob ped
+    ped_path = os.path.expanduser("~/gene_data/pedigrees")
+    ped = glob.glob(("{}/{}*ped").format(ped_path, family))
+    if len(ped) > 1:
+        print(f"Multiple ped files found: {ped}. Exiting!")
+        exit()
+    if len(ped) == 0:
+        print(f"No ped files found for family: {family}")
+        return False
+    if len(ped) == 1 and os.path.isfile(config):
+        ped = ped[0]
+        pedi = pd.read_csv(
+            ped,
+            sep=" ",
+            header=None,
+            names=["fam_id", "individual_id", "pat_id", "mat_id", "sex", "phenotype"],
+        )
+        for index, row in pedi.iterrows():
+            individual_id = str(row.individual_id)
+            pat_id = str(row.pat_id)
+            mat_id = str(row.mat_id)
+            # individual_id, pat_id and mat_id cannot be both numeric and single number
+            if not (
+                (individual_id.isnumeric() and len(individual_id) == 1)
+                | (pat_id.isnumeric() and len(pat_id) == 1)
+                | (mat_id.isnumeric() and len(mat_id) == 1)
+            ):
+                # write and check sample
+                samples = os.path.join(filepath, family, "samples.tsv")
+                samples = pd.read_csv(samples, dtype=str)
+                samples = list(samples.iloc[:, 0])
+                samples = [family + s for s in samples]
+                samples.sort()
+                print(f"samples to be processed: {samples}")
+                ped_samples = [individual_id, pat_id, mat_id]
+                ped_samples.sort()
+                if all(s in samples for s in ped_samples):
+                    replace = 's+ped: ""+ped: "{}"+'.format(ped)
+                    cmd = ["sed", "-i", replace, config]
+                    subprocess.check_call(cmd)
+                    break
+                else:
+                    print(
+                        f"Individuals in ped file do not match with samples.tsv, double check: {ped}."
+                    )
+                    return False
+            else:
+                print(
+                    f"Ped file is either not a trio or not linked, double check: {ped}."
+                )
+                return False
 
     # check to see if each sample is associated with input file
     inputs_flag = check_inputs(sample_list)
@@ -109,15 +194,19 @@ def check_inputs(sample_list):
     return check_inputs
 
 
-def write_proj_files(sample_list, filepath):
-    units, samples = os.path.join(filepath, "units.tsv"), os.path.join(
-        filepath, "samples.tsv"
-    )
-    with open(units, "w") as u, open(samples, "w") as s:
+def write_sample(filepath, family):
+    samples = os.path.join(filepath, family, "samples.tsv")
+    with open(samples, "w") as s:
         s.writelines("sample\n")
-        u.writelines("sample\tplatform\tfq1\tfq2\tbam\tcram\n")
         for i in sample_list:
             s.writelines(f"{i.sample}\n")
+
+
+def write_units(sample_list, filepath):
+    units = os.path.join(filepath, "units.tsv")
+    with open(units, "w") as u:
+        u.writelines("sample\tplatform\tfq1\tfq2\tbam\tcram\n")
+        for i in sample_list:
             u.writelines(
                 f"{i.sample}\t{i.platform}\t{i.fq1}\t{i.fq2}\t{i.bam}\t{i.cram}\n"
             )
@@ -197,14 +286,14 @@ if __name__ == "__main__":
     for i in projects:
 
         sample_list = projects[i]
-        filepath = os.path.join(args.dir, i, str(analysis_ids[i]))
+        filepath = os.path.join(args.dir, i)
 
         # create project directory
         # copy config_hpf.yaml, dnaseq_slurm_cheo_ri.sh & replace family id; copy slurm-config.yaml
         print(f"\nStarting to setup project directories for family: {i}")
         submit_flag = setup_directories(i, sample_list, args.dir, str(analysis_ids[i]))
+        write_units(sample_list, filepath)
 
-        write_proj_files(sample_list, filepath)
         if submit_flag:
             print(f"\nSubmitting job for family: {i}")
             submit_jobs(filepath, i)
