@@ -90,7 +90,7 @@ if config["run"]["hpo"]:
         
     rule annotate_hpo:
         input:
-            reports=expand("report/{p}/{family}",p=["coding", "panel", "panel-flank"], family=project),
+            reports=expand("report/{p}/{family}",p=["coding", "panel", "panel-flank", "denovo"] if config["run"]["ped"] else ["coding", "panel", "panel-flank"], family=project),
             hpo=config["run"]["hpo"]
         output: 
             directory("report/hpo_annotated")
@@ -121,6 +121,9 @@ if config["run"]["hpo"]:
                         else
                             echo "${{j}} found panel"  >> {log};
                         fi;
+                    elif [[ "${{i}}" =~ .*"denovo".* ]]; then 
+                        rename=`find ${{i}} -name  "*.denovo.[0-9]*.csv" | grep -v "clinical"`;
+                        echo "${{rename}} found denovo"  >> {log};
                     else 
                         rename=`find ${{i}} -name "*.wes*.[0-9]*.csv" | grep -v "clinical"`;
                         echo "${{rename}} found wes"  >> {log};
