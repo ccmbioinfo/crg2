@@ -11,17 +11,17 @@ from collections import namedtuple
 
 
 """
-Usage: python3 parser.py -f <input_sample.tsv> -d <absolute path to create directories> 
+Usage: python3 exome_reanalysis.py -f <input_sample.tsv> -d <absolute path to create directories> 
 Parses analyses request csv from Stager for exome re-analyses and sets up necessary directories (under 2nd argument), files as below:
 1. create family analysis directory under directory provided
 3. copy config_cheo_ri.yaml, slurm-config.yaml and dnaseq_slurm_cheo_ri.sh from crg2 repo and replace necessary strings
 4. search results directory /srv/shared/hpf/exomes/results for crams from previous analyses
 5. create units.tsv and samples.tsv for snakemake
-6. set old_cram_ref and new_cram_ref to either GRCh37 or GRCh37d5 depending on which pipeline generated cram (bcbio or crg2)
 6. submit job if all the above goes well
 """
 
 crg2_dir = "/srv/shared/pipelines/crg2/"
+
 
 def find_input(family, participant):
     """Given family and participant codenames, check if individuals have already been analyzed"""
@@ -31,7 +31,7 @@ def find_input(family, participant):
     except IndexError:
         RESULTS_DIR = None
     if RESULTS_DIR:
-        print(RESULTS_DIR) 
+        print(RESULTS_DIR)
         cram = RESULTS_DIR.rglob(f"{family}_{participant}.cram")
         print(f"{family}_{participant}.cram")
         try:
@@ -69,13 +69,16 @@ def valid_file(filename):
     return filename
 
 
-
 def setup_directories(family, sample_list, filepath, analysis_id):
     d = os.path.join(filepath, family, analysis_id)
     if not os.path.isdir(d):
         os.makedirs(d)
         # copy config.yaml, pbs_config.yaml, and dnaseq_cluster.pbs
-    for i in ["config_cheo_ri.yaml", "slurm_profile/slurm-config.yaml", "dnaseq_slurm_cheo_ri.sh"]:
+    for i in [
+        "config_cheo_ri.yaml",
+        "slurm_profile/slurm-config.yaml",
+        "dnaseq_slurm_cheo_ri.sh",
+    ]:
         cmd = ["cp", os.path.join(crg2_dir, i), d]
         subprocess.check_call(cmd)
 
@@ -91,21 +94,6 @@ def setup_directories(family, sample_list, filepath, analysis_id):
         cmd = ["sed", "-i", replace, pbs]
         subprocess.check_call(cmd)
 
-    # replace cram reference path: need to check header to determine if it was run with GRCh37 or GRCh37d5
-    input_path = sample_list[0]
-    if "recal" in input_path:
-        # reference is GRCh37d5
-        ref = "/srv/shared/data/dccdipg/genomes/GRCh37d5/GRCh37d5.fa"
-    else:
-         ref = "/srv/shared/data/dccdipg/genomes/GRCh37/GRCh37.fa"
-    replace = f"s+/mnt/hnas/reference/hg19/hg19.fa+{ref}+"
-    if os.path.isfile(config):
-        cmd = ["sed", "-i", replace, config]
-        subprocess.check_call(cmd)
-    replace = f"s+/srv/shared/data/dccdipg/genomes/hg19.fa+{ref}+"
-    if os.path.isfile(config):
-        cmd = ["sed", "-i", replace, config]
-        subprocess.check_call(cmd)
     # check to see if each sample is associated with input file
     inputs_flag = check_inputs(sample_list)
 
@@ -149,7 +137,6 @@ def submit_jobs(directory, family):
     os.chdir(cwd)
 
 
-
 if __name__ == "__main__":
     description = "Reads sample info from Stager analysis csv file (-f) and creates directory (-d) necessary to run crg2"
     parser = argparse.ArgumentParser(description=description)
@@ -169,7 +156,6 @@ if __name__ == "__main__":
         metavar="path",
         help="Absolute path where crg2 directory structure will be created under familyID/analysisID as base directory",
     )
-
 
     args = parser.parse_args()
     requested = pd.read_csv(args.file)
