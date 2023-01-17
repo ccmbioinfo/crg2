@@ -29,7 +29,7 @@ elif config["run"]["pipeline"] == "wgs":
             #"plots/depths.svg",
             #"plots/allele-freqs.svg"
             "programs-{}.txt".format(PIPELINE_VERSION),
-            "report/mitochondrial/{family}.mitochondrial.report.csv".format(family=project) if config["tools"]["mity"] else [],
+            #"report/mitochondrial/{family}.mitochondrial.report.csv".format(family=project) if config["tools"]["mity"] else [],
             [expand("recal/{family}_{sample}.bam.md5".format(family=config["run"]["project"], sample=s)) for s in samples.index],
             "report_upload/demultiplexed_reports/{}".format(project) if config["run"]["PT_credentials"] else []
 

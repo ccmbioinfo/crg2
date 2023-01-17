@@ -23,6 +23,7 @@ tools:
   crg: "~/crg"
   crg2: "~/crg2"
   ehdn: "/hpf/largeprojects/ccmbio/arun/Tools/EHDN.TCAG/ExpansionHunterDenovo-v0.7.0"
+  mity: "/hpf/largeprojects/ccmbio/ajain/mity/mity_package/bin"
 
 ref:
   name: GRCh38.86
@@ -93,6 +94,9 @@ annotation:
     conf: "~/crg2/vcfanno/crg.vcfanno_hg38.conf" 
     lua_script: "~/crg2/vcfanno/crg.vcfanno.lua"
     base_path: "/hpf/largeprojects/ccmbio/nhanafi/c4r/downloads/databases/"
+  mt.vcfanno:
+    conf: "~/crg2/vcfanno/mt.vcfanno.conf"
+    base_path: "/hpf/largeprojects/ccmbio/ajain/mity/vcfanno"
   vep:
     dir: "/hpf/largeprojects/ccmbio/nhanafi/c4r/downloads/executables/ensembl-vep/"
     dir_cache: "/hpf/largeprojects/ccmbio/nhanafi/c4r/downloads/databases/vep"
