@@ -13,16 +13,17 @@ end_coord=`echo $coord | cut -d'-' -f2`
 start_minus=`expr $start_coord - $flank`
 end_minus=`expr $end_coord + $flank`
 region=`echo ${chr}:${start_minus}-${end_minus}`
+ref=/hpf/largeprojects/ccm_dccforge/dccdipg/Common/genomes/GRCh37d5/GRCh37d5.fa
+
 echo $region
 
-for bam in *.bam;
+for cram in *.cram;
 do
 	if [ ! -d bam_slice ]; then
 		mkdir bam_slice
 	fi
-	name=`echo $bam | cut -d'.' -f1`
-	samtools view -b $bam "$region" > bam_slice/${name}_${region}.bam
-	samtools index bam_slice/${name}_${region}.bam
+	name=`echo $cram | cut -d'.' -f1`
+	samtools view -b $cram "$region" -T $ref > bam_slice/${name}_${chr}-${start_minus}-${end_minus}.bam
+	samtools index bam_slice/${name}_${chr}-${start_minus}-${end_minus}.bam
 done
-
 
