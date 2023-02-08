@@ -161,29 +161,27 @@ rule multiqc:
 
 
 rule remove_duplicates:
+    # use samtools instead of picard to remove duplicates because picard complains with cram input
     input: 
-        "recal/{family}_{sample}.bam"
+        cram="recal/{family}_{sample}.cram"
     params:
-        markDuplicates="REMOVE_DUPLICATES=true",
-        java_opts = config["params"]["picard"]["java_opts"],
-        validationStringency=config["params"]["picard"]["ValidationStringency"],
-        assumeSortOrder=config["params"]["picard"]["AssumeSortOrder"]
+        ref_cache=config["ref"]["genome"]
     output:
-        bam="dups_removed/{family}_{sample}.bam",
-        metrics="dups_removed/{family}_{sample}.dup.metrics.txt"
+        temp(cram="dups_removed/{family}_{sample}.cram")
     log:
         "logs/remove_duplicates/{family}_{sample}.log"
     wrapper:
-        get_wrapper_path("picard", "markduplicates")
+        get_wrapper_path("samtools", "markdup")
 
 
 rule calculate_coverage:
     input:
-        bam="dups_removed/{family}_{sample}.bam",
+        cram="dups_removed/{family}_{sample}.cram",
         bed=config["annotation"]["svreport"]["exon_bed"],
         bed_index=config["ref"]["bed_index"]
     params:
-        crg2_dir=config['tools']['crg2']
+        crg2_dir=config['tools']['crg2'],
+        reference=config["ref"]["genome"]
     output:
         coverage_dir=directory("coverage/{family}_{sample}/"),
     log:
@@ -192,10 +190,11 @@ rule calculate_coverage:
         "../envs/coverage.yaml"
     shell:
         """
+        export CRAM_REFERENCE={params.reference}
         mkdir -p coverage/{wildcards.family}_{wildcards.sample}/
         cd coverage/{wildcards.family}_{wildcards.sample}/
 
-        bedtools coverage -d -sorted -a {input.bed} -b ../../{input.bam} -g {input.bed_index} > {wildcards.family}_{wildcards.sample}.dedup.cov
+        bedtools coverage -d -sorted -a {input.bed} -b ../../{input.cram} -g {input.bed_index} > {wildcards.family}_{wildcards.sample}.dedup.cov
 
         python {params.crg2_dir}/utils/bam.coverage.base_wise.stat.py {wildcards.family}_{wildcards.sample}.dedup.cov 5 $'\\t' > {wildcards.family}_{wildcards.sample}.coverage_stats.csv
 
