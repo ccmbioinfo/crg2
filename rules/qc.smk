@@ -167,7 +167,7 @@ rule remove_duplicates:
     params:
         ref_cache=config["ref"]["genome"]
     output:
-        temp(cram="dups_removed/{family}_{sample}.cram")
+        cram=temp("dups_removed/{family}_{sample}.cram")
     log:
         "logs/remove_duplicates/{family}_{sample}.log"
     wrapper:
