@@ -151,7 +151,7 @@ params:
     AssumeSortOrder: "ASSUME_SORT_ORDER=coordinate"
     java_opts: "-Xmx2g"
   qualimap:
-    mem: "20G"
+    mem: "60G"
     nw: 400
     c: "-c"
     hm: 3

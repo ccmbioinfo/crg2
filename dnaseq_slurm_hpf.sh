@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --job-name=crg2
-#SBATCH --time=72:00:00
+#SBATCH --time=100:00:00
 #SBATCH --ntasks-per-node=1
 #SBATCH --mem=4G
 #SBATCH --output=%x-%j.out
