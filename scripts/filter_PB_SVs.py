@@ -208,7 +208,10 @@ def get_genotype(sample_GT_AD_DP):
 
 
 def get_alt_depth(sample_GT_AD_DP):
-    alt_depth = sample_GT_AD_DP.split(":")[1].split(",")[1]
+    try:
+        alt_depth = sample_GT_AD_DP.split(":")[1].split(",")[1]
+    except:
+        alt_depth = 0
     return alt_depth
 
 
@@ -555,13 +558,15 @@ def main(
     inhouse,
     odd_regions,
     repeats,
+    c4r,
 ):
+    print(c4r)
     # filter out SVs < 50bp
     df_len = df[apply_filter_length(df)]
     df_len = df_len.astype(str)
     # merge full and split AnnotSV annos
     df_merge = merge_full_split_annos(df_len)
-    sample_cols = [col for col in df.columns if "PB" in col]
+    sample_cols = [col for col in df.columns if "21-" in col]
     # extract genotype and alt allele depth
     for sample in sample_cols:
         df_merge[f"{sample}_GT"] = [
@@ -587,7 +592,12 @@ def main(
     df_merge = merge_annotsv_snpeff(df_merge, snpeff_df)
 
     # add HPO terms by gene matching
-    df_merge["HPO"] = [add_hpo(hpo, gene) for gene in df_merge["ENSEMBL_GENE"].values]
+    try:
+        df_merge["HPO"] = [
+            add_hpo(hpo, gene) for gene in df_merge["ENSEMBL_GENE"].values
+        ]
+    except:
+        print("No HPO terms")
 
     # add OMIM phenos and inheritance by gene matching
     df_merge["omim_phenotype"] = [
@@ -623,6 +633,7 @@ def main(
         "seen_in_C4R",
         "seen_in_C4R_count",
     ]
+
     df_merge = annotate_pop_svs(df_merge, inhouse, inhouse_cols)
 
     # add exon counts
@@ -636,6 +647,12 @@ def main(
     df_merge = annotate_repeats(df_merge, repeats)
 
     # define columns to be included in report
+    hpo_cols = ["HPO"] if isinstance(hpo, pd.DataFrame) else []
+
+    # exclude C4R counts if not part of C4R study
+    if c4r != "True":
+        inhouse_cols = []
+
     report_columns = (
         [
             "CHROM",
@@ -654,8 +671,8 @@ def main(
             "DDD_mode",
             "DDD_consequence",
             "DDD_disease",
-            "HPO",
         ]
+        + hpo_cols
         + gt_cols
         + ad_cols
         + dp_cols
@@ -690,7 +707,8 @@ def main(
     )
 
     df_merge = df_merge[report_columns]
-    df_merge = df_merge.drop(columns=["C4R_REF", "C4R_ALT"])
+    if c4r == "True":
+        df_merge = df_merge.drop(columns=["C4R_REF", "C4R_ALT"])
     df_merge["GENE_NAME"] = df_merge["GENE_NAME"].replace("nan", ".")
     df_merge["omim_phenotype"].fillna("nan", inplace=True)
     df_merge["omim_inheritance"].fillna("nan", inplace=True)
@@ -728,7 +746,7 @@ if __name__ == "__main__":
         "-hpo",
         help="Tab delimited file containing gene names and HPO terms",
         type=str,
-        required=True,
+        required=False,
     )
     parser.add_argument(
         "-omim",
@@ -784,25 +802,34 @@ if __name__ == "__main__":
         type=str,
         required=True,
     )
+    parser.add_argument(
+        "-c4r",
+        help="C4R sample?",
+        type=str,
+        required=True,
+    )
     args = parser.parse_args()
 
     df = pd.read_csv(args.annotsv, sep="\t", low_memory=False)
     snpeff_df = vcf_to_df(args.snpeff)
     df = rename_SV_cols(df)
-    prefix = args.annotsv.strip(".tsv")
+    prefix = args.annotsv.replace(".tsv", "")
     vcf = VariantFile(args.vcf)
     omim = pd.read_csv(args.omim, sep="\t")
     omim = omim[pd.notnull(omim["omim_phenotype"])]
-    hpo = pd.read_csv(
-        args.hpo,
-        comment="#",
-        skip_blank_lines=True,
-        sep="\t",
-        encoding="ISO-8859-1",
-        engine="python",
-    )
-    # Phenotips TSV has a space in column name: " Gene symbol"
-    hpo.columns = hpo.columns.str.strip()
+    hpo = args.hpo
+    if hpo:
+        hpo = pd.read_csv(
+            args.hpo,
+            comment="#",
+            skip_blank_lines=True,
+            sep="\t",
+            encoding="ISO-8859-1",
+            engine="python",
+        )
+        # Phenotips TSV has a space in column name: " Gene symbol"
+        hpo.columns = hpo.columns.str.strip()
+
     main(
         df,
         snpeff_df,
@@ -817,4 +844,5 @@ if __name__ == "__main__":
         args.inhouse,
         args.odd_regions,
         args.repeats,
+        args.c4r,
     )
