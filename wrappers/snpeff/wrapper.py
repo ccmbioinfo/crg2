@@ -2,8 +2,14 @@ from snakemake.shell import shell
 
 log = snakemake.log_fmt_shell(stdout=True, stderr=True)
 
+# replace symbolic <INS> alleles so that snpeff will annotate against genes
+# https://github.com/pcingola/SnpEff/issues/344
+replace_ins = "zcat {snakemake.input} | sed 's/<INS>/N/g' > tmp.vcf; "
+gzip_vcf = "bgzip tmp.vcf; "
+mv_vcf = "mv tmp.vcf.gz {snakemake.input}; "
+
 shell(
-    "(snpEff {snakemake.params.java_opts} "
+    "(" + replace_ins + gzip_vcf + mv_vcf + "snpEff {snakemake.params.java_opts} "
     "-i VCF "
     "-o VCF "
     "-dataDir {snakemake.params.data_dir} "
