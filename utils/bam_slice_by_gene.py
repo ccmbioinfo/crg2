@@ -57,15 +57,22 @@ def create_bam_slices(coordinates, alignment, ref, bam_slice_dir):
 
 
 if __name__ == "__main__":
-    description = """Creates a bam slice for a specified gene
+    description = """Creates a bam slice for a specified gene or coordinates provided
     """
     parser = argparse.ArgumentParser(description=description)
     parser.add_argument(
         "-g",
         "--gene",
         type=str,
-        required=True,
+        required=False,
         help="Gene name (e.g. CDK2)",
+    )
+    parser.add_argument(
+        "-c",
+        "--coordinates",
+        type=str,
+        required=False,
+        help="Coordinates, e.g. 14:35186001-35985000. Only used if gene name not provided. ",
     )
     parser.add_argument(
         "-f",
@@ -90,11 +97,26 @@ if __name__ == "__main__":
         required=True,
         help="Path to directory containing alignments (BAMs or CRAMs)",
     )
+
     args = parser.parse_args()
     gene = args.gene
     flank = args.flank
     assembly = args.assembly
     alignment_folder = args.path
+
+    if not gene:
+        coordinates = args.coordinates.replace(",", "")
+        if assembly == "hg19":
+            coordinates = coordinates.replace("chr", "")
+        elif assembly == "hg38":
+            chr = coordinates.split(":")[0]
+            if "chr" not in chr:
+                coordinates = "chr" + coordinates
+        chr = coordinates.split(":")[0]
+        start = int(coordinates.split(":")[1].split("-")[0]) - flank
+        end = int(coordinates.split(":")[1].split("-")[1]) + flank
+        coordinates = f"{chr}:{start}-{end}"
+
     wd = os.getcwd()
     if "srv" in wd:
         ref = "/srv/shared/data/dccdipg/genomes/GRCh37d5/GRCh37d5.fa"
@@ -106,7 +128,12 @@ if __name__ == "__main__":
         os.mkdir(bam_slice_dir)
 
     # get gene coordinates
-    coordinates = query_gene(gene, flank, assembly)
     alignments = get_alignments(alignment_folder)
-    for a in alignments:
-        create_bam_slices(coordinates, a, ref, bam_slice_dir)
+    if gene:
+        coordinates = query_gene(gene, flank, assembly)
+        for a in alignments:
+            create_bam_slices(coordinates, a, ref, bam_slice_dir)
+
+    else:
+        for a in alignments:
+            create_bam_slices(coordinates, a, ref, bam_slice_dir)
