@@ -44,7 +44,7 @@ def setup_directories(family, sample_list, filepath, step):
     # replace family ID and pipeline in config_hpf.yaml & dnaseq_slurm_hpf.sh
     replace = "s/NA12878/{}/".format(family)
     pipeline = "s/wes/wgs/"
-    PT_credentials = "s+PT_credentials: ""+PT_credentials: {}+".format(
+    PT_credentials = "s+PT_credentials: " "+PT_credentials: {}+".format(
         "~/crg2/credentials.csv"
     )
     config = os.path.join(d, "config_hpf.yaml")
@@ -191,7 +191,6 @@ def submit_jobs(directory, family):
 
 
 def valid_dir(dir):
-
     if os.path.isdir(dir):
         return dir
     else:
@@ -201,7 +200,6 @@ def valid_dir(dir):
 
 
 def valid_file(filename):
-
     if not os.path.isfile(filename):
         message = "{} file does not exist".format(filename)
         log_message(message)
@@ -212,6 +210,19 @@ def valid_file(filename):
             print(message)
             raise argparse.ArgumentTypeError(message)
     return filename
+
+
+def cp_cnv(project, family, filepath):
+    cnvs = glob.glob(
+        f"/hpf/largeprojects/ccmbio_ephemeral/from_tcag/{project}_cnv_*/FAM_{family}/cnv/*tsv"
+    )
+    os.makedirs(f"{filepath}/reports/cnv", exist_ok=True)
+    d = f"{filepath}/reports/cnv"
+    for c in cnvs:
+        cmd = ["cp", c, d]
+        subprocess.check_call(cmd)
+    cmd = ["sbatch", "~/crg/merge.cnv.reports.sh", family]
+    subprocess.check_call(cmd)
 
 
 if __name__ == "__main__":
@@ -242,6 +253,14 @@ if __name__ == "__main__":
         metavar="path",
         help="Absolute path where crg2 directory struture will be created under familyID as base directory",
     )
+    parser.add_argument(
+        "-p",
+        "--project",
+        type=str,
+        required=True,
+        help="Project ID for sequence batch, e.g. ACK23274",
+    )
+
     projects = {}
     Units = namedtuple("Units", "sample platform fq1 fq2 bam")
     platform = "ILLUMINA"
@@ -255,7 +274,6 @@ if __name__ == "__main__":
                 projects[family].append(Units(sample, platform, fq1, fq2, bam))
 
     for i in projects:
-
         sample_list = projects[i]
         filepath = os.path.join(args.dir, i)
 
@@ -264,9 +282,11 @@ if __name__ == "__main__":
         print(f"\nStarting to setup project directories for family: {i}")
         submit_flag = setup_directories(i, sample_list, args.dir, args.step)
         write_units(sample_list, filepath)
+        cp_cnv(args.project, i, filepath)
 
         if submit_flag:
-            submit_jobs(filepath, i)
+            print("submit jobs")
+            # submit_jobs(filepath, i)
         else:
             write_sample(args.dir, i)
 
