@@ -221,7 +221,8 @@ def cp_cnv(project, family, filepath):
     for c in cnvs:
         cmd = ["cp", c, d]
         subprocess.check_call(cmd)
-    cmd = ["sbatch", "~/crg/merge.cnv.reports.sh", family]
+    crg_dir = crg2_dir.replace("crg2", "crg")
+    cmd = ["sbatch", f"{crg_dir}/merge.cnv.reports.sh", family]
     subprocess.check_call(cmd)
 
 
