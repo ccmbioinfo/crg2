@@ -44,7 +44,7 @@ def setup_directories(family, sample_list, filepath, step):
     # replace family ID and pipeline in config_hpf.yaml & dnaseq_slurm_hpf.sh
     replace = "s/NA12878/{}/".format(family)
     pipeline = "s/wes/wgs/"
-    PT_credentials  = 's+PT_credentials: ""+PT_credentials: {}+'.format(
+    PT_credentials = 's+PT_credentials: ""+PT_credentials: {}+'.format(
         "~/crg2/credentials.csv"
     )
     config = os.path.join(d, "config_hpf.yaml")
@@ -223,6 +223,7 @@ def cp_cnv(project, family, filepath):
         subprocess.check_call(cmd)
     crg_dir = crg2_dir.replace("crg2", "crg")
     cmd = ["sbatch", f"{crg_dir}/merge.cnv.reports.sh", family]
+    os.chdir(d)
     subprocess.check_call(cmd)
 
 
