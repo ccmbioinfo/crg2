@@ -22,7 +22,7 @@ biomart = "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/BioMaRt.GrC
 mssng_manta_counts = "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/MSSNG_COUNTS/Canadian_MSSNG_parent_SVs.Manta.counts.txt"
 # no INS in LUMPY counts
 # mssng_lumpy_counts = "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/MSSNG_COUNTS/Canadian_MSSNG_parent_SVs.LUMPY.counts.txt"
-hpo = "/home/mcouse/gene_data/HPO/1894_HPO.txt"
+hpo = "/home/mcouse/gene_data/HPO/166_HPO.txt"
 sv_counts = [mssng_manta_counts]
 
 
@@ -71,7 +71,14 @@ def annotate_counts(sv_df, counts, prefix="COUNT", reciprocal_overlap=0.5):
         ]
         + cols
     )
-    ann_df[["CHROM", "POS", "END", "SVTYPE",]] = ann_df[
+    ann_df[
+        [
+            "CHROM",
+            "POS",
+            "END",
+            "SVTYPE",
+        ]
+    ] = ann_df[
         [
             "CHROM",
             "POS",
@@ -181,7 +188,7 @@ def annotate_gnomad(gnomad, sv_df):
 
 
 vcf_dict = allel.read_vcf(
-    "1894_MELT_no_ac0_alt_hack.snpeff.vcf",
+    "/hpf/largeprojects/ccmbio/ccmmarvin_shared/genomes/166/MELT_full_pipeline/166_MELT_no_ac0_no_sym.snpeff.vcf",
     ["*"],
     numbers={"ANN": 1000},
     transformers=allel.ANNTransformer(),
@@ -390,9 +397,6 @@ sv_report_cols = (
         "gnomAD_FREQ_HET",
         "gnomAD_FREQ_HOMALT",
         "gnomAD_POPMAX_AF",
-        "DDD_disease",
-        "DDD_mode",
-        "DDD_pmids",
         "Genes in HGMD",
         "HGMD disease",
         "HGMD descr",
@@ -440,4 +444,4 @@ for col in non_numeric:
     df[col] = ["." if val == "nan" else val for val in df[col].tolist()]
 
 # write report
-df.to_csv("1894_MELT_report.csv")
+df.to_csv("166_MELT_report.csv")
