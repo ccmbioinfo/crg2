@@ -94,16 +94,13 @@ annotation:
     conf: "~/crg2/vcfanno/crg.vcfanno_hg38.conf" 
     lua_script: "~/crg2/vcfanno/crg.vcfanno.lua"
     base_path: "/hpf/largeprojects/ccmbio/nhanafi/c4r/downloads/databases/"
-<<<<<<< HEAD:config.yaml
   pacbio.vcfanno:
     conf: "~/crg2/vcfanno/pacbio.vcfanno.conf"
     lua_script: "~/crg2/vcfanno/crg.vcfanno.lua"
     base_path: "/hpf/largeprojects/ccmbio/nhanafi/c4r/downloads/databases/"
-=======
   mt.vcfanno:
     conf: "~/crg2/vcfanno/mt.vcfanno.conf"
     base_path: "/hpf/largeprojects/ccmbio/ajain/mity/vcfanno"
->>>>>>> 293d530722c7efacd57ecc3d84fbfcda62e8a121:hg38/config_hpf.yaml
   vep:
     dir: "/hpf/largeprojects/ccmbio/nhanafi/c4r/downloads/executables/ensembl-vep/"
     dir_cache: "/hpf/largeprojects/ccmbio/nhanafi/c4r/downloads/databases/vep"
