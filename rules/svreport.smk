@@ -8,6 +8,7 @@ rule svreport:
     params:
         PIPELINE_VERSION=PIPELINE_VERSION,
         project=config["run"]["project"],
+        reference=config["annotation"]["svreport"]["reference"],
         hgmd=config["annotation"]["svreport"]["hgmd"],
         hpo=config["run"]["hpo"],
         protein_coding_genes=config["annotation"]["svreport"]["protein_coding_genes"],

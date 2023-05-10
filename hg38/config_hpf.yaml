@@ -6,9 +6,10 @@ run:
   panel: "" # three-column BED file based on hpo file; leave this string empty if there is no panel
   hpo: "" # five-column TSV with HPO terms; leave this string empty is there are no hpo terms
   flank: 100000
-  gatk: "gatk" #or gatk3 or dragen (for dragen-gatk variant calling)
-  input: "fastq"
-  pipeline: "wes" #either wes (exomes) or wgs (genomes) or annot (to annotate and produce reports for an input vcf), or pacbio (to annotate pacbio VCFs)
+  gatk: "gatk" #or gatk3, or dragen (for dragen-gatk variant calling)
+  pipeline: "wes" #either wes (exomes) or wgs (genomes) or annot (to annotate and produce reports for an input vcf)
+  minio: ""
+  PT_credentials: ""
 
 genes:
   ensembl: "/hpf/largeprojects/ccmbio/nhanafi/c4r/downloads/databases/ensembl_genes_hg38_gtf.csv"
@@ -21,13 +22,15 @@ tools:
   cre: "~/cre"
   crg: "~/crg"
   crg2: "~/crg2"
+  ehdn: "/hpf/largeprojects/ccmbio/arun/Tools/EHDN.TCAG/ExpansionHunterDenovo-v0.7.0"
+  mity: "/hpf/largeprojects/ccmbio/ajain/mity/mity_package/bin"
 
 ref:
-  name: GRCh38
+  name: GRCh38.86
   no_decoy_name: GRCh38
-  genome: /hpf/largeprojects/ccmbio/nhanafi/c4r/genomes/Homo_sapiens_assembly38.fasta
+  genome: /hpf/largeprojects/ccmbio/nhanafi/c4r/genomes/GIAB/GCA_000001405.15_GRCh38_no_alt_analysis_set_maskedGRC_exclusions_v2.fasta
   known-variants: /hpf/largeprojects/ccmbio/nhanafi/c4r/genomes/Homo_sapiens_assembly38.dbsnp138.vcf
-  no_decoy: /hpf/largeprojects/ccmbio/nhanafi/c4r/genomes/illumina/Homo_sapiens_assembly38_masked_decoy_removed.fasta
+  no_decoy: /hpf/largeprojects/ccmbio/nhanafi/c4r/genomes/GIAB/GCA_000001405.15_GRCh38_no_alt_analysis_set_maskedGRC_exclusions_v2_EBV_removed.fasta
   decoy_bed: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/pipelines/cre/data/grch37d5.decoy.bed"
   canon_bed: "/hpf/largeprojects/ccmbio/nhanafi/c4r/genomes/illumina/grch38_canon.bed"
   split_genome: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/genomes/split_genome"
@@ -35,6 +38,7 @@ ref:
   gatk-known: "/hpf/largeprojects/ccmbio/nhanafi/c4r/genomes/Mills_and_1000G_gold_standard.indels.hg38.vcf.gz"
   old_cram_ref: "UR:/mnt/hnas/reference/hg19/hg19.fa"
   new_cram_ref: "/hpf/largeprojects/ccmbio/naumenko/tools/bcbio/genomes/Hsapiens/hg19/seq/hg19.fa"
+  bed_index: "/hpf/largeprojects/ccmbio/naumenko/tools/bcbio/genomes/Hsapiens/GRCh37/seq/GRCh37.fa.bedtoolsindex"
 
 filtering:
   vqsr: false
@@ -83,17 +87,23 @@ qc:
   
 annotation:
   cre.vcfanno:
-    conf: "~/crg2/vcfanno/cre.vcfanno.conf"
+    conf: "~/crg2/vcfanno/cre.vcfanno_hg38.conf"
     lua_script: "~/crg2/vcfanno/cre.vcfanno.lua"
     base_path: "/hpf/largeprojects/ccmbio/nhanafi/c4r/downloads/databases/"
   vcfanno:
-    conf: "~/crg2/vcfanno/crg.vcfanno.conf" 
+    conf: "~/crg2/vcfanno/crg.vcfanno_hg38.conf" 
     lua_script: "~/crg2/vcfanno/crg.vcfanno.lua"
     base_path: "/hpf/largeprojects/ccmbio/nhanafi/c4r/downloads/databases/"
+<<<<<<< HEAD:config.yaml
   pacbio.vcfanno:
     conf: "~/crg2/vcfanno/pacbio.vcfanno.conf"
     lua_script: "~/crg2/vcfanno/crg.vcfanno.lua"
     base_path: "/hpf/largeprojects/ccmbio/nhanafi/c4r/downloads/databases/"
+=======
+  mt.vcfanno:
+    conf: "~/crg2/vcfanno/mt.vcfanno.conf"
+    base_path: "/hpf/largeprojects/ccmbio/ajain/mity/vcfanno"
+>>>>>>> 293d530722c7efacd57ecc3d84fbfcda62e8a121:hg38/config_hpf.yaml
   vep:
     dir: "/hpf/largeprojects/ccmbio/nhanafi/c4r/downloads/executables/ensembl-vep/"
     dir_cache: "/hpf/largeprojects/ccmbio/nhanafi/c4r/downloads/databases/vep"
@@ -104,19 +114,24 @@ annotation:
     intron_bed: "/hpf/largeprojects/ccmbio/nhanafi/c4r/downloads/databases/svscore/refGene.txt.introns.bed.gz"
     cadd: "/hpf/largeprojects/ccmbio/nhanafi/c4r/downloads/databases/CADD_v1.6_whole_genome_SNVs.tsv.gz"
   svreport:
+    reference: GRCh38
     hgmd: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/HGMD_2018/hgmd_pro.db"
     protein_coding_genes: "/hpf/largeprojects/ccmbio/nhanafi/c4r/downloads/databases/protein_coding_genes.tsv"
-    exon_bed: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/exons/hg19_UCSC_exons_canonical.bed"
+    exon_bed: "/hpf/largeprojects/ccmbio/nhanafi/c4r/downloads/databases/hg38_exons_from_biomart_20220802.txt"
     exac: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/ExAC/fordist_cleaned_nonpsych_z_pli_rec_null_data.txt"
     omim: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/OMIM_2020-04-09/genemap2.txt"
-    gnomad: "/hpf/largeprojects/ccmbio/nhanafi/c4r/downloads/databases/gnomad_v2_sv.sites_hg38_liftover_FINAL.bed"
+    gnomad: "/hpf/largeprojects/ccmbio/nhanafi/c4r/downloads/databases/gnomad_v2_sv.sites_hg38_liftover_nochr_FINAL.bed"
     biomart: "/hpf/largeprojects/ccmbio/nhanafi/c4r/downloads/databases/BioMaRt.GrCh38.p13.ensembl.mim.hgnc.entrez.tsv.gz"
-    mssng_manta_counts: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/MSSNG_COUNTS/Canadian_MSSNG_parent_SVs.Manta.counts.txt"
-    mssng_lumpy_counts: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/MSSNG_COUNTS/Canadian_MSSNG_parent_SVs.LUMPY.counts.txt"
+    mssng_manta_counts: "/hpf/largeprojects/ccmbio/nhanafi/c4r/downloads/databases/Canadian_MSSNG_parent_SVs.Manta.counts.txt"
+    mssng_lumpy_counts: "/hpf/largeprojects/ccmbio/nhanafi/c4r/downloads/databases/Canadian_MSSNG_parent_SVs.LUMPY.counts.txt"
   eh:
     catalog: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/ExpansionHunter/tandem_repeat_disease_loci_v1.1.hg19.masked.json"
     trf: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/ExpansionHunter/tandem_repeat_disease_loci_v1.1.tsv"
     1000g: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/ExpansionHunter/1000G_EH_v1.0.tsv"
+  ehdn:
+    files: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/ExpansionHunterDenovo/"
+  cre:
+     database_path: "/hpf/largeprojects/ccmbio/nhanafi/c4r/downloads/databases/"
 
 validation:
   benchmark: "benchmark.tsv"
@@ -127,7 +142,7 @@ params:
     markSplitReads: "-M"
     maxMem: ""
   gatk:
-    java_opts: "-Xms500m -Xmx9555m"
+    java_opts: "-Xms500m -Xmx9555m -Dsamjdk.compression_level=5"
     HaplotypeCaller: ""
     BaseRecalibrator: ""
     #BaseRecalibrator: "--interval-set-rule INTERSECTION -U LENIENT-VCF-PROCESSING --read-filter BadCigar --read-filter NotzPrimaryAlignment"
@@ -146,16 +161,18 @@ params:
     HaplotypeCaller: ""
   picard:
     MarkDuplicates: "REMOVE_DUPLICATES=false"
+    ValidationStringency: "VALIDATION_STRINGENCY=SILENT"
+    AssumeSortOrder: "ASSUME_SORT_ORDER=coordinate"
     java_opts: "-Xmx2g"
   qualimap:
     mem: "20G"
     nw: 400
     c: "-c"
     hm: 3
-    gtf: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/exons/hg19_UCSC_exons_canonical_placeholder.bed"
+    gtf: "/hpf/largeprojects/ccmbio/nhanafi/c4r/downloads/databases/hg38_exons_from_biomart_20220802_placeholder_nochr.txt"
     extra: ""
   verifybamid2:
-    svd_prefix: "1000g.phase3 100k b37"
+    svd_prefix: "1000g.phase3 100k b38"
     # --DisableSanityCheck ensures verifybamid2 does not fail for exomes with < 10,000 markers
     extra: "--DisableSanityCheck"
   multiqc:
@@ -174,5 +191,5 @@ params:
   rtg-tools:
     java_opts: "-Xmx20g"
     vcfeval:
-      sdf: "/hpf/largeprojects/ccmbio/nhanafi/c4r/genomes/illumina/hg38_SDF"
+      sdf: "/hpf/largeprojects/ccmbio/nhanafi/c4r/genomes/GIAB/hg38_SD"
 

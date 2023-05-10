@@ -4,3 +4,5 @@ channels:
   - defaults
 dependencies:
   - multiqc ==1.7
+  - python ==3.7
+  - pyyaml ==5.4.1

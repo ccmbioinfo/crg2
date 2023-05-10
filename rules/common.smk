@@ -1,5 +1,6 @@
 
 import pandas as pd
+import os
 from snakemake.utils import validate
 from snakemake.utils import min_version
 from datetime import date
@@ -9,7 +10,7 @@ min_version("5.7.1")
 report: "../report/workflow.rst"
 
 ###### Config file and sample sheets #####
-configfile: "config.yaml"
+#configfile: "config.yaml"
 validate(config, schema="../schemas/config.schema.yaml")
 
 samples = pd.read_table(config["run"]["samples"], dtype=str).set_index("sample", drop=False)
@@ -196,14 +197,25 @@ def format_pedigree(wildcards):
             header=None,
             names=["fam_id", "individual_id", "pat_id", "mat_id", "sex", "phenotype"],
         )
-        ped=ped.drop(ped.index[3:])
-        ped["fam_id"] = family
-        for col in ["individual_id", "pat_id", "mat_id"]:
-            ped[col] = [parse_ped_id(individual_id, family) for individual_id in ped[col].values]
 
-        ped.to_csv(f"{family}.ped", sep=" ", index=False, header=False)
+    for col in ["individual_id", "pat_id", "mat_id"]:
+            ped[col] = [parse_ped_id(individual_id, family) for individual_id in ped[col].values]       
+    
+    ped["fam_id"] = family
 
-        return f"{family}.ped"
+    for col in ["individual_id", "pat_id", "mat_id"]:
+        for row in range(len(ped[col])):
+            if len(ped.loc[row, col].split("_")[-1]) != 1 and len(ped.loc[row, col].split("_")[-1]) != 2:
+                pass   
+            else:
+                ped.loc[row, col] = ped.loc[row, col].replace(ped.loc[row, col], "0")
+
+    ped = ped.drop(ped.index[row] for row in ped.index if ped["individual_id"][row] == '0' )
+
+
+    ped.to_csv(f"{family}.ped", sep=" ", index=False, header=False)
+
+    return f"{family}.ped"
 
 # create peddy.ped for peddy
 def peddy_ped(wildcards):
@@ -212,11 +224,12 @@ def peddy_ped(wildcards):
     sample_id = [family + "_" + str(sample) for sample in sample_id]
 
     ped = config["run"]["ped"]
-    if ped == "":
+    if os.path.exists(f"{family}_peddy.ped"):
+        pass
+    elif ped == "":
         data = {'#Family_ID': family, 'Individual_ID':sample_id, 'Paternal_ID': '-9', 'Maternal_ID': '-9', 'Sex': '0', 'Phenotype': '0', 'Ethnicity': '-9'}
         data_df = pd.DataFrame(data)
         data_df.to_csv(f"{family}_peddy.ped", sep="\t", index=False, header=True)
-
     else:
         ped = format_pedigree(wildcards) #family +'.ped' #f"{family}.ped"
         ped = pd.read_csv(
@@ -243,3 +256,16 @@ def get_gatk_vcf(wildcards):
     elif config["run"]["pipeline"] == "wgs":
         vcf = expand("genotyped/{family}.vcf.gz", family=wildcards.family)
     return vcf
+
+def get_gatk_somatic_vcf(ext="vcf.gz"):
+    """Get gatk_mutect call vcfs (exome only)"""
+    vcf = expand("genotyped/{family}_{sample}-gatk_somatic.pass.mosaic.{ext}", sample=samples.index, family=project, ext=ext)
+    return vcf
+
+def get_gatk_vcf_tbi(wildcards):
+    """ Get vcf from gatk4 calling for the use in qc """
+    if config["run"]["pipeline"] == "wes":
+        vcf_tbi = expand("genotyped/{family}-gatk_haplotype.vcf.gz.tbi", family=wildcards.family)
+    elif config["run"]["pipeline"] == "wgs":
+        vcf_tbi = expand("genotyped/{family}.vcf.gz.tbi", family=wildcards.family)
+    return vcf_tbi

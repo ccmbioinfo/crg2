@@ -12,6 +12,7 @@ rule allsnvreport:
          mem_mb=40000
     params:
          cre=config["tools"]["cre"],
+         database_path=config["annotation"]["cre"]["database_path"],
          ref=config["ref"]["genome"]
     shell:
          '''
@@ -25,11 +26,11 @@ rule allsnvreport:
          ln -s {project}-gatk-haplotype-annotated-decomposed.vcf.gz.tbi {project}-ensemble-annotated-decomposed.vcf.gz.tbi
          cd ../
          if [ {wildcards.p} == "coding" ]; then  
-         {params.cre}/cre.sh {project} 
+         cre={params.cre} reference={params.ref} database={params.database_path} {params.cre}/cre.sh {project} 
          elif [ {wildcards.p} == "denovo" ]; then  
-         type=denovo {params.cre}/cre.sh {project} 
+         cre={params.cre} reference={params.ref} database={params.database_path} type=denovo {params.cre}/cre.sh {project} 
          else
-         type=wgs {params.cre}/cre.sh {project}
+         cre={params.cre} reference={params.ref} database={params.database_path} type=wgs {params.cre}/cre.sh {project}
          unset type
          fi;
          '''

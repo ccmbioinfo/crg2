@@ -52,3 +52,9 @@ manta:
 
 peddy:
   mem: "60g"
+<<<<<<< HEAD
+
+minio:
+  mem: "60g"
+=======
+>>>>>>> changed memory usage for peddy

@@ -1,0 +1,17 @@
+restart-times: 3
+jobscript: "slurm-jobscript.sh"
+cluster: "slurm-submit.py"
+cluster-status: "slurm-status.py"
+cluster-config: "slurm-config.yaml"
+max-jobs-per-second: 1
+max-status-checks-per-second: 1
+cores: 64
+local-cores: 1
+resources: [cpus=64]
+rerun-incomplete: true  # recommended for cluster submissions
+keep-going: false
+notemp: false
+immediate-submit: false
+latency-wait: 60
+verbose: true
+printshellcmds: true

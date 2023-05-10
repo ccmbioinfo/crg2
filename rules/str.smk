@@ -44,21 +44,28 @@ rule EH_report:
         echo "Copying final report to filaname with timestamp: $outfile" > {log}
         cp {output.xlsx} $outfile
         '''
+
 rule EHdn:
     input: expand("decoy_rm/{family}_{sample}.no_decoy_reads.bam",family=config["run"]["project"], sample=samples.index)
     output:
         json = "str/EHDN/{family}_EHDN_str.tsv"
     params:
         crg = config["tools"]["crg"],
+        ehdn = config["tools"]["ehdn"],
+        ehdn_files = config["annotation"]["ehdn"]["files"],
+        ref = config["ref"]["genome"],
         # ref = config["ref"]["genome"],
         # irr_mapq = config["params"]["EHDN"]["irr_mapq"],
         # anchor_mapq = config["params"]["EHDN"]["anchor_mapq"],
     log:
         "logs/str/{family}-EHdn.log"
+    conda:
+        "../envs/ehdn.yaml"
     shell:
         '''
-        sh {params.crg}/crg.ehdn.sh {wildcards.family} crg2
+        EHDN={params.ehdn} EHDN_files={params.ehdn_files} ref={params.ref} script_dir={params.crg} sh {params.crg}/crg.ehdn.sh {wildcards.family} crg2
         '''
+
 rule EHdn_report:
     input: "str/EHDN/{family}_EHDN_str.tsv".format(family=config["run"]["project"])
     output: "report/str/{family}.EHDN.xlsx"
@@ -70,7 +77,8 @@ rule EHdn_report:
         outdir = "str/EHDN",
     shell:
         '''
-        sh {params.crg}/ehdn_report.sh {params.family} {params.outdir}
+        PATH="/hpf/largeprojects/ccmbio/naumenko/tools/bcbio/bin/:$PATH"
+	sh {params.crg}/ehdn_report.sh {params.family} {params.outdir}
         date=`date +%Y-%m-%d`;
         f={params.outdir}/outliers/{params.family}.EHDN.${{date}}.xlsx;
         if [ -f $f ]; then 

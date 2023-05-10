@@ -3,17 +3,6 @@ def get_cre_bams(ext="bam"):
         return expand("recal/gatk3/{family}_{sample}.{ext}", family=project, sample=samples.index, ext=ext)
     return expand("recal/{family}_{sample}.{ext}", family=project, sample=samples.index, ext=ext)
 
-rule drag_str:
-    input:
-        bam=get_sample_bams,
-        ref=config["ref"]["genome"],
-        dragstr_table=config["ref"]["dragstr_table"],
-    output:
-        dragstr_parameters="called/{family}_{sample}.drag_str_parameters.txt"
-    log:
-        "logs/gatk/CalibrateDragstrModel/{family}_{sample}.log"
-    wrapper:
-        get_wrapper_path("gatk", "CalibrateDragstrModel")
 
 rule gatk3:
     input:
@@ -44,47 +33,26 @@ rule gathervcf:
 
 #duplicating gatk4 rules from crg2/calling.smk for cre file namings 
 #sub-workflows does not seem to work smoothly
-if config["run"]["gatk"] == "gatk":
-    rule call_variants:
-        input:
-            bam=get_sample_bams,
-            #bam=get_cre_bams(),
-            ref=config["ref"]["genome"],
-            known=config["ref"]["known-variants"],
-            regions="mapped/bed/{family}-sort-callable-{contig}.bed",
-            #regions="called/gatk/{contig}.regions.bed" if config["processing"].get("restrict-regions") else []
-        output:
-            gvcf=temp("called/gatk/{family}_{sample}.{contig}.g.vcf.gz")
-        log:
-            "logs/gatk/haplotypecaller/{family}_{sample}.{contig}.log"
-        params:
-            extra=get_call_variants_params,
-            java_opts=config["params"]["gatk"]["java_opts"],
-        group: "gatkcall"
-        resources: 
-            mem=lambda wildcards, input: len(input.bam) * 15
-        wrapper:
-            get_wrapper_path("gatk", "haplotypecaller")
-elif config["run"]["gatk"] == "dragen":
-    rule dragen_call_variants:
-        input:
-            bam=get_sample_bams,
-            ref=config["ref"]["genome"],
-            known=config["ref"]["known-variants"],
-            regions="called/{contig}.regions.bed" if config["processing"].get("restrict-regions") else [],
-            dragstr_parameters="called/{family}_{sample}.drag_str_parameters.txt"
-         output:
-            gvcf=temp("called/gatk/{family}_{sample}.{contig}.g.vcf.gz")
-         log:
-            "logs/gatk/dragenhaplotypecaller/{family}_{sample}.{contig}.log"
-         params:
-            extra=get_call_variants_params,
-            java_opts=config["params"]["dragen"]["java_opts"],
-         group: "gatkcall"
-         resources:
-            mem=lambda wildcards, input: len(input.bam) * 15
-         wrapper:
-            get_wrapper_path("gatk", "dragenhaplotypecaller")
+rule call_variants:
+    input:
+        bam=get_sample_bams,
+        #bam=get_cre_bams(),
+        ref=config["ref"]["genome"],
+        known=config["ref"]["known-variants"],
+        regions="mapped/bed/{family}-sort-callable-{contig}.bed",
+        #regions="called/gatk/{contig}.regions.bed" if config["processing"].get("restrict-regions") else []
+    output:
+        gvcf=temp("called/gatk/{family}_{sample}.{contig}.g.vcf.gz")
+    log:
+        "logs/gatk/haplotypecaller/{family}_{sample}.{contig}.log"
+    params:
+        extra=get_call_variants_params,
+        java_opts=config["params"]["gatk"]["java_opts"],
+    group: "gatkcall"
+    resources: 
+        mem=lambda wildcards, input: len(input.bam) * 15
+    wrapper:
+        get_wrapper_path("gatk", "haplotypecaller")
 
 rule combine_calls:
     input:
@@ -142,6 +110,7 @@ rule gatk4:
         gunzip -c -d {input} > {output}
         '''
 
+
 rule freebayes:
     input:
         samples=get_cre_bams(),
@@ -154,7 +123,7 @@ rule freebayes:
     log:
         "logs/freebayes/{contig}.log"
     params:
-        extra=config["params"]["freebayes"],         # optional parameters
+        extra=config["params"]["freebayes"]["call"],         # optional parameters
         chunksize=100000  # reference genome chunk size for parallelization (default: 100000)
     threads: 1
     resources:
@@ -169,6 +138,8 @@ rule merge_freebayes:
         protected("genotyped/{family}-freebayes.vcf")
     log:
         "logs/freebayes/{family}-merge.log"
+    conda:
+        "../../envs/common.yaml"
     shell:
         '''
         bcftools concat {input} | bcftools sort > {output}  

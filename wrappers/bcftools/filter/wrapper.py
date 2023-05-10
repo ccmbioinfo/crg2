@@ -39,14 +39,16 @@ elif soft:
         name = soft["platypus"]["name"]
         command = f"--soft-filter {name} -e '{filter}'  -m + {snakemake.input[0]} "
         command += f" | bcftools filter --soft-filter PASS -i '{filter}' -m + " 
-    elif "gatk" in vcf:
+    elif "gatk_haplotype" in vcf:
         snvfilter = soft["gatk"]["snvs"]["filter"]
         snvfilter_name = soft["gatk"]["snvs"]["name"]
         indelfilter = soft["gatk"]["indel"]["filter"]
         indelfilter_name = soft["gatk"]["indel"]["name"]
         command = f"--soft-filter {snvfilter_name} -e '{snvfilter}'  -m + {snakemake.input[0]} "
         command += f" | bcftools filter --soft-filter {indelfilter_name} -e '{indelfilter}'  -m + "
-
+    elif "gatk_somatic" in vcf:
+        command = f"{snakemake.input[0]}"
+        #shell("mv {snakemake.input[0]} {outfile}")
     else:
         command = ""
 else:

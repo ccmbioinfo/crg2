@@ -22,11 +22,11 @@ elif outfile.endswith("bcf.gz"):
 
 
 if snakemake.params.get("samples"):
-    try:
+    try: # cre/filtering.smk/rule pass
         prefix = snakemake.wildcards.prefix
         sample_list = snakemake.params.samples
         samples = " -s " + ",".join(sample_list)
-    except:
+    except: # qc.smk/rule subset
         family = snakemake.wildcards.family
         sample = snakemake.wildcards.sample
         samples = f" -s {family}_{sample} "
