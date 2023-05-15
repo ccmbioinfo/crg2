@@ -21,24 +21,71 @@ Parses analyses request csv from Stager for exome re-analyses and sets up necess
 """
 
 crg2_dir = "/srv/shared/pipelines/crg2/"
+aliases=f"{crg2_dir}/fam_ptp-2022-07-11.tsv"
 
+def create_alias_long(stager_df:pd.DataFrame, main_col = 'participant_codename',
+                      alias_col = 'participant_aliases') -> pd.DataFrame:
+    """From Delvin So's G4RD utils script"""
+    ss_aliases = pd.concat([stager_df[main_col],
+                        stager_df[alias_col].str.split(r',|;',expand=True, regex = True)], axis = 1)\
+    .rename(lambda x: 'alias' + str(x) if len(str(x)) == 1 else x, axis = 1)
+
+
+    aliases_long = pd.melt(ss_aliases.reset_index(),
+        id_vars = [main_col],
+        value_vars = [x for x in ss_aliases.columns if str(x).startswith('alias')])
+
+    aliases_long['value'] = aliases_long['value'].str.strip().drop_duplicates()
+    aliases_long = aliases_long.dropna(subset = ['value'])
+
+    same_df = pd.DataFrame.from_dict({main_col : stager_df[main_col].drop_duplicates().tolist(),
+                        'variable': ['codename' for x in range(len(stager_df[main_col].drop_duplicates().tolist()))],
+                        'value' : stager_df[main_col].drop_duplicates().tolist()})
+
+    aliases_long_final = pd.concat([aliases_long, same_df], axis = 0)
+    aliases_long_final['type'] = main_col.split('_')[0]
+
+    return aliases_long_final
+
+def check_alias(participant, alias_df):
+    try: 
+        print(participant)
+        mapping = alias_df[alias_df["participant_codename"] == participant]["value"].values[0]
+    except:
+        mapping = None
+    return mapping 
+
+def parse_aliases(aliases):
+    stager_df = pd.read_csv(aliases, delimiter = '\t',encoding='cp1252')
+    stager_df_ss = stager_df[['participant_id', 'family_id', 'participant_codename', 'participant_aliases', 'participant_type', 'family_codename', 'family_aliases']]
+    ptp_aliases_long = create_alias_long(stager_df = stager_df_ss)
+    return ptp_aliases_long
 
 def find_input(family, participant):
     """Given family and participant codenames, check if individuals have already been analyzed"""
-    RESULTS_DIR = glob.glob((f"/srv/shared/hpf/exomes/results/*/{family}"))
+    RESULTS_DIR = glob.glob((f"/srv/shared/hpf/exomes/results/*/{family}*"))
     try:
         RESULTS_DIR = pathlib.Path(RESULTS_DIR[0])
     except IndexError:
         RESULTS_DIR = None
     if RESULTS_DIR:
+        family = os.path.basename(RESULTS_DIR)
+    if RESULTS_DIR:
         print(RESULTS_DIR)
         cram = RESULTS_DIR.rglob(f"{family}_{participant}.cram")
-        print(f"{family}_{participant}.cram")
         try:
             input = str([c for c in cram][0])
         except IndexError:
             # family directory exists but cram does not
-            input = None
+            # bam file may be named under an alias
+            alias_mapping = parse_aliases(aliases)
+            mapping = check_alias(participant, alias_mapping)
+            cram = RESULTS_DIR.rglob(f"{family}_{mapping}.cram")
+            cram = [c for c in cram]
+            if len(cram) == 0:
+                input = None
+            else:
+                input = str(cram[0])
     else:
         # family directory does not exist
         input = None
