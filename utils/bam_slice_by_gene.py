@@ -17,7 +17,6 @@ def query_gene(gene, flank, assembly):
             f"https://mygene.info/v3/query?q=symbol:{gene}&species=human&field=genomic_pos_hg19"
         )
         coordinates = r.json()["hits"][0]["genomic_pos_hg19"]
-        print(type(coordinates))
     else:
         # hg38
         r = requests.get(
@@ -25,11 +24,11 @@ def query_gene(gene, flank, assembly):
         )
         coordinates = r.json()["hits"][0]["genomic_pos"]
     if type(coordinates) == dict:
-            coordinates = coordinates
+        coordinates = coordinates
     else:
-            for i in range(len(coordinates)):
-                    if coordinates[i]['chr'] in ['1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16','17','18','19','20','21','22','X','Y']:
-                            coordinates = coordinates[i]
+        for i in range(len(coordinates)):
+            if coordinates[i]['chr'] in ['1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16','17','18','19','20','21','22','X','Y']:
+                coordinates = coordinates[i]
     chr, start, end = coordinates["chr"], coordinates["start"], coordinates["end"]
     flank = int(flank)
     start = start - flank
