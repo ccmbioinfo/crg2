@@ -7,7 +7,7 @@ import subprocess
 
 # creates bam slices for a specified gene and assembly for all alignments in alignment path
 # bam slices are output to /path/to/alignments/bam_slice/
-# usage: python3 get_gene_coordinates.py -g <gene name> -f <flank size> -a <assembly, either hg19 or hg38> -p  </path/to/alignments>
+# usage: python3 bam_slice_by_gene.py -g <gene name> -f <flank size> -a <assembly, either hg19 or hg38> -p  </path/to/alignments>
 
 
 def query_gene(gene, flank, assembly):
