@@ -23,12 +23,35 @@ def query_gene(gene, flank, assembly):
             f"https://mygene.info/v3/query?q=symbol:{gene}&species=human&field=genomic_pos"
         )
         coordinates = r.json()["hits"][0]["genomic_pos"]
-    if type(coordinates) == dict:
-        coordinates = coordinates
-    else:
-        for i in range(len(coordinates)):
-            if coordinates[i]['chr'] in ['1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16','17','18','19','20','21','22','X','Y']:
-                coordinates = coordinates[i]
+    if type(coordinates) != dict:
+        for i in coordinates:
+            if i["chr"] in [
+                "1",
+                "2",
+                "3",
+                "4",
+                "5",
+                "6",
+                "7",
+                "8",
+                "9",
+                "10",
+                "11",
+                "12",
+                "13",
+                "14",
+                "15",
+                "16",
+                "17",
+                "18",
+                "19",
+                "20",
+                "21",
+                "22",
+                "X",
+                "Y",
+            ]:
+                coordinates = i
     chr, start, end = coordinates["chr"], coordinates["start"], coordinates["end"]
     flank = int(flank)
     start = start - flank
@@ -91,7 +114,7 @@ if __name__ == "__main__":
         type=str,
         choices=["hg19", "hg38"],
         required=True,
-        help="Integer that specifies the length of padding sequence around the gene",
+        help="Reference assembly version",
     )
 
     parser.add_argument(
