@@ -21,29 +21,97 @@ Parses analyses request csv from Stager for exome re-analyses and sets up necess
 """
 
 crg2_dir = "/srv/shared/pipelines/crg2/"
+aliases=f"{crg2_dir}/fam_ptp-2022-07-11.tsv"
+gso_dir="/srv/shared/analyses/exomes/GSO"
+
+def create_alias_long(stager_df:pd.DataFrame, main_col = 'participant_codename',
+                      alias_col = 'participant_aliases') -> pd.DataFrame:
+    """From Delvin So's G4RD utils script"""
+    ss_aliases = pd.concat([stager_df[main_col],
+                        stager_df[alias_col].str.split(r',|;',expand=True, regex = True)], axis = 1)\
+    .rename(lambda x: 'alias' + str(x) if len(str(x)) == 1 else x, axis = 1)
 
 
-def find_input(family, participant):
+    aliases_long = pd.melt(ss_aliases.reset_index(),
+        id_vars = [main_col],
+        value_vars = [x for x in ss_aliases.columns if str(x).startswith('alias')])
+
+    aliases_long['value'] = aliases_long['value'].str.strip().drop_duplicates()
+    aliases_long = aliases_long.dropna(subset = ['value'])
+
+    same_df = pd.DataFrame.from_dict({main_col : stager_df[main_col].drop_duplicates().tolist(),
+                        'variable': ['codename' for x in range(len(stager_df[main_col].drop_duplicates().tolist()))],
+                        'value' : stager_df[main_col].drop_duplicates().tolist()})
+
+    aliases_long_final = pd.concat([aliases_long, same_df], axis = 0)
+    aliases_long_final['type'] = main_col.split('_')[0]
+
+    return aliases_long_final
+
+def check_alias(participant, alias_df):
+    try: 
+        print(participant)
+        mapping = alias_df[alias_df["participant_codename"] == participant]["value"].values[0]
+    except:
+        mapping = None
+    return mapping 
+
+def parse_aliases(aliases):
+    stager_df = pd.read_csv(aliases, delimiter = '\t',encoding='cp1252')
+    stager_df_ss = stager_df[['participant_id', 'family_id', 'participant_codename', 'participant_aliases', 'participant_type', 'family_codename', 'family_aliases']]
+    ptp_aliases_long = create_alias_long(stager_df = stager_df_ss)
+    return ptp_aliases_long
+
+def find_input(family, participant, sequence_id):
     """Given family and participant codenames, check if individuals have already been analyzed"""
-    RESULTS_DIR = glob.glob((f"/srv/shared/hpf/exomes/results/*/{family}"))
+    RESULTS_DIR = glob.glob((f"/srv/shared/hpf/exomes/results/*/{family}*"))
     try:
         RESULTS_DIR = pathlib.Path(RESULTS_DIR[0])
     except IndexError:
         RESULTS_DIR = None
     if RESULTS_DIR:
+        family = os.path.basename(RESULTS_DIR)
+    if RESULTS_DIR:
         print(RESULTS_DIR)
         cram = RESULTS_DIR.rglob(f"{family}_{participant}.cram")
-        print(f"{family}_{participant}.cram")
         try:
             input = str([c for c in cram][0])
         except IndexError:
             # family directory exists but cram does not
-            input = None
+            # bam file may be named under an alias
+            alias_mapping = parse_aliases(aliases)
+            mapping = check_alias(participant, alias_mapping)
+            cram = RESULTS_DIR.rglob(f"{family}_{mapping}.cram")
+            cram = [c for c in cram]
+            if len(cram) == 0:
+                input = None
+            else:
+                input = str(cram[0])
     else:
         # family directory does not exist
-        input = None
+        # may be a GSO family
+        if sequence_id:
+            R1, R2 = find_GSO(participant, family, sequence_id)
+            if R1 and R2: 
+                input = R1, R2
+            else:
+                input = None
 
     return input
+
+def find_GSO(participant, family, sequence_id):
+    """Link GSO files released by SickKids Genome Diagnostics lab"""
+    R1 = glob.glob((f"{gso_dir}/*{sequence_id}*/*R1*fastq.gz"))
+    R2 = glob.glob((f"{gso_dir}/*{sequence_id}*/*R2*fastq.gz"))
+    if len(R1) != 0: 
+        R1 = ",".join(R1)
+    else:
+        R1 = None
+    if len(R2) != 0:
+        R2 = ",".join(R2)
+    else:
+        R2 = None
+    return R1, R2
 
 
 def valid_dir(dir):
@@ -167,6 +235,7 @@ if __name__ == "__main__":
     analysis_ids = {}
     for index, row in requested.iterrows():
         family = list(set(ast.literal_eval(row["family_codenames"])))
+        sequence_ids = list(set(ast.literal_eval(row["sequencing_id"])))
         analysis_id = row["analysis_id"]
         # Will need to modify for multi-family analyses (i.e. cohort)
         family = family[0]
@@ -174,16 +243,24 @@ if __name__ == "__main__":
             projects[family] = []
         analysis_ids[family] = analysis_id
         family_inputs = []
-        for participant in ast.literal_eval(row["participant_codenames"]):
+        for participant, sequence_id in zip(ast.literal_eval(row["participant_codenames"]), sequence_ids):
             # look for input files in results directory
-            input = find_input(family, participant)
+            input = find_input(family, participant, sequence_id)
             print(input)
             if input:
-                fq1, fq2, bam = "", "", ""
-                cram = input
-                projects[family].append(
-                    Units(participant, platform, fq1, fq2, bam, cram)
-                )
+                if "cram" in input:
+                    # previously processed family
+                    fq1, fq2, bam = "", "", ""
+                    cram = input
+                    projects[family].append(
+                        Units(participant, platform, fq1, fq2, bam, cram)
+                    )
+                else:
+                    # GSO fastqs
+                    cram, bam = "", ""
+                    projects[family].append(
+                        Units(participant, platform, input[0], input[1], bam, cram)
+                    )                   
             else:
                 fq1, fq2, bam, cram = "", "", "", ""
                 projects[family].append(
