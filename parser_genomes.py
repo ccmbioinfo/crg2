@@ -216,8 +216,8 @@ def cp_cnv(project, family, filepath):
     cnvs = glob.glob(
         f"/hpf/largeprojects/ccmbio_ephemeral/from_tcag/{project}_cnv_*/FAM_{family}/cnv/*tsv"
     )
-    os.makedirs(f"{filepath}/reports/cnv", exist_ok=True)
-    d = f"{filepath}/reports/cnv"
+    os.makedirs(f"{filepath}/report/cnv", exist_ok=True)
+    d = f"{filepath}/report/cnv"
     for c in cnvs:
         cmd = ["cp", c, d]
         subprocess.check_call(cmd)
