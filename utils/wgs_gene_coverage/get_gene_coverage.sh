@@ -22,7 +22,7 @@ export REF_PATH=/hpf/largeprojects/ccm_dccforge/dccdipg/Common/genomes/GRCh37d5/
 
 # $i = cram file full name 
 # $prefix = cram file name (only family_sample)
-for i in `ls ${DIR}/*.bam`; do
+for i in `ls ${DIR}/*.cram`; do
     echo $i
     # Run mosdepth for each cram file in folder
     prefix=`echo "${i/.bam/}"`
