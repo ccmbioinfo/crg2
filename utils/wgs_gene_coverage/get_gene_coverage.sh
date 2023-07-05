@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --job-name=gene_coverage
-#SBATCH --time=100:00:00
+#SBATCH --time=24:00:00
 #SBATCH --ntasks-per-node=1
 #SBATCH --mem=4G
 #SBATCH --output=%x-%j.out
@@ -11,10 +11,10 @@ set -e
 
 GENE=$1
 DIR=$2 # DIR to folder containing cram files to be analyzed 
-
+SCRIPT_DIR=~/crg2/utils/wgs_gene_coverage 
 # Run R script to retrieve exon and intron positions 
 module load R
-Rscript ./get_gene_exon_intron.R --args ${GENE} ${DIR}
+Rscript ${SCRIPT_DIR}/get_gene_exon_intron.R --args ${GENE} ${DIR}
 
 
 # Run mosdepth ---
@@ -22,14 +22,14 @@ export REF_PATH=/hpf/largeprojects/ccm_dccforge/dccdipg/Common/genomes/GRCh37d5/
 
 # $i = cram file full name 
 # $prefix = cram file name (only family_sample)
-for i in `ls ${DIR}/*.cram`; do
+for i in `ls ${DIR}/*.bam`; do
+    echo $i
     # Run mosdepth for each cram file in folder
-    prefix=`echo $i | cut -d'-' -f1`; 
+    prefix=`echo "${i/.bam/}"`
+    echo "Mosdepth running for ${prefix}_${GENE}..."
     mosdepth --by ${DIR}/gene_coverage/${GENE}_pos.bed \
-            --thresholds 10,20 \
             "${prefix}_${GENE}" \
             $i;
-    echo "Mosdepth running for ${prefix}_${GENE}..."
 done;
 
 
