@@ -23,6 +23,9 @@ Get_Gene_Bed <- function(gene_name, dir){
   gene_bed$id <- paste(gene_bed$transcript_id, gene_bed$gene_id, gene_bed$type, sep=";") 
   gene_bed <- subset(gene_bed, select = -c(transcript_id, gene_id, type))
 
+  ## Make gene_coverage folder in dir and write BED file to folder
+  dir.create(paste(dir, "gene_coverage", sep=""))
+
   write.table(gene_bed, paste(dir, "gene_coverage/", sprintf("%s_pos.bed", gene_name), sep=""), ######## TODO - check path 
     row.names=F, col.names=F, sep="\t", quote = FALSE)
 
