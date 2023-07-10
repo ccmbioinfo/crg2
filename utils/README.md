@@ -7,4 +7,4 @@
 5. ```copy_reports_to_minio.sh```: copy reports from crg2 runs to MinIO. Must be run as ccmmarvin.
 6. ```gen_sample_sheet.py```: generate a sample sheet for a batch of genomes downloaded from TCAG for input to crg2/parser_genomes.py.
 7. ```mv2results.py```: move exome or genome analysis folders to results directory.
-8. ```cram_gene_coverage/get_gene_coverage.sh```: generate cram coverage report across exons/introns for given gene using mosdepth.
+8. ```wgs_gene_coverage/get_gene_coverage.sh```: generate wgs cram coverage report across exons/introns for given gene using mosdepth.
