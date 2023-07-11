@@ -40,18 +40,20 @@ gunzip ${DIR}*_${GENE}.regions.bed.gz
 mv "${DIR}"*_"${GENE}".regions.bed ${DIR}/gene_coverage/;
 
 # Delete additional files in DIR
-rm -r "${DIR}"*_${GENE}.mosdepth.*.dist.txt "${DIR}"*_${GENE}.per-base.bed.gz* "${DIR}"*_${GENE}.regions.bed.gz.csi "${DIR}"*_${GENE}.thresholds.bed.gz* 
+rm -r "${DIR}"*_${GENE}.mosdepth.*.dist.txt "${DIR}"*_${GENE}.per-base.bed.gz* "${DIR}"*_${GENE}.regions.bed.gz.csi 
 
 
-## Format by removing ";" and changing to column (SAMPLE_FAM.GENE.cram.regions.bed)
+## Format table
 OUT_BED="${DIR}"gene_coverage/*_"${GENE}".regions.bed
 
 for file in ${OUT_BED}; do
-    # format columns
+    # remove ";" in last column and change to columns
     awk '{gsub (/;/, OFS)} 1' OFS="\t" $file > $file.tmp && mv $file.tmp $file;
     # change extension
     tsv=$(echo $file | sed -e 's/bed/tsv/g');
     mv $file $tsv;
+    # add column headers
+    sed  -i '1i CHR\tSTART\tEND\tID\tGENE\tTYPE\tCOVERAGE' $tsv;
 done
 
 
