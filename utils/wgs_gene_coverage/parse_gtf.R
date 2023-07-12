@@ -4,7 +4,7 @@ library(rtracklayer)
 dir <- "~/crg2/utils/wgs_gene_coverage/"
 
 
-print("Reading GFT file...")
+print("Reading GTF file...")
 gtf <- readGFF("/hpf/largeprojects/ccm_dccforge/dccdipg/Common/genomes/hg19.ncbiRefSeq.gtf")
 
 ## Filter out additional chromosomes 

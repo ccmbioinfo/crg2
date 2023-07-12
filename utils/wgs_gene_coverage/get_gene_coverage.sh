@@ -7,6 +7,8 @@
 #SBATCH --constraint=CentOS7
 #SBATCH --mail-type=ALL
 
+# Usage: sbatch ~/crg2/utils/wgs_gene_coverage/get_gene_coverage.sh <gene_name> </path/to/crams>
+
 set -e 
 
 GENE=$1
@@ -29,22 +31,23 @@ for i in `ls ${DIR}/*.cram`; do
     echo "Mosdepth running for ${prefix}_${GENE}..."
     mosdepth --by ${DIR}/gene_coverage/${GENE}_pos.bed \
             "${prefix}_${GENE}" \
+            -n \
             $i;
 done;
 
 
 ## Unzip *.cram.regions.bed.gz file 
-gunzip ${DIR}*_${GENE}.regions.bed.gz
+gunzip ${DIR}/*_${GENE}.regions.bed.gz
 
 # Move file into ./gene_coverage/ folder 
-mv "${DIR}"*_"${GENE}".regions.bed ${DIR}/gene_coverage/;
+mv "${DIR}"/*_"${GENE}".regions.bed ${DIR}/gene_coverage/;
 
 # Delete additional files in DIR
-rm -r "${DIR}"*_${GENE}.mosdepth.*.dist.txt "${DIR}"*_${GENE}.per-base.bed.gz* "${DIR}"*_${GENE}.regions.bed.gz.csi 
+rm -r "${DIR}"/*_${GENE}.mosdepth.*.dist.txt  "${DIR}"/*_${GENE}.regions.bed.gz.csi 
 
 
 ## Format table
-OUT_BED="${DIR}"gene_coverage/*_"${GENE}".regions.bed
+OUT_BED="${DIR}"/gene_coverage/*_"${GENE}".regions.bed
 
 for file in ${OUT_BED}; do
     # remove ";" in last column and change to columns
@@ -53,7 +56,7 @@ for file in ${OUT_BED}; do
     tsv=$(echo $file | sed -e 's/bed/tsv/g');
     mv $file $tsv;
     # add column headers
-    sed  -i '1i CHR\tSTART\tEND\tID\tGENE\tTYPE\tCOVERAGE' $tsv;
+    sed  -i '1i CHR\tSTART\tEND\tID\tGENE\tTYPE\tMEAN_COVERAGE' $tsv;
 done
 
 
