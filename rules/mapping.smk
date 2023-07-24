@@ -236,7 +236,9 @@ rule contigwise_bed:
         "logs/bash/{family}.{contig}.log"    
     shell:
         """
-            awk '{{ if($1=="{wildcards.contig}") print $0; }}' {input} > {output} 2>{log}
+            awk '{{ if($1=="{wildcards.contig}") print $0; }}' {input} > {output}
+            # if there are no callable regions on MT, bed file is empty and freebayes throws an error
+            if [ ! -s mapped/bed/{wildcards.family}-sort-callable-MT.bed ]; then echo -e "MT\t1\t10"  >  mapped/bed/{wildcards.family}-sort-callable-MT.bed; fi 2>{log}
         """
 
 rule bam_to_cram:
