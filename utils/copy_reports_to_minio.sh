@@ -3,6 +3,7 @@
  
 family_dir=$1
 NGS_type=$2
+genome_type=$3
 multiqc=$3
 coverages=$4
 
@@ -29,18 +30,35 @@ if [ "$NGS_type" != "wgs" ] && [ "$NGS_type" != "wes" ]; then
 	exit
 fi
 
+if [ -z $genome_type ]; then
+        echo 'Must specify genome type: TCAG or GSO'
+        exit
+fi
+
+if [ "$genome_type" != "TCAG" ] && [ "$genome_type" != "GSO" ]; then
+        echo 'NGS type must be TCAG or GSO, exiting'
+        exit
+fi
+
 $mc mb minio/results-c4r/$family
 
 if [ "$NGS_type" == wgs ]; then
 	$mc cp ${family_dir}/report/coding/${family}/${family}.wes.regular*csv minio/results-c4r/$family
 	$mc cp ${family_dir}/report/denovo/${family}/${family}.denovo*csv minio/results-c4r/$family
-	$mc cp ${family_dir}/report/cnv/${family}*cnv.withSVoverlaps.tsv minio/results-c4r/$family
-	$mc cp  ${family_dir}/report/sv/${family}.unfiltered.wgs*overlaps.tsv minio/results-c4r/$family
-	$mc cp  ${family_dir}/report/sv/${family}.wgs*overlaps.tsv minio/results-c4r/$family
 	$mc cp  ${family_dir}/report/sv/${family}.BND.wgs.sv*.tsv minio/results-c4r/$family
 	$mc cp  ${family_dir}/report/str/${family}.EHDN.202*xlsx minio/results-c4r/$family
 	$mc cp  ${family_dir}/report/str/${family}.EH-v1.1.202*xlsx minio/results-c4r/$family
 	$mc cp  ${family_dir}/report/mitochondrial/${family}.mitochondrial.report.csv minio/results-c4r/$family
+
+	if [ "$genome_type" == TCAG ]; then
+        	$mc cp ${family_dir}/report/cnv/${family}*cnv.withSVoverlaps.tsv minio/results-c4r/$family
+        	$mc cp  ${family_dir}/report/sv/${family}.unfiltered.wgs*overlaps.tsv minio/results-c4r/$family
+        	$mc cp  ${family_dir}/report/sv/${family}.wgs*overlaps.tsv minio/results-c4r/$family
+	else
+		# no CNV reports
+                $mc cp  ${family_dir}/report/sv/${family}.unfiltered.wgs*tsv minio/results-c4r/$family
+                $mc cp  ${family_dir}/report/sv/${family}.wgs*tsv minio/results-c4r/$family
+	fi
 	
 	if [ -f ${family_dir}/report/panel/${family}/${family}.wgs.panel*csv ]; then	
 		$mc cp ${family_dir}/report/panel/${family}/${family}.wgs.panel*csv minio/results-c4r/$family
