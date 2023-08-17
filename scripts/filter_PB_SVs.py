@@ -566,7 +566,11 @@ def main(
     df_len = df_len.astype(str)
     # merge full and split AnnotSV annos
     df_merge = merge_full_split_annos(df_len)
-    sample_cols = [col for col in df.columns if "21-" in col]
+    sample_cols = [col for col in df.columns if "PB" in col]
+    if len(sample_cols) == 0:
+        # for TCAG sequence IDs
+        regexp = re.compile("[0-9][0-9]-[0-9]+")
+        sample_cols = [col for col in df.columns if re.match(regexp, col)]
     # extract genotype and alt allele depth
     for sample in sample_cols:
         df_merge[f"{sample}_GT"] = [
@@ -714,7 +718,7 @@ def main(
     df_merge["omim_inheritance"].fillna("nan", inplace=True)
     today = date.today()
     today = today.strftime("%Y-%m-%d")
-    df_merge.to_csv(f"{prefix}.rare.hpo.{today}.csv", index=False)
+    df_merge.to_csv(f"{prefix}.hpo.{today}.csv", index=False)
 
     # make a dictionary of variants with SVLEN >=50 and BNDs from vcf
     # validate that the only SVs missing from annotSV merged and SV >=50 bp are on non-canonical chr
