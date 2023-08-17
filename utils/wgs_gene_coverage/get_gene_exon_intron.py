@@ -1,12 +1,12 @@
 import pandas as pd
 import os
 import sys
-import jupyter_black
 
-jupyter_black.load()
 
-## Read genome intron/exon coordinates (from parse_gft.R)
-def Read_Genome_BED():
+def read_genome_BED():
+    '''
+    Read genome intron/exon coordinates (from parse_gft.R)
+    '''
     genome_bed = pd.read_csv(
         "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/genomes/hg19_introns_exons.bed",
         sep=" ",
@@ -17,23 +17,28 @@ def Read_Genome_BED():
     return genome_bed
 
 
-## Get valid genes list
-def Get_Valid_Genes(df):
+def get_valid_genes(df):
+    '''
+    Get list of unique genes from df
+    '''
     unique_genes = df["gene_id"].unique()
     return unique_genes
 
 
-## Get BED dataframe filtered for a query gene
-def Get_Gene_BED(gene_name, bed):
-    print("Input gene: " + gene_name)
-
+def get_gene_BED(gene_name, bed):
+    '''
+    Get bed dataframe filtered for gene_name
+    '''
+    
+    print(f"Input gene: {gene_name}")
+    
     ## check if gene_name is valid
-    valid_genes = Get_Valid_Genes(bed)
+    valid_genes = get_valid_genes(bed)
 
     if gene_name in valid_genes:
         ## filter genome_bed for gene
         gene_bed = bed.loc[bed["gene_id"] == gene_name, :]
-        print("Generating BED for: " + gene_name)
+        print(f"Generating BED for: {gene_name}")
         return gene_bed
 
     ## print error if invalid gene_name
@@ -42,8 +47,10 @@ def Get_Gene_BED(gene_name, bed):
         sys.exit()
 
 
-## Concatenate annotation columns into "id" column (mosdepth only allows one metadata column)
-def Concat_Annotations(bed):
+def concat_annotations(bed):
+    '''
+    Concatenate annotation columns in bed into "id" column (mosdepth only allows one metadata column)
+    '''
     bed_concat = bed.copy()
 
     bed_concat["id"] = (
@@ -59,8 +66,10 @@ def Concat_Annotations(bed):
     return bed_concat
 
 
-## Make gene_coverage folder in project_dir and write BED file to folder
-def Write_BED(bed, gene_name, project_dir):
+def write_BED(bed, gene_name, project_dir):
+    '''
+    Make gene_coverage folder in project_dir and write bed file to folder
+    '''
     target_dir = project_dir + "/gene_coverage/"
 
     if not os.path.exists(target_dir):
@@ -75,12 +84,17 @@ def Write_BED(bed, gene_name, project_dir):
 
 
 def main():
-    genome_bed = Read_Genome_BED()
-    gene_bed = Get_Gene_BED(gene_name=sys.argv[1], bed=genome_bed)
-    gene_bed_concat = Concat_Annotations(bed=gene_bed)
-
-    Write_BED(bed=gene_bed_concat, gene_name=sys.argv[1], project_dir=sys.argv[2])
-    print(sys.argv[1] + "BED file saved to " + sys.argv[2] + "/gene_coverage/")
+    ## Get variables from the command line
+    gene_name=sys.argv[1]
+    project_dir=sys.argv[2]
+    
+    ## Call functions
+    genome_bed = read_genome_BED()
+    gene_bed = get_gene_BED(gene_name=gene_name, bed=genome_bed)
+    gene_bed_concat = concat_annotations(bed=gene_bed)
+    write_BED(bed=gene_bed_concat, gene_name=gene_name, project_dir=project_dir)
+    
+    print(f"{gene_name} BED file saved to {project_dir}/gene_coverage/")
 
 
 main()
