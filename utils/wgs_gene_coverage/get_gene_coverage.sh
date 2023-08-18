@@ -14,9 +14,9 @@ set -e
 GENE=$1
 DIR=$2 # DIR to folder containing cram files to be analyzed 
 SCRIPT_DIR=~/crg2/utils/wgs_gene_coverage 
-# Run R script to retrieve exon and intron positions 
-module load R
-Rscript ${SCRIPT_DIR}/get_gene_exon_intron.R --args ${GENE} ${DIR}
+# Run Python script to retrieve exon and intron positions 
+module load python/3.8.0
+python ${SCRIPT_DIR}/get_gene_exon_intron.py ${GENE} ${DIR}
 
 
 # Run mosdepth ---
