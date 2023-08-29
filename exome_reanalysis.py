@@ -96,6 +96,8 @@ def find_input(family, participant, sequence_id):
                 input = R1, R2
             else:
                 input = None
+        else:
+            input = None
 
     return input
 
@@ -104,11 +106,11 @@ def find_GSO(participant, family, sequence_id):
     R1 = glob.glob((f"{gso_dir}/*{sequence_id}*/*R1*fastq.gz"))
     R2 = glob.glob((f"{gso_dir}/*{sequence_id}*/*R2*fastq.gz"))
     if len(R1) != 0: 
-        R1 = ",".join(R1)
+        R1 = ",".join(sorted(R1))
     else:
         R1 = None
     if len(R2) != 0:
-        R2 = ",".join(R2)
+        R2 = ",".join(sorted(R2))
     else:
         R2 = None
     return R1, R2
@@ -235,7 +237,7 @@ if __name__ == "__main__":
     analysis_ids = {}
     for index, row in requested.iterrows():
         family = list(set(ast.literal_eval(row["family_codenames"])))
-        sequence_ids = list(set(ast.literal_eval(row["sequencing_id"])))
+        sequence_ids = list((ast.literal_eval(row["sequencing_id"])))
         analysis_id = row["analysis_id"]
         # Will need to modify for multi-family analyses (i.e. cohort)
         family = family[0]
