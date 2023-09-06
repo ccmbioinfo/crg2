@@ -64,6 +64,17 @@ Make sure to replace ```~/crg2-conda``` with the path made in step 4. This will 
     > install.packages("dbscan")
     > install.packages("doSNOW")
     ```
+13. To generate a mobile element insertion report (WGS only), MELT installation is required and some paths must be added to config_hpf.yaml: 
+- Download MELT from https://melt.igs.umaryland.edu/downloads.php.  
+- Unpack the .tar.gz file: ```tar zxf MELTvX.X.tar.gz ```
+  This should create a MELTvX.X directory in your current directory. 
+- In config_hpf.yaml, add the path to the MELTvX.X directory to `config[“tools”][”melt”]` .
+- Generate a transposon reference text file containing a list of full paths to the mobile element references. For example: 
+  ```ls <full_path_to>/MELTv2.2.2/me_refs/1KGP_Hg19/*_MELT.zip > transposon_file_list.txt ```
+- In config_hpf.yaml, add the full path to the transposon reference text file to `config[“ref”][“melt_element_ref”]`.
+- In config_hpf.yaml, add the full path to hg19.genes.bed, containing the gene annotation for the FASTA reference to `config[“annotation”][“melt”][“genes”]`. The file can be found at: 
+  ```<full_path_to>/MELTv2.2.2/add_bed_files/1KGP_Hg19/hg19.genes.bed ```
+
 ## Running the pipeline
 1. Make a folder in a directory with sufficient space. Copy over the template files samples.tsv, units.tsv, config_hpf.yaml, crg2/dnaseq_cluster.pbs, pbs_profile/pbs_config.yaml .
 You may need to re-copy config_hpf.yaml and pbs_config.yaml if the files were recently updated in the repo from previous crg2 runs. Note that 'pbs_config.yaml' is for submitting each rule as cluster jobs, so ignore this if not running on cluster.
