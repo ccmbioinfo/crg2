@@ -6,6 +6,7 @@ samples = pd.read_table(config["run"]["samples"]).set_index("sample", drop=False
 
 ##### Target rules #####
 project = config["run"]["project"]
+family=project 
 
 if config["run"]["pipeline"] == "wes":
     rule all:

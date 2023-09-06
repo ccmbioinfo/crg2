@@ -1,16 +1,15 @@
 import allel
 import numpy as np
 import pandas as pd
-from collections import defaultdict
 from pybedtools import BedTool
-from SVRecords import SVGrouper, SVAnnotator
+from SVRecords import SVAnnotator
 from pathlib import Path
 from datetime import date
 
-# original code written by Dennis Kao: https://github.com/ccmbioinfo/crg/blob/master/SVRecords/SVGrouper.py
-# have to rework this to be compatible with multi-sample VCFs that come out of MELT joint-genotyping, and to pull fields of interest
+# based on Dennis Kao's SVGrouper module: https://github.com/ccmbioinfo/crg/blob/master/SVRecords/SVGrouper.py
 
 sv_counts = [snakemake.params.mssng_manta_counts]
+
 
 def split_Ensembl_ids(id_list):
     new_list = []
@@ -24,7 +23,7 @@ def split_Ensembl_ids(id_list):
     return new_list
 
 
-def make_exon_gene_set(protein_coding_genes = snakemake.params.protein_coding_genes):
+def make_exon_gene_set(protein_coding_genes=snakemake.params.protein_coding_genes):
     df = pd.read_csv(protein_coding_genes, sep="\t")
     return set(df[df.columns[5]])
 
@@ -176,9 +175,9 @@ def annotate_gnomad(gnomad, sv_df):
 def main():
     vcf_dict = allel.read_vcf(
         snakemake.input.vcf[0],
-        ["*"], # extract all fields
-        numbers={"ANN": 1000}, #?
-        transformers=allel.ANNTransformer(), # post-processing of data from SNPEF
+        ["*"],  # extract all fields
+        numbers={"ANN": 1000},  # ?
+        transformers=allel.ANNTransformer(),  # post-processing of data from SNPEF
     )
 
     protein_coding_ENSG = make_exon_gene_set(snakemake.params.protein_coding_genes)
@@ -230,7 +229,6 @@ def main():
         for id_list in vcf_dict["variants/ANN_Gene_ID"]
     ]
 
-
     # parse genotype fields
     gts = {}
     names = vcf_dict["samples"]
@@ -281,9 +279,7 @@ def main():
     for key in "samples", "calldata/GT", "calldata/AD", "calldata/DP":
         del vcf_dict[key]
 
-
     df = pd.DataFrame(vcf_dict)
-
 
     df = df.rename(
         {
@@ -303,7 +299,6 @@ def main():
 
     df = df.set_index(["CHROM", "POS", "END", "SVTYPE"])
 
-
     print("Identifying protein coding genes ...")
     genes = []
     for g in df["Ensembl Gene ID"]:
@@ -320,9 +315,14 @@ def main():
 
     print("Annotating structural variants against genes, hgmd, hpo, exac, and omim")
     HPO_cols = ["N_UNIQUE_HPO_TERMS", "HPO Features", "N_GENES_IN_HPO", "Genes in HPO"]
-    ann_records = SVAnnotator(snakemake.params.exon_bed, snakemake.params.hgmd_db, 
-                              snakemake.params.hpo, snakemake.params.exac, 
-                              snakemake.params.omim, snakemake.params.biomart)
+    ann_records = SVAnnotator(
+        snakemake.params.exon_bed,
+        snakemake.params.hgmd_db,
+        snakemake.params.hpo,
+        snakemake.params.exac,
+        snakemake.params.omim,
+        snakemake.params.biomart,
+    )
     df = ann_records.annotate_genes(df, Protein_coding_genes_col)
 
     # annotate against MSSNG Manta calls (not Lumpy as Lumpy set doesn't include INS)
@@ -434,10 +434,10 @@ def main():
 
     # get report file name
     report_name = "{}.wgs.MELT.{}.csv".format(
-        snakemake.params.project,
-        date.today().strftime("%Y-%m-%d")
+        snakemake.params.family, date.today().strftime("%Y-%m-%d")
     )
     # write report
-    df.to_csv("report/MELT/"+report_name)
-    
+    df.to_csv("report/MELT/" + report_name)
+
+
 main()
