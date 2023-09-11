@@ -432,12 +432,14 @@ def main():
         df[col] = ["." if val == "" else val for val in df[col].tolist()]
         df[col] = ["." if val == "nan" else val for val in df[col].tolist()]
 
-    # get report file name
+   
+    df = df.reset_index().drop(["END", "SVTYPE"], axis=1) 
+   # get report file name
     report_name = "{}.wgs.MELT.{}.csv".format(
         snakemake.params.family, date.today().strftime("%Y-%m-%d")
     )
     # write report
-    df.to_csv("report/MELT/" + report_name)
+    df.to_csv(f"report/MELT/{report_name}", index=False)
 
 
 main()
