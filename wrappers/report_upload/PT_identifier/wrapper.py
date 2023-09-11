@@ -4,7 +4,7 @@ import pandas as pd
 import sys
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "../../../scripts/PTFunctions"))
-import PTQueries
+from PTQuery import *
 
 logfile = snakemake.log[0]
 logging.basicConfig(
@@ -28,11 +28,20 @@ data = {
 }
 
 logging.info("Connecting to Phenotips")
-bearer_token = PTQueries.get_bearer_token(data)
 
-df = PTQueries.get_PT_id(
-    family, eid_df, "https://phenotips.genomics4rd.ca", bearer_token
+base_url = "https://phenotips.genomics4rd.ca"
+auth0_url = "https://genomics4rd-phenotips.us.auth0.com/oauth/token"
+bearer_token = get_bearer_token(data, url=auth0_url)
+BASE_REQUEST_ARGS = {"headers": {"authorization": "Bearer {}".format(bearer_token)}}
+
+# establish a connection with Phenotips
+logging.info(f"Connecting to Phenotips...")
+query = PTQuery(
+    base_url=base_url, base_request_args=BASE_REQUEST_ARGS, bearer_token=bearer_token
 )
+
+df = query.get_PT_id(family, eid_df)
+
 
 # Write to file
 df.to_csv("report_upload/PT_ids.txt", index=False)
