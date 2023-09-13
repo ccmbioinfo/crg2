@@ -4,6 +4,7 @@ import os
 import requests
 import pysam
 import subprocess
+import sys
 
 # creates bam slices for a specified gene and assembly for all alignments in alignment path
 # bam slices are output to /path/to/alignments/bam_slice/
@@ -16,7 +17,14 @@ def query_gene(gene, flank, assembly):
         r = requests.get(
             f"https://mygene.info/v3/query?q=symbol:{gene}&species=human&field=genomic_pos_hg19"
         )
-        coordinates = r.json()["hits"][0]["genomic_pos_hg19"]
+        print(r.json()["hits"])
+        try:
+            coordinates = r.json()["hits"][0]["genomic_pos_hg19"]
+        except KeyError:
+            coordinates = r.json()["hits"][1]["genomic_pos_hg19"]
+        except IndexError:
+            print(f"{gene} not found, exiting")
+            sys.exit()
     else:
         # hg38
         r = requests.get(
@@ -67,9 +75,11 @@ def get_alignments(alignment_folder):
     return alignments
 
 
-def create_bam_slices(coordinates, alignment, ref, bam_slice_dir):
+def create_bam_slices(coordinates, alignment, ref, bam_slice_dir, gene=None):
     sample = os.path.basename(alignment).split(".")[0]
     coordinates_name = coordinates.replace(":", "-")
+    if gene:
+        coordinates_name = f"{coordinates_name}-{gene}"
     pysam.view(
         "-b",
         alignment,
@@ -159,7 +169,7 @@ if __name__ == "__main__":
     if gene:
         coordinates = query_gene(gene, flank, assembly)
         for a in alignments:
-            create_bam_slices(coordinates, a, ref, bam_slice_dir)
+            create_bam_slices(coordinates, a, ref, bam_slice_dir, gene=gene)
 
     else:
         for a in alignments:
