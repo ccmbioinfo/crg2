@@ -1,0 +1,9 @@
+channels:
+  - bioconda
+  - conda-forge
+dependencies:
+  - python >3.5
+  - java-jdk >=1.8
+  - bowtie2
+  - snpeff ==4.3.1t
+  - bcftools ==1.9
