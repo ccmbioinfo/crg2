@@ -1,11 +1,11 @@
-import requests
-from json import loads
 import pandas as pd
 import os
 import sys
 import time
-from PTQuery import *
+
+sys.path.append(os.path.join(os.path.dirname(__file__), "../../../scripts/PTFunctions"))
 from report_reshape_upload import *
+from PTQuery import *
 
 
 logfile = snakemake.log[0]
@@ -17,7 +17,9 @@ logging.basicConfig(
     datefmt="%Y-%m-%d %H:%M",
 )
 
-report = glob(str(snakemake.input.report) + f"/{snakemake.params.family}.wes.regular.*.csv")[0]
+report = glob(
+    str(snakemake.input.report) + f"/{snakemake.params.family}.wes.regular.*.csv"
+)[0]
 logging.info(f"Report name: {report}")
 ids = pd.read_csv(snakemake.input.ids)
 logging.info(f"Participant IDs: {ids}")
@@ -93,7 +95,6 @@ for (
         ptp_dict["post_status_code"] = None
 
     if pt_id:
-
         # query variant-source-files/metadata endpoint to retrieve IDs of patients who have had reports uploaded already
         metadata = query.get_job_metadata_for_patient(pt_id)
         try:
