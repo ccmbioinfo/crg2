@@ -1,43 +1,43 @@
 import argparse
 import logging
 import pandas as pd
-from PTFunctions import PTQueries
+from PTFunctions import PTQuery
 import sys
 
 
-def main(C4R_ID: str, base_url: str, bearer_token: str, logfile: str) -> None:
+def main(C4R_ID: str, query: PTQuery.PTQuery) -> None:
     """
     Given a C4R ID (family_participant), retrieve family pedigree and proband HPO terms
     """
 
     logging.basicConfig(
-        filename=logfile,
-        filemode="w",
+        stream=sys.stdout,
         level=logging.DEBUG,
         format="%(asctime)s:%(message)s",
         datefmt="%Y-%m-%d %H:%M",
     )
 
+    logging.info("Connecting to Phenotips...")
 
     # get pedigree
     logging.info(f"Retrieving pedigree for {C4R_ID}")
     C4R_family = C4R_ID.split("_")[0]
-    pid = PTQueries.get_PT_patient_ID(C4R_ID, base_url, bearer_token)
-    family = PTQueries.get_PT_family_ID(pid, base_url, bearer_token)
-    pedigree = PTQueries.get_pedigree_info(family, base_url, bearer_token)
-    PTQueries.write_pedigree(pedigree, C4R_family)
+    pid = query.get_PT_patient_ID(C4R_ID)
+    family = query.get_PT_family_ID(pid)
+    pedigree = query.get_pedigree_info(family)
+    query.write_pedigree(pedigree, C4R_family)
 
     # get HPO terms
     logging.info(f"Retrieving HPO terms for {C4R_ID}")
-    HPO_df = PTQueries.get_HPO(pid, base_url, bearer_token)
+    HPO_df = query.get_HPO(pid)
     HPO_df.to_csv(
         f"{C4R_family}_HPO.txt",
         sep="\t",
         index=False,
     )
-    # HPO_df.to_csv(
-    #     f"/home/ccmmarvin/gene_data/HPO/{C4R_family}_HPO.txt", sep="\t", index=False
-    # )
+    HPO_df.to_csv(
+        f"/home/ccmmarvin/gene_data/HPO/{C4R_family}_HPO.txt", sep="\t", index=False
+    )
 
 
 description = """Accepts TCAG batch tsv (e.g. /hpf/largeprojects/ccmbio/ccmmarvin_shared/tcag_downloads/6VBFF92-samples_for_crg2-new.tsv)
@@ -81,9 +81,13 @@ data = {
     "scope": credentials["scope"][0],
 }
 
-logging.info("Connecting to Phenotips...")
+
 base_url = "https://phenotips.genomics4rd.ca"
-bearer_token = PTQueries.get_bearer_token(data)
+bearer_token = PTQuery.get_bearer_token(data)
+BASE_REQUEST_ARGS = {"headers": {"authorization": "Bearer {}".format(bearer_token)}}
+query = PTQuery.PTQuery(
+    base_url=base_url, base_request_args=BASE_REQUEST_ARGS, bearer_token=bearer_token
+)
 
 if families:
     # load genomes
@@ -97,16 +101,12 @@ if families:
     for C4R_id in C4R_ids["C4R_id"].values.tolist():
         main(
             C4R_id,
-            base_url,
-            bearer_token,
-            f"{C4R_id}_pedigree_HPO.log",
+            query,
         )
 elif participant:
     main(
         participant,
-        base_url,
-        bearer_token,
-        f"{participant}_pedigree_HPO.log",
+        query,
     )
 else:
     print("Either a tsv or C4R ID must be supplied.")
