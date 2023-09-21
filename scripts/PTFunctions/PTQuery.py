@@ -79,7 +79,6 @@ class BearerAuth(requests.auth.AuthBase):
         return r
 
 
-# def get_bearer_token(data: dict, url = "https://genomics4rd-phenotips.us.auth0.com/oauth/token") -> str:
 def get_bearer_token(
     data: dict, url="https://genomics4rd-phenotips.us.auth0.com/oauth/token"
 ) -> str:
@@ -527,7 +526,7 @@ class PTQuery:
             ]  # pedigree node id
             node_to_C4R[node_id] = C4R
             # refer to members dict to retrieve affected status, if it exists
-            affected = get_affected(pid, ped["pedigree"]["members"])
+            affected = self.get_affected(pid, ped["pedigree"]["members"])
             # refer to members dict to retrieve sex
             sex = [
                 member["properties"].get("sex", None)
@@ -535,9 +534,9 @@ class PTQuery:
                 if member["properties"].get("id", None) == pid
             ][0]
             if not sex:
-                sex = get_sex(pid)
+                sex = self.get_sex(pid)
             # refer to relationships dict to retrieve parent node IDs
-            parents = get_parents(node_id, ped["pedigree"]["relationships"])
+            parents = self.get_parents(node_id, ped["pedigree"]["relationships"])
             members[C4R] = {
                 "pid": pid,
                 "node_id": node_id,
