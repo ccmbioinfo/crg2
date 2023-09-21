@@ -4,7 +4,7 @@ import numpy as np
 
 from datetime import datetime
 from glob import glob
-from PTQueries import *
+from PTQuery import *
 from typing import Tuple, List, Iterator
 
 
