@@ -322,7 +322,10 @@ def annotate_pop_svs(annotsv_df, pop_svs, cols):
     return annotsv_pop_svs
 
 
-def annotate_odd_regions(annotsv_df, regions):
+def annotate_pb_regions(annotsv_df, regions, region_name):
+    """
+    Annotate SVs against PacBio odd regions or PacBio dark regions (bed files where fourth column indicates region affected)
+    """
     annotsv_bed = annotsv_df_to_bed(annotsv_df)
     regions = pd.read_csv(regions, sep="\t")
     regions_bed = BedTool.from_dataframe(regions)
@@ -340,14 +343,15 @@ def annotate_odd_regions(annotsv_df, regions):
         "CHROM_region",
         "POS_region",
         "END_region",
-        "PB_odd_region_type",
+        region_name,
     ]
     # make a column with region details, e.g 1:25266309-25324509
-    intersect["PB_odd_region"] = intersect[
+    region_details_name = ("_").join(region_name.split("_")[:-1])
+    intersect[region_details_name] = intersect[
         ["CHROM_region", "POS_region", "END_region"]
     ].apply(lambda x: f"{x[0]}:{x[1]}-{x[2]}", axis=1)
     # calculate percent of sample SV overlapped by region
-    intersect["PB_odd_region_perc_overlap"] = intersect[
+    intersect[f"{region_details_name}_perc_overlap"] = intersect[
         ["POS", "END", "POS_region", "END_region"]
     ].apply(lambda x: calculate_sample_SV_overlap(x[0], x[1], x[2], x[3]), axis=1)
     intersect = intersect[
@@ -357,13 +361,13 @@ def annotate_odd_regions(annotsv_df, regions):
             "END",
             "SVTYPE",
             "ID",
-            "PB_odd_region_type",
-            "PB_odd_region",
-            "PB_odd_region_perc_overlap",
+            region_name,
+            region_details_name,
+            f"{region_details_name}_perc_overlap",
         ]
     ]
     cols = [col for col in intersect.columns if "PB" in col]
-    # merge odd region dataframe with annotSV df
+    # merge PB region dataframe with annotSV df
     intersect = intersect.astype(str)
     annotsv_odd_region_svs = pd.merge(
         annotsv_df,
@@ -556,6 +560,7 @@ def main(
     hprc,
     gnomad,
     inhouse,
+    dark_regions,
     odd_regions,
     repeats,
     c4r,
@@ -644,8 +649,11 @@ def main(
     df_merge = get_exon_counts(df_merge, exon_bed)
     print(df_merge.columns)
 
+    # add PacBio dark regions
+    df_merge = annotate_pb_regions(df_merge, dark_regions, "PB_dark_region_gene")
+
     # add PacBio odd regions
-    df_merge = annotate_odd_regions(df_merge, odd_regions)
+    df_merge = annotate_pb_regions(df_merge, odd_regions, "PB_odd_region_type")
 
     # add PacBio repeats used in repeat expansion finding tool
     df_merge = annotate_repeats(df_merge, repeats)
@@ -701,6 +709,9 @@ def main(
             "Repeat_type_right",
             "SegDup_left",
             "SegDup_right",
+            "PB_dark_region_gene",
+            "PB_dark_region",
+            "PB_dark_region_perc_overlap",
             "PB_odd_region_type",
             "PB_odd_region",
             "PB_odd_region_perc_overlap",
@@ -795,6 +806,12 @@ if __name__ == "__main__":
         required=True,
     )
     parser.add_argument(
+        "-dark_regions",
+        help="PacBio dark regions",
+        type=str,
+        required=True,
+    )
+    parser.add_argument(
         "-odd_regions",
         help="PacBio odd regions",
         type=str,
@@ -846,6 +863,7 @@ if __name__ == "__main__":
         args.hprc,
         args.gnomad,
         args.inhouse,
+        args.dark_regions,
         args.odd_regions,
         args.repeats,
         args.c4r,
