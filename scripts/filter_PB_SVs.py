@@ -322,6 +322,12 @@ def annotate_pop_svs(annotsv_df, pop_svs, cols):
     return annotsv_pop_svs
 
 
+def annotate_UCSC(chr, pos, end):
+    UCSC_base_URL = "=HYPERLINK(\"http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg38&position="
+    UCSC_full_URL = f"{UCSC_base_URL}{chr}:{pos}-{end}\",\"UCSC_link\")"
+    return UCSC_full_URL
+
+
 def annotate_pb_regions(annotsv_df, regions, region_name):
     """
     Annotate SVs against PacBio odd regions or PacBio dark regions (bed files where fourth column indicates region affected)
@@ -647,7 +653,9 @@ def main(
 
     # add exon counts
     df_merge = get_exon_counts(df_merge, exon_bed)
-    print(df_merge.columns)
+
+    # add UCSC genome browser URL
+    df_merge["UCSC_link"] = [annotate_UCSC(chrom, pos, end) for chrom, pos, end in zip(df_merge['CHROM'], df_merge['POS'], df_merge['END'])]
 
     # add PacBio dark regions
     df_merge = annotate_pb_regions(df_merge, dark_regions, "PB_dark_region_gene")
@@ -678,6 +686,7 @@ def main(
             "ENSEMBL_GENE",
             "VARIANT",
             "IMPACT",
+            "UCSC_link",
             "omim_phenotype",
             "omim_inheritance",
             "DDD_mode",
