@@ -188,8 +188,14 @@ def add_omim(omim_df, gene):
                 )
             except IndexError:
                 pass
-    phenos = ",".join(phenos)
-    inheritance = ",".join(inheritance)
+    if len(phenos) != 0:
+        phenos = ",".join(phenos)
+    else:
+        phenos = "."
+    if len(inheritance) != 0:
+        inheritance = ",".join(inheritance)
+    else:
+        inheritance = "."
     return [phenos, inheritance]
 
 
@@ -323,8 +329,10 @@ def annotate_pop_svs(annotsv_df, pop_svs, cols):
 
 
 def annotate_UCSC(chr, pos, end):
-    UCSC_base_URL = "=HYPERLINK(\"http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg38&position="
-    UCSC_full_URL = f"{UCSC_base_URL}{chr}:{pos}-{end}\",\"UCSC_link\")"
+    UCSC_base_URL = (
+        '=HYPERLINK("http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg38&position='
+    )
+    UCSC_full_URL = f'{UCSC_base_URL}{chr}:{pos}-{end}","UCSC_link")'
     return UCSC_full_URL
 
 
@@ -554,6 +562,27 @@ def calculate_sample_SV_overlap(sample_pos, sample_end, database_pos, database_e
     return overlap_perc
 
 
+def add_clingen(clingen_df, gene):
+    genes = gene.split(";")
+    clingen = []
+    for gene in genes:
+        # split by - for intergenic variants, which are annotated as <upstream_gene>-<downstream_gene>
+        gene = gene.split("-")
+        for g in gene:
+            try:
+                clingen.append(
+                    str(clingen_df[clingen_df["GENE"] == g]["SCORE"].values[0])
+                )
+
+            except IndexError:
+                pass
+    if len(clingen) != 0:
+        clingen = ",".join(clingen)
+    else:
+        clingen = "."
+    return clingen
+
+
 def main(
     df,
     snpeff_df,
@@ -570,6 +599,8 @@ def main(
     odd_regions,
     repeats,
     c4r,
+    clingen_HI,
+    clingen_TS,
 ):
     print(c4r)
     # filter out SVs < 50bp
@@ -655,7 +686,10 @@ def main(
     df_merge = get_exon_counts(df_merge, exon_bed)
 
     # add UCSC genome browser URL
-    df_merge["UCSC_link"] = [annotate_UCSC(chrom, pos, end) for chrom, pos, end in zip(df_merge['CHROM'], df_merge['POS'], df_merge['END'])]
+    df_merge["UCSC_link"] = [
+        annotate_UCSC(chrom, pos, end)
+        for chrom, pos, end in zip(df_merge["CHROM"], df_merge["POS"], df_merge["END"])
+    ]
 
     # add PacBio dark regions
     df_merge = annotate_pb_regions(df_merge, dark_regions, "PB_dark_region_gene")
@@ -665,6 +699,14 @@ def main(
 
     # add PacBio repeats used in repeat expansion finding tool
     df_merge = annotate_repeats(df_merge, repeats)
+
+    # add clingen haploinsufficiency and triplosensitivity scores
+    df_merge["clingen_HI"] = [
+        add_clingen(clingen_HI, gene) for gene in df_merge["GENE_NAME"].values
+    ]
+    df_merge["clingen_TS"] = [
+        add_clingen(clingen_TS, gene) for gene in df_merge["GENE_NAME"].values
+    ]
 
     # define columns to be included in report
     hpo_cols = ["HPO"] if isinstance(hpo, pd.DataFrame) else []
@@ -703,7 +745,8 @@ def main(
         + gnomad_cols
         + inhouse_cols
         + [
-            "DDD_HI_percent",
+            "clingen_HI",
+            "clingen_TS",
             "ExAC_delZ",
             "ExAC_dupZ",
             "ExAC_cnvZ",
@@ -838,6 +881,18 @@ if __name__ == "__main__":
         type=str,
         required=True,
     )
+    parser.add_argument(
+        "-clingen_HI",
+        help="clingen HI scores",
+        type=str,
+        required=True,
+    )
+    parser.add_argument(
+        "-clingen_TS",
+        help="clingen TS scores",
+        type=str,
+        required=True,
+    )
     args = parser.parse_args()
 
     df = pd.read_csv(args.annotsv, sep="\t", low_memory=False)
@@ -845,8 +900,10 @@ if __name__ == "__main__":
     df = rename_SV_cols(df)
     prefix = args.annotsv.replace(".tsv", "")
     vcf = VariantFile(args.vcf)
+
     omim = pd.read_csv(args.omim, sep="\t")
     omim = omim[pd.notnull(omim["omim_phenotype"])]
+
     hpo = args.hpo
     if hpo:
         hpo = pd.read_csv(
@@ -859,6 +916,21 @@ if __name__ == "__main__":
         )
         # Phenotips TSV has a space in column name: " Gene symbol"
         hpo.columns = hpo.columns.str.strip()
+
+    clingen_HI = pd.read_csv(
+        args.clingen_HI,
+        sep="\t",
+        comment="#",
+        header=None,
+        names=["CHROM", "POS", "END", "GENE", "SCORE"],
+    )
+    clingen_TS = pd.read_csv(
+        args.clingen_TS,
+        sep="\t",
+        comment="#",
+        header=None,
+        names=["CHROM", "POS", "END", "GENE", "SCORE"],
+    )
 
     main(
         df,
@@ -876,4 +948,6 @@ if __name__ == "__main__":
         args.odd_regions,
         args.repeats,
         args.c4r,
+        clingen_HI,
+        clingen_TS,
     )
