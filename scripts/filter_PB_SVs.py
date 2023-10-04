@@ -562,7 +562,7 @@ def calculate_sample_SV_overlap(sample_pos, sample_end, database_pos, database_e
     return overlap_perc
 
 
-def add_clingen(clingen_df, gene):
+def add_clingen(clingen_df, gene, colname):
     genes = gene.split(";")
     clingen = []
     for gene in genes:
@@ -571,7 +571,7 @@ def add_clingen(clingen_df, gene):
         for g in gene:
             try:
                 clingen.append(
-                    str(clingen_df[clingen_df["GENE"] == g]["SCORE"].values[0])
+                    str(clingen_df[clingen_df["Gene"] == g][colname].values[0])
                 )
 
             except IndexError:
@@ -581,6 +581,14 @@ def add_clingen(clingen_df, gene):
     else:
         clingen = "."
     return clingen
+
+
+def add_BND_structure(svtype, info, alt):
+    if svtype == "BND":
+        info_extended = ";".join([info, alt])
+        return info_extended
+    else:
+        return info
 
 
 def main(
@@ -601,6 +609,7 @@ def main(
     c4r,
     clingen_HI,
     clingen_TS,
+    clingen_disease,
 ):
     print(c4r)
     # filter out SVs < 50bp
@@ -702,10 +711,18 @@ def main(
 
     # add clingen haploinsufficiency and triplosensitivity scores
     df_merge["clingen_HI"] = [
-        add_clingen(clingen_HI, gene) for gene in df_merge["GENE_NAME"].values
+        add_clingen(clingen_HI, gene, "Score") for gene in df_merge["GENE_NAME"].values
     ]
     df_merge["clingen_TS"] = [
-        add_clingen(clingen_TS, gene) for gene in df_merge["GENE_NAME"].values
+        add_clingen(clingen_TS, gene, "Score") for gene in df_merge["GENE_NAME"].values
+    ]
+    df_merge["clingen_disease"] = [
+        add_clingen(clingen_disease, gene, "Disease")
+        for gene in df_merge["GENE_NAME"].values
+    ]
+    df_merge["clingen_classification"] = [
+        add_clingen(clingen_disease, gene, "Classification")
+        for gene in df_merge["GENE_NAME"].values
     ]
 
     # define columns to be included in report
@@ -714,6 +731,13 @@ def main(
     # exclude C4R counts if not part of C4R study
     if c4r != "True":
         inhouse_cols = []
+
+    # add BND directionality information to INFO column
+    df_merge["INFO_extended"] = df_merge.apply(
+        lambda row: add_BND_structure(row["SVTYPE"], row["INFO"], row["ALT"]), axis=1
+    )
+    df_merge = df_merge.drop(["INFO"], axis=1)
+    df_merge = df_merge.rename(columns={"INFO_extended": "INFO"})
 
     report_columns = (
         [
@@ -734,6 +758,10 @@ def main(
             "DDD_mode",
             "DDD_consequence",
             "DDD_disease",
+            "clingen_disease",
+            "clingen_classification",
+            "clingen_HI",
+            "clingen_TS",
         ]
         + hpo_cols
         + gt_cols
@@ -745,8 +773,6 @@ def main(
         + gnomad_cols
         + inhouse_cols
         + [
-            "clingen_HI",
-            "clingen_TS",
             "ExAC_delZ",
             "ExAC_dupZ",
             "ExAC_cnvZ",
@@ -779,6 +805,7 @@ def main(
     df_merge["GENE_NAME"] = df_merge["GENE_NAME"].replace("nan", ".")
     df_merge["omim_phenotype"].fillna("nan", inplace=True)
     df_merge["omim_inheritance"].fillna("nan", inplace=True)
+    df_merge = df_merge.drop_duplicates()
     today = date.today()
     today = today.strftime("%Y-%m-%d")
     df_merge.to_csv(f"{prefix}.hpo.{today}.csv", index=False)
@@ -893,6 +920,13 @@ if __name__ == "__main__":
         type=str,
         required=True,
     )
+    parser.add_argument(
+        "-clingen_disease",
+        help="clingen disease association",
+        type=str,
+        required=True,
+    )
+
     args = parser.parse_args()
 
     df = pd.read_csv(args.annotsv, sep="\t", low_memory=False)
@@ -922,15 +956,16 @@ if __name__ == "__main__":
         sep="\t",
         comment="#",
         header=None,
-        names=["CHROM", "POS", "END", "GENE", "SCORE"],
+        names=["CHROM", "POS", "END", "Gene", "Score"],
     )
     clingen_TS = pd.read_csv(
         args.clingen_TS,
         sep="\t",
         comment="#",
         header=None,
-        names=["CHROM", "POS", "END", "GENE", "SCORE"],
+        names=["CHROM", "POS", "END", "Gene", "Score"],
     )
+    clingen_disease = pd.read_csv(args.clingen_disease, comment="#")
 
     main(
         df,
@@ -950,4 +985,5 @@ if __name__ == "__main__":
         args.c4r,
         clingen_HI,
         clingen_TS,
+        clingen_disease,
     )
