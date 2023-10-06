@@ -80,8 +80,40 @@ def concatenate_fastq(r1, r2, family, sample):
         log_message(f"Input {r1}, {r2} given for {sample} is not handled. Exiting!")
         exit()
 
+def decompress_ora(r1,r2,orad,orad_ref):
+    decompressed_r1_list=[]
+    decompressed_r2_list=[]
+    for read in r1:
+        log_message(f"{read}")
+        command = f"{orad} --ora-reference {orad_ref} {read}"
+        log_message(f"Command:{command}")
+        run_orad=subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, shell=True)
+        log_message(run_orad.stdout)
+        #log_message(run_orad.stderr)
+        decompressed_r1_list.append(f"{os.path.splitext(read)[0]}.gz")
+    
+    log_message(f"R1 List: {decompressed_r1_list}")
 
-def main(units, sample, family):
+    for read in r2:
+        log_message(f"{read}")
+        command = f"{orad} --ora-reference {orad_ref} {read}"
+        log_message(f"Command:{command}")
+        run_orad=subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, shell=True)
+        log_message(run_orad.stdout)
+        #log_message(run_orad.stderr)
+        decompressed_r2_list.append(f"{os.path.splitext(read)[0]}.gz")
+
+    log_message(f"R2 List: {decompressed_r2_list}")
+    
+    return decompressed_r1_list,decompressed_r2_list
+
+def remove_bgzipped_files(decompressed_r1_list,decompressed_r2_list):
+    for read in decompressed_r1_list+decompressed_r2_list:
+        log_message(f"Removing {read}")
+        command=f"rm {read}"
+        subprocess.run(command,shell=True)
+
+def main(units, sample, family, orad, orad_ref):
     logfile = f"logs/input_prep/{family}_{sample}.log"
     logging.basicConfig(
         filename=logfile,
@@ -100,11 +132,25 @@ def main(units, sample, family):
             log_message(f"{read} does not exist. Exiting!")
             exit()
     # concatenate fastqs, or symlink if only one per end
-    concatenate_fastq(r1, r2, family, sample)
+
+    #Checking if the fastq file extension is .gz or .ora
+    if os.path.splitext(r1[0])[1] == ".gz":
+        #If file is gzipped then concatenate the reads
+        log_message(f"Files for {sample} are bgzipped.")
+        concatenate_fastq(r1, r2, family, sample)
+    elif os.path.splitext(r1[0])[1] == ".ora":
+        #If file is ora compressed, then first decompress it
+        log_message(f"Files for {sample} are in ora format. Decompressing the files using orad")
+        decompressed_r1, decompressed_r2=decompress_ora(r1,r2,orad,orad_ref)
+        concatenate_fastq(decompressed_r1, decompressed_r2, family, sample)
+        #remove the bgzipped files
+        remove_bgzipped_files(decompressed_r1,decompressed_r2)
 
 
 if __name__ == "__main__":
     units = snakemake.input.units
     sample = snakemake.wildcards.sample
     family = snakemake.wildcards.family
-    main(units, sample, family)
+    orad = snakemake.wildcards.orad
+    orad_ref = snakemake.wildcards.orad_ref
+    main(units, sample, family, orad, orad_ref)
