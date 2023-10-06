@@ -80,12 +80,12 @@ def concatenate_fastq(r1, r2, family, sample):
         log_message(f"Input {r1}, {r2} given for {sample} is not handled. Exiting!")
         exit()
 
-def decompress_ora(r1,r2):
+def decompress_ora(r1,r2,orad,orad_ref):
     decompressed_r1_list=[]
     decompressed_r2_list=[]
     for read in r1:
         log_message(f"{read}")
-        command = f"/hpf/largeprojects/ccmbio/ajain/tools/orad_2_6_1/orad --ora-reference /hpf/largeprojects/ccmbio/ajain/tools/orad_2_6_1/oradata {read}"
+        command = f"{orad} --ora-reference {orad_ref} {read}"
         log_message(f"Command:{command}")
         run_orad=subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, shell=True)
         log_message(run_orad.stdout)
@@ -96,7 +96,7 @@ def decompress_ora(r1,r2):
 
     for read in r2:
         log_message(f"{read}")
-        command = f"/hpf/largeprojects/ccmbio/ajain/tools/orad_2_6_1/orad --ora-reference /hpf/largeprojects/ccmbio/ajain/tools/orad_2_6_1/oradata {read}"
+        command = f"{orad} --ora-reference {orad_ref} {read}"
         log_message(f"Command:{command}")
         run_orad=subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, shell=True)
         log_message(run_orad.stdout)
@@ -113,7 +113,7 @@ def remove_bgzipped_files(decompressed_r1_list,decompressed_r2_list):
         command=f"rm {read}"
         subprocess.run(command,shell=True)
 
-def main(units, sample, family):
+def main(units, sample, family, orad, orad_ref):
     logfile = f"logs/input_prep/{family}_{sample}.log"
     logging.basicConfig(
         filename=logfile,
@@ -141,7 +141,7 @@ def main(units, sample, family):
     elif os.path.splitext(r1[0])[1] == ".ora":
         #If file is ora compressed, then first decompress it
         log_message(f"Files for {sample} are in ora format. Decompressing the files using orad")
-        decompressed_r1, decompressed_r2=decompress_ora(r1,r2)
+        decompressed_r1, decompressed_r2=decompress_ora(r1,r2,orad,orad_ref)
         concatenate_fastq(decompressed_r1, decompressed_r2, family, sample)
         #remove the bgzipped files
         remove_bgzipped_files(decompressed_r1,decompressed_r2)
@@ -151,4 +151,6 @@ if __name__ == "__main__":
     units = snakemake.input.units
     sample = snakemake.wildcards.sample
     family = snakemake.wildcards.family
-    main(units, sample, family)
+    orad = snakemake.wildcards.orad
+    orad_ref = snakemake.wildcards.orad_ref
+    main(units, sample, family, orad, orad_ref)
