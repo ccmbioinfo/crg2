@@ -26,7 +26,7 @@ tools:
   ehdn: "/hpf/largeprojects/ccmbio/arun/Tools/EHDN.TCAG/ExpansionHunterDenovo-v0.7.0"
   mity: "/hpf/largeprojects/ccmbio/ajain/mity/mity_package/bin"
   melt: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/crg2-non-conda-tools/MELT/MELTv2.2.2/MELT.jar"
-  orad: "/hpf/largeprojects/ccmbio/ajain/tools/orad_2_6_1/orad" 
+  orad: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/crg2-non-conda-tools/orad_2_6_1/orad" 
 
 
 ref:
@@ -42,7 +42,7 @@ ref:
   ref_cache: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/genomes/REF_CACHE/GRCh37d5/%2s/%2s/%s:/hpf/largeprojects/ccm_dccforge/dccdipg/Common/genomes/REF_CACHE/hg19/%2s/%2s/%s"
   bed_index: "/hpf/largeprojects/ccmbio/naumenko/tools/bcbio/genomes/Hsapiens/GRCh37/seq/GRCh37.fa.bedtoolsindex"
   melt_element_ref: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/MELT/transposon_file_list.txt"
-  orad_ref: "/hpf/largeprojects/ccmbio/ajain/tools/orad_2_6_1/oradata"
+  orad_ref: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/crg2-non-conda-tools/orad_2_6_1/oradata"
 
 filtering:
   vqsr: false
