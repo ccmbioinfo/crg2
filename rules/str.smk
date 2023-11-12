@@ -19,8 +19,6 @@ rule EH_report:
     input:
         json = get_eh_json
     output:
-        tsv = "str/EH/{family}_EH_str.tsv",
-        annot = "str/EH/{family}_EH_str.annot.tsv",
         xlsx = "report/str/{family}.EH-v1.1.xlsx"
     log:
         "logs/str/{family}-eh-report.log"
@@ -33,13 +31,11 @@ rule EH_report:
     shell:
         '''
         echo "generating multi-sample genotypes" > {log}
-        python {params.crg2}/scripts/generate_EH_genotype_table.generic.py str/EH > {output.tsv}
-        echo "annotating gene name & size threshold" > {log}
-        python {params.crg2}/scripts/add_gene+threshold_to_EH_column_headings2.py {output.tsv} {params.trf} > {output.annot}
-        echo "generating final xlsx file" > {log}
-        python {params.crg2}/scripts/eh_sample_report.py {output.annot} {params.g1000} {output.xlsx} 
-        prefix=`echo {output.xlsx} | awk '{{split($1,a,".xlsx"); print a[1]; }}'`;
+        if [ -f inputjson ]; then rm inputjson; fi;
+        for i in {input.json}; do echo "${{i}}" >> inputjson; done;
+        python {params.crg2}/scripts/EH2TSV.py -f inputjson -a {params.trf} -k {params.g1000} -o {output.xlsx}
         d=`date +%Y-%m-%d`
+        prefix=`echo {output.xlsx} | awk '{{split($1,a,".xlsx"); print a[1]; }}'`;
         outfile="${{prefix}}.${{d}}.xlsx";
         echo "Copying final report to filaname with timestamp: $outfile" > {log}
         cp {output.xlsx} $outfile
