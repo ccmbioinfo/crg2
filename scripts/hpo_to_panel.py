@@ -44,7 +44,9 @@ def main(family, hpo, ensembl, refseq, hgnc):
     # join hpo terms and ensembl+refseq genes on gene id (most gene ids in the hpo file are ENSG ids, but not all)
     log_message("Mapping HPO genes to gene coordinates")
     hpo_coord = genes.join(hpo, how="inner").reset_index()
-    missing = [gene for gene in hpo.index if gene not in hpo_coord["index"].values]
+    # add 'chr' for hg38 pipeline
+    hpo_coord['chromosome'] = 'chr' + hpo_coord['chromosome'].astype(str)
+    missing = [gene for gene in hpo.index if gene not in hpo_coord["name"].values]
 
     # check missing genes against HGNC previous symbols and aliases
     log_message("Mapping missing genes to HGNC aliases")
