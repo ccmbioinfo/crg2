@@ -24,20 +24,22 @@ def main(C4R_ID: str, query: PTQuery.PTQuery) -> None:
     C4R_family = C4R_ID.split("_")[0]
     pid = query.get_PT_patient_ID(C4R_ID)
     family = query.get_PT_family_ID(pid)
-    pedigree = query.get_pedigree_info(family)
+    pedigree, proband_id = query.get_pedigree_info(family)
+    proband_pid = query.get_PT_patient_ID(proband_id)
+    print(proband_pid)
     query.write_pedigree(pedigree, C4R_family)
 
     # get HPO terms
-    logging.info(f"Retrieving HPO terms for {C4R_ID}")
-    HPO_df = query.get_HPO(pid)
+    logging.info(f"Retrieving HPO terms for {proband_id}")
+    HPO_df = query.get_HPO(proband_pid)
     HPO_df.to_csv(
         f"{C4R_family}_HPO.txt",
         sep="\t",
         index=False,
     )
-    HPO_df.to_csv(
-        f"/home/ccmmarvin/gene_data/HPO/{C4R_family}_HPO.txt", sep="\t", index=False
-    )
+    # HPO_df.to_csv(
+    #     f"/home/ccmmarvin/gene_data/HPO/{C4R_family}_HPO.txt", sep="\t", index=False
+    # )
 
 
 description = """Accepts TCAG batch tsv (e.g. /hpf/largeprojects/ccmbio/ccmmarvin_shared/tcag_downloads/6VBFF92-samples_for_crg2-new.tsv)
