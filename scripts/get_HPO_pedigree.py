@@ -33,13 +33,8 @@ def main(C4R_ID: str, query: PTQuery.PTQuery) -> None:
     logging.info(f"Retrieving HPO terms for {proband_id}")
     HPO_df = query.get_HPO(proband_pid)
     HPO_df.to_csv(
-        f"{C4R_family}_HPO.txt",
-        sep="\t",
-        index=False,
+        f"/home/ccmmarvin/gene_data/HPO/{C4R_family}_HPO.txt", sep="\t", index=False
     )
-    # HPO_df.to_csv(
-    #     f"/home/ccmmarvin/gene_data/HPO/{C4R_family}_HPO.txt", sep="\t", index=False
-    # )
 
 
 description = """Accepts TCAG batch tsv (e.g. /hpf/largeprojects/ccmbio/ccmmarvin_shared/tcag_downloads/6VBFF92-samples_for_crg2-new.tsv)
