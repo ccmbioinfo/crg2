@@ -5,14 +5,16 @@ Clinical research pipeline for exploring variants in whole genome (WGS) and exom
     <img src="/crg2logolarge.png" width="800px"</img> 
 </div>
 
-crg2 is a research pipeline aimed at discovering clinically relevant variants (SNVs, indels, SVs, STRs) in whole genome and exome sequencing data.
+crg2 is a research pipeline aimed at discovering clinically relevant variants in whole genome and exome sequencing data.
 It aims to provide reproducible results, be computationally efficient, and transparent in it's workflow.
 
 crg2 uses Snakemake and Conda to manage jobs and software dependencies.
 
 ## Installation instructions
 
-1. A note about the config files: the values in config_hpf.yaml refer to tool/filepaths on SickKid's HPC4Health tenancy, while the values in config_cheo_ri.yaml refer to tool/filepaths on CHEO's HPC4Health tenancy. For simplicity, we refer below only to config_hpf.yaml; if you are running crg2 on CHEO's tenancy, use config_cheo_ri.yaml instead.
+A note about the config files: the values in config_hpf.yaml refer to tool/filepaths on SickKid's HPC4Health tenancy (hpf), while the values in config_cheo_ri.yaml refer to tool/filepaths on CHEO's HPC4Health tenancy. For simplicity, we refer below only to config_hpf.yaml; if you are running crg2 on CHEO's tenancy, use config_cheo_ri.yaml instead. 
+
+1. If you are running crg2 on the hpf, skip to the 'Running the pipeline' section.
 2. Download and setup Anaconda: https://docs.conda.io/projects/conda/en/latest/user-guide/install/linux.html
 3. Install Snakemake 5.10.0 via Conda: https://snakemake.readthedocs.io/en/stable/getting_started/installation.html
 4. Git clone this repo, [crg](https://github.com/ccmbioinfo/crg), and [cre](https://github.com/ccmbioinfo/cre). crg2 uses various scripts from other two repos to generate final reports.
@@ -75,19 +77,110 @@ Make sure to replace ```~/crg2-conda``` with the path made in step 4. This will 
 - In config_hpf.yaml, add the full path to hg19.genes.bed, containing the gene annotation for the FASTA reference to `config[“annotation”][“melt”][“genes”]`. The file can be found at: 
   ```<full_path_to>/MELTv2.2.2/add_bed_files/1KGP_Hg19/hg19.genes.bed ```
 
+## Pipeline details
+
+### Pre-calling steps
+1. Map fastqs to the human decoy genome GRCh37d5
+
+2. Picard MarkDuplicates, but don't remove reads
+
+3. GATK4 base recalibration
+
+4. Remove reads mapped to decoy chromosomes
+
+### WGS: SNV
+1. Call SNV's and generate gVCFs
+
+2. Merge gVCF's and perform joint genotyping
+
+3. Filter against GATK best practices filters
+
+4. Decompose multiallelics, sort and uniq the filtered VCF using vt
+
+5. Annotate using vcfanno and VEP
+
+6. Generate a gemini db using vcf2db.py
+
+7. Generate a cre report using cre.sh
+
+### WES: SNV
+1. Call variants using GATK, Freebayes, Platypus, and SAMTools. 
+
+2. Apply caller specific filters and retain PASS variants
+
+3. Decompose multiallelics, sort and uniq filtered VCF using vt
+
+4. Retain variants called by GATK or 2 other callers; Annotate caller info in VCF with INFO/CALLER and INFO/NUMCALLS.
+
+5. Annotate using vcfanno and VEP
+
+6. Generate a gemini db using vcf2db.py
+
+7. Generate a cre report using cre.sh
+
+8. Repeat the above 1-7 steps using GATK MUTECT2 variant calls to generate a mosaic variant report
+
+### WGS: SV (filtered and unfiltered)
+1. Call SV's using Manta, Smoove and Wham
+
+2. Merge calls using MetaSV
+
+3. Annotate VCF using snpEff and SVScores
+
+4. Split multi-sample VCF into individual sample VCFs
+
+5. Generate an annotated report (produces filtered, i.e. SV called by at least two callers, and unfiltered reports)
+
+### WGS: BND
+1. Filter Manta SV calls to exclude all variants but BNDs
+
+2. Annotate VCF using snpEff
+
+3. Generate an annotated BND report 
+
+
+### WGS: STR
+
+A. ExpansionHunter: known repeat location
+
+  1. Identify repeat expansions in sample BAM/CRAMs
+  2. Annotate repeats with disease threshold, gene name, repeat sizes from 1000Genome (mean& median) 
+  3. Generate per-family report as Excel file
+
+B. ExpansionHunterDenovo: denovo repeats
+
+  1. Identify denovo repeat in sample BAM/CRAMs
+  2. Combine individual JSONs from current family and 1000Genomes to a multi-sample TSV
+  3. Run DBSCAN clustering to identify outlier repeats
+  4. Annotate with gnoMAD, OMIM, ANNOVAR
+  5. Generate per-family report as Excel file
+
+### WGS: Mitochondrial variants
+
+  1. Call MT variants using mity call
+  2. Normalize MT variants using mity normalize
+  3. Annote MT variants using vcfanno
+  4. Generate mitochondrial variant report
+
+### WGS: MELT mobile element insertions (MEIs)
+  1. Preprocess CRAMs
+  2. Call MEIs in individuals
+  3. Group and genotype MEIs across a family
+  4. Filter out ac0 calls
+  5. Annotate variants
+  6. Generate MELT report
+
 ## Running the pipeline
-1. Make a folder in a directory with sufficient space. Copy over the template files samples.tsv, units.tsv, config_hpf.yaml, crg2/dnaseq_cluster.pbs, pbs_profile/pbs_config.yaml .
-You may need to re-copy config_hpf.yaml and pbs_config.yaml if the files were recently updated in the repo from previous crg2 runs. Note that 'pbs_config.yaml' is for submitting each rule as cluster jobs, so ignore this if not running on cluster.
+1. Make a folder in a directory with sufficient space. Copy over the template files samples.tsv, units.tsv, config_hpf.yaml, crg2/dnaseq_slurm_hpf.sh, slurm_profile/slurm-config.yaml .
+You may need to re-copy config_hpf.yaml and slurm-config.yaml if the files were recently updated in the repo from previous crg2 runs. Note that 'slurm-config.yaml' is for submitting each rule as cluster jobs, so ignore this if not running on cluster.
 ```
 mkdir NA12878
-cp crg2/samples.tsv crg2/units.tsv crg2/config_hpf.yaml crg2/dnaseq_cluster.pbs crg2/pbs_profile/pbs_config.yaml NA12878
+cp crg2/samples.tsv crg2/units.tsv crg2/config_hpf.yaml crg2/dnaseq_slurm_hpf.sh crg2/slurm_profile/slurm-config.yaml NA12878
 cd NA12878
 ```
 
 2. Set up pipeline run 
   * Reconfigure 'samples.tsv', 'units.tsv' to reflect sample names and input files.
-  * If you are using cram files as input, make sure that you are specifying the correct cram references in 'config_hpf.yaml'- `old_cram_ref` refers to the original reference the cram was aligned to, and `new_cram_ref` refers to the new reference used to convert the cram to fastq. You can get the `old_cram_ref` from the cram file header by running `samtools view -H file_name.cram`.  If there are multiple fastqs per read end, these must be comma-delimited within the units.tsv file. 
-  * Modify 'dnaseq_cluster.pbs' to reflect `configfile` location (working directory path, in this case NA12878). 
   * Modify 'config_hpf.yaml': 
     * change `project` to refer to the family ID (here, NA12878).
     * set `pipeline` to `wes`, `wgs` or `annot` for exome sequences, whole genome sequences, or to simply annotate a VCF respectively.
@@ -104,7 +197,7 @@ NA12878
 units.tsv
 ```
 sample	platform	fq1	fq2	bam	cram
-NA12878	ILLUMINA	/hpf/largeprojects/ccm_dccforge/dccdipg/Common/NA12878/NA12878.bam_1.fq	/hpf/largeprojects/ccm_dccforge/dccdipg/Common/NA12878/NA12878.bam_2.fq
+NA12878	ILLUMINA	/hpf/largeprojects/ccmbio/ccmmarvin_shared/validation/benchmarking/benchmark-datasets/HG001/WGS/NA12878_1.fq.gz	/hpf/largeprojects/ccmbio/ccmmarvin_shared/validation/benchmarking/benchmark-datasets/HG001/WGS/NA12878_2.fq.gz
 ```
 
 config_hpf.yaml
@@ -118,8 +211,9 @@ run:
   hpo: "" # five-column TSV with HPO terms; leave this string empty is there are no hpo terms
   flank: 100000
   gatk: "gatk"
-  pipeline: "wes" #either wes (exomes) or wgs (genomes) or annot (to annotate and produce reports for an input vcf)
+  pipeline: "wgs" #either wes (exomes) or wgs (genomes) or annot (to annotate and produce reports for an input vcf) or mity (to generate mitochondrial reports)
   minio: ""
+  PT_credentials: ""
 ...
 ```
 
@@ -131,55 +225,69 @@ run:
 5.10.0
 ```
 
-4. Test that the pipeline will run by adding the flag "-n" to the command in dnaseq_cluster.pbs. 
+4. Test that the pipeline will run by adding the flag "-n" to the command in dnaseq_slurm_hpf.sh and running it.
 
 ```
-(snakemake) [dennis.kao@qlogin5 crg2]$ snakemake --use-conda -s ~/crg2/Snakefile --cores 4 --conda-prefix /hpf/largeprojects/ccm_dccforge/dccdipg/Common/snakemake --profile ~/crg2/pbs_profile --configfile config_hpf.yaml -n
+(snakemake) [dennis.kao@qlogin5 crg2]$ sh dnaseq_slurm_hpf.sh
 Building DAG of jobs...
 Job counts:
 	count	jobs
+	1	EH
+	1	EH_report
+	1	EHdn
+	1	EHdn_report
 	1	all
-	86	call_variants
-	86	combine_calls
-	86	genotype_variants
+	1	allsnvreport
+	1	bam_to_cram
+	1	bcftools_stats
+	1	bgzip
+	25	call_variants
+	25	combine_calls
+	1	fastq_screen
+	1	fastqc
+	25	genotype_variants
 	2	hard_filter_calls
+	1	input_prep
+	1	manta
 	1	map_reads
+	1	mark_duplicates
+	1	md5
 	1	merge_calls
 	1	merge_variants
+	1	metasv
+	1	mito_vcfanno
+	1	mity_call
+	1	mity_normalise
+	1	mity_report
+	1	mosdepth
+	1	multiqc
+	1	pass
+	1	peddy
+	1	qualimap
 	1	recalibrate_base_qualities
+	1	remove_decoy
+	3	samtools_index
+	1	samtools_index_cram
+	1	samtools_stats
 	2	select_calls
-	1	snvreport
+	1	smoove
+	2	snpeff
+	1	subset
+	1	svreport
+	2	svscore
+	1	tabix
 	1	vcf2db
 	1	vcfanno
 	1	vep
+	1	verifybamid2
 	1	vt
-	272
+	1	wham
+	1	write_version
+	129
 
-[Tue May 12 10:56:12 2020]
-rule map_reads:
-    input: /hpf/largeprojects/ccm_dccforge/dccdipg/Common/NA12878/NA12878.bam_1.fq, /hpf/largeprojects/ccm_dccforge/dccdipg/Common/NA12878/NA12878.bam_2.fq
-    output: mapped/NA12878-1.sorted.bam
-    log: logs/bwa_mem/NA12878-1.log
-    jobid: 271
-    wildcards: sample=NA12878, unit=1
-    threads: 4
+  [rule inputs and outputs removed for brevity]
 
-[Tue May 12 10:56:12 2020]
-rule recalibrate_base_qualities:
-    input: mapped/NA12878-1.sorted.bam, /hpf/largeprojects/ccm_dccforge/dccdipg/Common/genomes/GRCh37d5/GRCh37d5.fa, /hpf/largeprojects/ccmbio/naumenko/tools/bcbio/gemini_data/dbsnp.b147.20160601.tidy.vcf.gz
-    output: recal/NA12878-1.bam
-    log: logs/gatk/bqsr/NA12878-1.log
-    jobid: 270
-    wildcards: sample=NA12878, unit=1
-
-[Tue May 12 10:56:12 2020]
-rule call_variants:
-    input: recal/NA12878-1.bam, /hpf/largeprojects/ccm_dccforge/dccdipg/Common/genomes/GRCh37d5/GRCh37d5.fa, /hpf/largeprojects/ccmbio/naumenko/tools/bcbio/gemini_data/dbsnp.b147.20160601.tidy.vcf.gz
-    output: called/NA12878.GL000204.1.g.vcf.gz
-    log: logs/gatk/haplotypecaller/NA12878.GL000204.1.log
-    jobid: 239
-    wildcards: sample=NA12878, contig=GL000204.1
-    
+This was a dry-run (flag -n). The order of jobs does not reflect the order of execution.
 ...
 ```
 
@@ -201,17 +309,46 @@ rule call_variants:
 
 
     `dnaseq_slurm_api.sh` is called by [Stager](https://stager.genomics4rd.ca/) when exome analyses are requested. It automatically sets up (`exome_setup_stager.py`) and kicks off the crg2 WES pipeline via the slurm API using linked files that have been uploaded to MinIO. 
-  
+
+## Pipeline reports
+
+## Reports
+
+Column descriptions and more info on how variants are filtered can be found in the [CCM Sharepoint.](https://sickkidsca.sharepoint.com/:f:/r/sites/thecenterforcomputationalmedicineworkspace/Shared%20Documents/C4Rare-updates/Report_documentation/Documentation?csf=1&web=1&e=nSMt2p)
+
+The WES pipeline generates 5 reports:
+
+1. wes.regular - report on coding SNVs in exonic regions
+
+2. wes.synonymous - report on synonymous SNVs in exonic regions
+
+3. clinical.wes.regular - same as wes.regular but with more stringent filters
+
+4. clinical.wes.synonymous - same as wes.synonymous but with more stringent filters
+
+5. wes.mosaic - putative mosaic variants
+
+The WGS pipeline generates up to 11 reports:
+
 The SNV reports can be found in the directories: 
   - report/coding/{PROJECT_ID}/{PROJECT_ID}.\*wes\*.csv
   - report/panel/{PROJECT_ID}/{PROJECT_ID}.\*wgs\*.csv
   - report/panel-flank/{PROJECT_ID}/{PROJECT_ID}.\*wgs\*.csv
-The SV reports can be found in the directory: 
-  - report/sv/{PROJECt_ID}.wgs.{VER}.{DATE}.tsv.
+  - report/denovo/{PROJECT_ID}/{PROJECT_ID}.\*wgs\*.csv
+
+The SV reports can be found in the directory (SV, unfiltered SV, and BND): 
+  - report/sv/{PROJECT_ID}.wgs.{VER}.{DATE}.tsv
 
 The STR reports can be found in:
   - report/str/{PROJECT_ID}.EH.v1.1.{DATE}.xlsx
   - report/str/{PROJECT_ID}.EHDN.{DATE}.xlsx
+
+The mitochondrial report can be found in the directory:
+  - report/mitochondrial/{PROJECT_ID}.mitochondrial.report.csv
+
+The MELT mobile element report can be found in the directory: 
+  - report/MELT/{PROJECT_ID}.wgs.{DATE}.csv
+
 ## Automatic pipeline submission
 ### Genomes
 `parser_genomes.py` script can be used to automate the above process for a batch of genomes. 
@@ -229,11 +366,11 @@ optional arguments:
 The script performs the following operations for each familyID present in the sample info file
   - create run folder: \<familyID\>
   - copy the following files to run folder and update settings where applicable:
-    - config.yaml: update run name, input type, panel and ped (if avaialble in /hpf/largeprojects/ccmbio/dennis.kao/gene_data/{HPO,Pedigrees})
+    - config_hpf.yaml: update run name, input type, panel and ped (if avaialble in /hpf/largeprojects/ccmbio/dennis.kao/gene_data/{HPO,Pedigrees})
     - units.tsv: add sample name, and input file paths
     - samples.tsv: add sample names
-    - dnaseq_cluser.pbs: rename job (#PBS -N \<familyID\>)
-    - pbs_config.yaml
+    - dnaseq_slurm_hpf.sh: rename job 
+    - slurm-config.yaml
   - submit Snakemake job 
 
 ### Exomes for re-analysis
@@ -277,106 +414,6 @@ The script parses an analysis request csv from Stager for genome re-analyses and
 6. submit job if all the above goes well
 
 
-## Pipeline details
-
-### Pre-calling steps
-1. Map fastqs to the human decoy genome GRCh37d5
-
-2. Picard MarkDuplicates, but don't remove reads
-
-3. GATK4 base recalibration
-
-4. Remove reads mapped to decoy chromosomes
-
-### WGS: SNV
-1. Call SNV's and generate gVCFs
-
-2. Merge gVCF's and perform joint genotyping
-
-3. Filter against GATK best practices filters
-
-4. Decompose multiallelics, sort and uniq the filtered VCF using vt
-
-5. Annotate using vcfanno and VEP
-
-6. Generate a gemini db using vcf2db.py
-
-7. Generate a cre report using cre.sh
-
-### WES: SNV
-1. Call variants using GATK, Freebayes, Platypus, and SAMTools
-
-2. Apply caller specific filters and retain PASS variants
-
-3. Decompose multiallelics, sort and uniq filtered VCF using vt
-
-4. Retain variants called by GATK or 2 other callers; Annotate caller info in VCF with INFO/CALLER and INFO/NUMCALLS.
-
-5. Annotate using vcfanno and VEP
-
-6. Generate a gemini db using vcf2db.py
-
-7. Generate a cre report using cre.sh
-
-### SV
-1. Call SV's using Manta, Smoove and Wham
-
-2. Merge calls using MetaSV
-
-3. Annotate VCF using snpEff and SVScores
-
-4. Split multi-sample VCF into individual sample VCFs
-
-5. Generate an annotated report using crg
-
-### STR
-
-A. ExpansionHunter: known repeat location
-
-  1. Identify repeat expansions in sample BAM/CRAMs
-  2. Annotate repeats with disease threshold, gene name, repeat sizes from 1000Genome (mean& median) 
-  3. Generate per-family report as Excel file
-
-B. ExpansionHunterDenovo: denovo repeats
-
-  1. Identify denovo repeat in sample BAM/CRAMs
-  2. Combine individual JSONs from current family and 1000Genomes to a multi-sample TSV
-  3. Run DBSCAN clustering to identify outlier repeats
-  4. Annotate with gnoMAD, OMIM, ANNOVAR
-  5. Generate per-family report as Excel file
-
-
-## Reports
-
-Column descriptions and more info on how variants are filtered can be found here:
-
-SNV: https://docs.google.com/document/d/1zL4QoINtkUd15a0AK4WzxXoTWp2MRcuQ9l_P9-xSlS4
-
-SV: https://docs.google.com/document/d/1o870tr0rcshoae_VkG1ZOoWNSAmorCZlhHDpZuZogYE
-
-The WGS pipeline generates 6 reports:
-
-1. wgs.snv - a report on coding SNVs across the entire genome
-
-2. wgs.panel.snv - a report on SNVs within the panel specified bed file
-
-3. wgs.panel.snv - a report on SNVs within the panel specified bed file with a 100kb flank on each side
-
-4. wgs.sv - a report on SVs across the entire genome
-
-5. EH - a report on repeat expansions in known locations
-
-6. EHDN - a report on denovo repeats filtered from a case-control outlier analysis
-
-The WES pipeline generates 4 reports for SNV:
-
-1. clinical.wes.regular - report on coding SNVs in exonice regions using clinical filters as decribed [here](https://docs.google.com/document/d/1zL4QoINtkUd15a0AK4WzxXoTWp2MRcuQ9l_P9-xSlS4/edit#heading=h.e4whjtn15ybp) 
-
-2. clinical.wes.synonymous - report on synonymous SNVs in exonic regions using clinical filters as decribed in [here](https://docs.google.com/document/d/1zL4QoINtkUd15a0AK4WzxXoTWp2MRcuQ9l_P9-xSlS4/edit#heading=h.e4whjtn15ybp) 
-
-3. wes.regular - report on coding SNVs in exonic regions
-
-4. wes.synonymous - report on synonymous SNVs in exonic regions
 ## Extra targets
 
 The following output files are not included in the main Snakefile and can be requested in `snakemake` command-line.
@@ -402,7 +439,7 @@ SNV calls from WES and WGS pipeline can be benchmarked using the GIAB dataset _H
   The inputs in `units.tsv` are downsampled for testing purposes. Edit the tsv to use the inputs from HPF: `ccmmarvin_shared/validation/benchmarking/benchmark-datasets` or CHEO-RI: `/srv/shared/data/benchmarking-datasets/HG001`. 
 2. Copy `crg2/benchmark_hpf.tsv` or `crg2/benchmark_cheo_ri.tsv` to current directory. _Note_: benchmark_x.tsv uses HG001_NA12878 as family_sample name, so you should edit the "project" name in `config_hpf.yaml`
 3. Edit the `config_hpf.yaml` to set "wes" or "wgs" pipeline
-4. Edit `dnaseq_cluster.pbs` to include the target `validation/HG001`
+4. Edit `dnaseq_slurm_hpf.sh` to include the target `validation/HG001`
 
 
 
