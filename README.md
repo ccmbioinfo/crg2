@@ -159,7 +159,7 @@ B. ExpansionHunterDenovo: denovo repeats
 
   1. Call MT variants using mity call
   2. Normalize MT variants using mity normalize
-  3. Annote MT variants using vcfanno
+  3. Annotate MT variants using vcfanno
   4. Generate mitochondrial variant report
 
 ### WGS: MELT mobile element insertions (MEIs)
@@ -171,7 +171,7 @@ B. ExpansionHunterDenovo: denovo repeats
   6. Generate MELT report
 
 ## Running the pipeline
-1. Make a folder in a directory with sufficient space. Copy over the template files samples.tsv, units.tsv, config_hpf.yaml, crg2/dnaseq_slurm_hpf.sh, slurm_profile/slurm-config.yaml .
+1. Make a folder in a directory with sufficient space. Copy over the template files crg2/samples.tsv, crg2/units.tsv, crg2/config_hpf.yaml, crg2/dnaseq_slurm_hpf.sh, crg2/slurm_profile/slurm-config.yaml .
 You may need to re-copy config_hpf.yaml and slurm-config.yaml if the files were recently updated in the repo from previous crg2 runs. Note that 'slurm-config.yaml' is for submitting each rule as cluster jobs, so ignore this if not running on cluster.
 ```
 mkdir NA12878
@@ -183,7 +183,7 @@ cd NA12878
   * Reconfigure 'samples.tsv', 'units.tsv' to reflect sample names and input files.
   * Modify 'config_hpf.yaml': 
     * change `project` to refer to the family ID (here, NA12878).
-    * set `pipeline` to `wes`, `wgs` or `annot` for exome sequences, whole genome sequences, or to simply annotate a VCF respectively.
+    * set `pipeline` to `wes`, `wgs`, `annot` or `mity` for exome sequences, whole genome sequences, to simply annotate a VCF respectively or to generate mitochondrial reports
     * inclusion of a panel bed file (`panel`) or hpofile (`hpo`) will generate 2 SNV reports with all variants falling within these regions, one which includes variants in flanking regions as specified by `flank`.
     * inclusion of a `ped` file with parents and a proband(s) will allow generation of a genome-wide de novo report if `pipeline` is `wgs`.
     * `minio` refers to the path of the file system mount that backs MinIO in the CHEO HPC4Health tenancy. Exome reports (and coverage reports, if duplication percentage is >20%) will be copied to this path if specified. 
@@ -442,4 +442,6 @@ SNV calls from WES and WGS pipeline can be benchmarked using the GIAB dataset _H
 4. Edit `dnaseq_slurm_hpf.sh` to include the target `validation/HG001`
 
 
+## crg2 Developer Documentation:
 
+A guideline to developing crg2 can be found in this [document.](https://sickkidsca.sharepoint.com/:w:/r/sites/thecenterforcomputationalmedicineworkspace/Shared%20Documents/C4Rare-updates/crg2-development.docx?d=w5cad9def56a44b2bba951e6a0a7a4334&csf=1&web=1&e=FHxe4j)
