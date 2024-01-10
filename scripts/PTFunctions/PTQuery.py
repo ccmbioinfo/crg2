@@ -495,7 +495,7 @@ class PTQuery:
             logging.info(f"Warning: participant {proband_id} has no HPO terms")
         return hpo_df
 
-    def get_pedigree_info(self, family_id: str) -> dict:
+    def get_pedigree_info(self, family_id: str) -> [dict, str]:
         """
         Get pedigree for a family given a Phenotips family ID
         API endpoint: https://docs.phenotips.com/reference/getfamilypedigree-1
@@ -517,24 +517,19 @@ class PTQuery:
         for member in ped["family"]["familyMembers"]:
             C4R = member["identifier"]
             pid = member["id"]  # Phenotips ID
-            node_id = [
-                member["id"]
-                for member in ped["pedigree"]["members"]
-                if member["properties"].get("id", None) == pid
-            ][
-                0
-            ]  # pedigree node id
+            for member in ped["pedigree"]["members"]:
+                properties = member.get("properties", None)
+                if properties:
+                    if properties.get("id", None) == pid:
+                        node_id = member["id"] # pedigree node id
+                        sex = member["properties"].get("sex", None)
+                        break
+            if not sex:
+                sex = self.get_sex(pid)
+
             node_to_C4R[node_id] = C4R
             # refer to members dict to retrieve affected status, if it exists
             affected = self.get_affected(pid, ped["pedigree"]["members"])
-            # refer to members dict to retrieve sex
-            sex = [
-                member["properties"].get("sex", None)
-                for member in ped["pedigree"]["members"]
-                if member["properties"].get("id", None) == pid
-            ][0]
-            if not sex:
-                sex = self.get_sex(pid)
             # refer to relationships dict to retrieve parent node IDs
             parents = self.get_parents(node_id, ped["pedigree"]["relationships"])
             members[C4R] = {
@@ -559,7 +554,7 @@ class PTQuery:
             else:
                 members[member]["parents_C4R"] = None
 
-        return members
+        return members, node_to_C4R[0] 
 
     def get_sex(self, pid: int) -> str:
         """Get sex of an individual given Phenotips ID of that individual"""
@@ -583,15 +578,15 @@ class PTQuery:
         """Get affected status of individual"""
         affected = None
         for member in members:
-            if member["properties"].get("id", None) == pid:
-                try:
-                    affected = member["properties"]["clinicalStatus"]
-                    break
-                except KeyError:
-                    try:
-                        affected = member["pedigreeProperties"]["carrierStatus"]
-                    except KeyError:
-                        affected = None
+            properties = member.get("properties", None)
+            if properties:
+                if properties.get("id", None) == pid:
+                    pedigree_properties = member.get("pedigreeProperties", None)
+                    if pedigree_properties:
+                        affected = member["pedigreeProperties"].get("carrierStatus", None)
+                        if not affected:
+                            affected = member["pedigreeProperties"].get("carrierStatus", None)
+                        break
 
         return affected
 
@@ -611,7 +606,7 @@ class PTQuery:
         """
         Write a pedigree text file given dictionary derived from Phenotips pedigree JSON
         """
-        with open(f"{C4R_family}_pedigree.ped", "w") as f:
+        with open(f"/home/ccmmarvin/gene_data/pedigrees/{C4R_family}_pedigree.ped", "w") as f:
             for member in members:
                 family_id = member.split("_")[0]
                 sample_id = member
