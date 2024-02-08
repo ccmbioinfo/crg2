@@ -197,7 +197,7 @@ NA12878
 units.tsv
 ```
 sample	platform	fq1	fq2	bam	cram
-NA12878	ILLUMINA	/hpf/largeprojects/ccmbio/ccmmarvin_shared/validation/benchmarking/benchmark-datasets/HG001/WGS/NA12878_1.fq.gz	/hpf/largeprojects/ccmbio/ccmmarvin_shared/validation/benchmarking/benchmark-datasets/HG001/WGS/NA12878_2.fq.gz
+NA12878	ILLUMINA			/hpf/largeprojects/ccmbio/GIAB_benchmark_datasets/hg19/WGS/NA12878/RMNISTHS_30xdownsample.bam
 ```
 
 config_hpf.yaml
