@@ -127,7 +127,7 @@ annotation:
      database_path: "/hpf/largeprojects/ccmbio/nhanafi/c4r/downloads/databases/"
 
 validation:
-  benchmark: "benchmark.tsv"
+  benchmark: "benchmark_hpf.tsv"
 
 params:
   bwa:
