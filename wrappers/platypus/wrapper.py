@@ -24,6 +24,10 @@ bams = "--bamFiles={}".format(bams)
 
 params = snakemake.params if snakemake.params else ""
 
+# need sequence dictionary for picard sort
+# sometimes Platypus VCFs are not properly sorted , even after vcfstreamsort
+seq_dict = snakemake.input.ref.replace(".fa", ".dict")
+
 log = snakemake.log_fmt_shell(stdout=True, stderr=True)
 
 shell(
@@ -32,5 +36,6 @@ shell(
     "--output={snakemake.output}  &&  "
     "vcfallelicprimitives -t DECOMPOSED --keep-geno {snakemake.output} "
     "| vcffixup - | vcfstreamsort  > temp && "
-    "mv temp {snakemake.output} {log} "
+    "picard -Xmx2g SortVcf I=temp O=temp.sort.vcf SEQUENCE_DICTIONARY={seq_dict} && "
+    "rm temp && mv temp.sort.vcf {snakemake.output} {log} "
 )
