@@ -7,7 +7,8 @@ if snakemake.params.exclude_chroms:
 else:
     excludechroms = ""
 shell(
-    "(smoove call -x "
+    "(export TMPDIR={snakemake.params.outdir}; echo $TMPDIR; "
+    "smoove call -x "
     "--name {snakemake.params.name} "
     "--outdir {snakemake.params.outdir} "
     "--fasta {snakemake.input.fasta} "

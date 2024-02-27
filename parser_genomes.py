@@ -4,13 +4,14 @@ import argparse
 import pandas as pd
 
 """
-Usage: python parser.py -f <input_sample.tsv> -d <absolute path to create directories> -s [mapped|recal|fastq|decoy_rm]
+Usage: python parser.py -f <fastq_input_sample.tsv> -a <stager_analyses_report.csv> -d <absolute path to create directories> -s [mapped|recal|fastq|decoy_rm] -p <project ID for sequence batch, e.g. ACK23274>
 Parse five-column(family,sample,fq1,fq2,bam) TSV file (1st argument) and sets up necessary directories (under 2nd argument), files as below:
 1. create family and directory passed as "-s"
 2. symlink BAM files if "-s" is not fastq
 3. copy config_hpf.yaml, slurm-config.yaml and dnaseq_slurm_hpf.sh from crg2 repo and replace necessary string
 4. create units.tsv and samples.tsv for snakemake
-5. submit job if all the above goes well
+5. generate CNV report from TCAG CNV tsvs
+6. submit job if all the above goes well
 """
 
 crg2_dir = os.path.dirname(os.path.realpath(sys.argv[0]))
@@ -28,9 +29,10 @@ def create_symlink(src, dest):
 
 
 def setup_directories(family, sample_list, filepath, step):
-    d = os.path.join(filepath, family)
+    d = filepath
     if not os.path.isdir(d):
-        os.mkdir(d)
+        print(d)
+        os.makedirs(d, exist_ok=True)
 
     # copy config_hpf.yaml, slurm_config.yaml, and dnaseq_slurm_hpf.sh
     for i in [
@@ -105,10 +107,10 @@ def setup_directories(family, sample_list, filepath, step):
             ):
                 # write and check sample
                 write_sample(filepath, family)
-                samples = os.path.join(filepath, family, "samples.tsv")
+                samples = os.path.join(filepath, "samples.tsv")
                 samples = pd.read_csv(samples, dtype=str)
                 samples = list(samples.iloc[:, 0])
-                samples = [family + s for s in samples]
+                samples = [family + "_" +  s for s in samples]
                 samples.sort()
                 print(f"samples to be processed: {samples}")
                 ped_samples = [individual_id, pat_id, mat_id]
@@ -159,7 +161,7 @@ def setup_directories(family, sample_list, filepath, step):
 
 
 def write_sample(filepath, family):
-    samples = os.path.join(filepath, family, "samples.tsv")
+    samples = os.path.join(filepath, "samples.tsv")
     with open(samples, "w") as s:
         s.writelines("sample\n")
         for i in sample_list:
@@ -234,10 +236,17 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=description)
     parser.add_argument(
         "-f",
-        "--file",
+        "--fastq_file",
         type=valid_file,
         required=True,
-        help="Five column TAB-seperated sample info file",
+        help="Five column TAB-seperated file containing fastq paths for each sample sequenced in TCAG batch",
+    )
+    parser.add_argument(
+        "-a",
+        "--analyses_csv",
+        type=valid_file,
+        required=True,
+        help="Analyses report CSV downloaded from Stager containing analyses corresponding to samples in fastq_file",
     )
     parser.add_argument(
         "-s",
@@ -267,7 +276,7 @@ if __name__ == "__main__":
     Units = namedtuple("Units", "sample platform fq1 fq2 bam")
     platform = "ILLUMINA"
     args = parser.parse_args()
-    with open(args.file) as f:
+    with open(args.fastq_file) as f:
         for i in f:
             if not i.startswith("familyID"):
                 family, sample, fq1, fq2, bam = i.strip("\n").split("\t")
@@ -275,14 +284,20 @@ if __name__ == "__main__":
                     projects[family] = []
                 projects[family].append(Units(sample, platform, fq1, fq2, bam))
 
+    analyses_report = pd.read_csv(args.analyses_csv)
+    analyses_report["family_codenames"] = analyses_report["family_codenames"].apply(lambda x: x.strip("[]\'").replace("'", "").split(", ")[0])
+    project_analysis =  dict(zip(analyses_report['family_codenames'], analyses_report['analysis_id']))
+
     for i in projects:
         sample_list = projects[i]
-        filepath = os.path.join(args.dir, i)
+        analysis_id = project_analysis[i]
+        filepath = os.path.join(args.dir, i, str(analysis_id))
+        print(i, filepath)
 
         # create project directory
         # copy config_hpf.yaml, dnaseq_slurm_hpf.sh & replace family id; copy slurm_config.yaml
         print(f"\nStarting to setup project directories for family: {i}")
-        submit_flag = setup_directories(i, sample_list, args.dir, args.step)
+        submit_flag = setup_directories(i, sample_list, filepath, args.step)
         write_units(sample_list, filepath)
         cp_cnv(args.project, i, filepath)
 
@@ -290,6 +305,6 @@ if __name__ == "__main__":
             print("submit jobs")
             submit_jobs(filepath, i)
         else:
-            write_sample(args.dir, i)
+            write_sample(filepath, i)
 
     print("DONE")

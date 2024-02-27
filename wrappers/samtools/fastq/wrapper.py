@@ -69,4 +69,6 @@ with open(snakemake.log[0], "w") as f:
 
     elif input_type == ["fq1", "fq2"]:
         print("File type is fastq")
-        fastq_prep.main(units, sample, family)
+        orad=snakemake.params.orad
+        orad_ref=snakemake.params.orad_ref
+        fastq_prep.main(units, sample, family, orad, orad_ref)

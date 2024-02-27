@@ -5,7 +5,9 @@ rule input_prep:
     params:
         outdir = temp("fastq/"),
         sort_check = True,
-        ref_cache = config["ref"]["ref_cache"]
+        ref_cache = config["ref"]["ref_cache"],
+        orad = config["tools"]["orad"],
+        orad_ref = config["ref"]["orad_ref"]
     output:
         fastq1 = temp("fastq/{family}_{sample}_R1.fastq.gz"),
         fastq2 = temp("fastq/{family}_{sample}_R2.fastq.gz")

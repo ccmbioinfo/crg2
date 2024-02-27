@@ -13,7 +13,7 @@ if [ -z $family_dir ]; then
         exit
 fi
 
-family=`basename $family_dir`
+family=`echo $family_dir | cut -d '/' -f1`
 
 if [ ! -d $family_dir ]; then
 	echo 'Directory does not exist, exiting'
