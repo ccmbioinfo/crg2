@@ -48,6 +48,10 @@ manta:
 recalibrate_base_qualities:
   time: "100:00:00"
 
+annot_caller:
+  time: "60:00:00"
+  mem: "12G"
+
 
 
 
