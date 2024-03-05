@@ -85,7 +85,7 @@ if len(get_cre_vcfs()) > 1:
             "../../envs/common.yaml"
         shell:
             '''
-            cat {input.all_sites} | parallel -k -j 16  {params.crg2}/scripts/annotate-caller.sh {{}} >> {output.all_sites}
+            cat {input.all_sites} | parallel -k -j 50 {params.crg2}/scripts/annotate-caller.sh {{}} >> {output.all_sites}
             echo -e '##INFO=<ID=CALLERS,Number=.,Type=String,Description="Variant called by"\\n##INFO=<ID=NUMCALLS,Number=1,Type=Integer,Description="Number of callers at this location">' > {output.hdr}
             for i in {params.callers}; do 
                 sh {params.crg2}/scripts/callerwise_annotation.sh ${{i}} {output.all_sites} isec isec/${{i}}.annot.vcf.gz
