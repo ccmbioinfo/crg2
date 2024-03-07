@@ -3,4 +3,4 @@ channels:
   - conda-forge
   - defaults
 dependencies:
-  - verifybamid2==1.0.6
+  - verifybamid2==2.0.1
