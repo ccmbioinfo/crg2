@@ -12,5 +12,6 @@ CONFIG=config_hpf.yaml
 
 source /hpf/largeprojects/ccm_dccforge/dccdipg/Common/anaconda3/etc/profile.d/conda.sh
 conda activate snakemake
+#target annotated/coding/vcfanno/NA12878.coding.vep.vcfanno.vcf
 
 snakemake --use-conda -s ${SF} --cores 4 --conda-prefix ${CP} --configfile ${CONFIG} --profile ${SLURM}
