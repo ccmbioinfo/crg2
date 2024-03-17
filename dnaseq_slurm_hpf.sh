@@ -14,4 +14,8 @@ source /hpf/largeprojects/ccm_dccforge/dccdipg/Common/anaconda3/etc/profile.d/co
 conda activate snakemake
 #target annotated/coding/vcfanno/NA12878.coding.vep.vcfanno.vcf
 
-snakemake --use-conda -s ${SF} --cores 4 --conda-prefix ${CP} --configfile ${CONFIG} --profile ${SLURM}
+snakemake --use-conda -s ${SF} --cores 4 --conda-prefix ${CP} --configfile ${CONFIG} --profile ${SLURM} -p --dry-run 
+
+# annotated/coding/vcfanno/NA12878.coding.vep.vcfanno.vcf
+#/hpf/largeprojects/ccmbio/GIAB_benchmark_datasets/hg19/WGS/NA12878
+#/hpf/largeprojects/ccmbio/GIAB_benchmark_datasets/hg19/WGS/NA12878/RMNISTHS_30xdownsample.bam
