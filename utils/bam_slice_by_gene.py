@@ -71,7 +71,7 @@ def query_gene(gene, flank, assembly):
 
 
 def get_alignments(alignment_folder):
-    alignments = glob.glob(f"{alignment_folder}/*ram")
+    alignments = glob.glob(f"{alignment_folder}/*am")
     return alignments
 
 
