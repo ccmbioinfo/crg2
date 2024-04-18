@@ -26,7 +26,10 @@ params = snakemake.params if snakemake.params else ""
 
 # need sequence dictionary for picard sort
 # sometimes Platypus VCFs are not properly sorted , even after vcfstreamsort
-seq_dict = snakemake.input.ref.replace(".fa", ".dict")
+if "fasta" in snakemake.input.ref:
+    seq_dict = snakemake.input.ref.replace(".fasta", ".dict")
+else:
+    seq_dict = snakemake.input.ref.replace(".fa", ".dict")
 
 log = snakemake.log_fmt_shell(stdout=True, stderr=True)
 
