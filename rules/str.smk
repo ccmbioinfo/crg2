@@ -75,6 +75,7 @@ rule EHdn_report:
         crg = config["tools"]["crg"],
         family = config["run"]["project"],
         outdir = "str/EHDN",
+    conda: "../envs/ehdn-report.yaml"
     shell:
         '''
         PATH="/hpf/largeprojects/ccmbio/naumenko/tools/bcbio/bin/:$PATH"
