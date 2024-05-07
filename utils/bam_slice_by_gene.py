@@ -165,4 +165,4 @@ if __name__ == "__main__":
 
     else:
         for a in alignments:
-            create_bam_slices(coordinates, a, platform, ref)
+            create_bam_slices(coordinates, a, ref, platform)
