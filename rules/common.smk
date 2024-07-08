@@ -176,47 +176,6 @@ def get_eh_json(wildcards):
     """Get the EH JSON of all samples."""
     return ["str/EH/{}_{}.json".format(wildcards.family, sample) for sample in samples.index]
 
-def parse_ped_id(individual_id, family):
-    if individual_id != "0":
-        individual_id = str(individual_id)
-        parsed_id = family + "_" + individual_id.replace(family, "")
-    else:
-        parsed_id = "0"
-
-    return parsed_id
-
-def format_pedigree(wildcards):
-    family = wildcards.family
-    ped = config["run"]["ped"]
-    if ped == "":
-        return None
-    else:
-        ped = pd.read_csv(
-            ped,
-            sep=" ",
-            header=None,
-            names=["fam_id", "individual_id", "pat_id", "mat_id", "sex", "phenotype"],
-        )
-
-    for col in ["individual_id", "pat_id", "mat_id"]:
-            ped[col] = [parse_ped_id(individual_id, family) for individual_id in ped[col].values]       
-    
-    ped["fam_id"] = family
-
-    for col in ["individual_id", "pat_id", "mat_id"]:
-        for row in range(len(ped[col])):
-            if len(ped.loc[row, col].split("_")[-1]) != 1 and len(ped.loc[row, col].split("_")[-1]) != 2:
-                pass   
-            else:
-                ped.loc[row, col] = ped.loc[row, col].replace(ped.loc[row, col], "0")
-
-    ped = ped.drop(ped.index[row] for row in ped.index if ped["individual_id"][row] == '0' )
-
-
-    ped.to_csv(f"{family}.ped", sep=" ", index=False, header=False)
-
-    return f"{family}.ped"
-
 # create peddy.ped for peddy
 def peddy_ped(wildcards):
     family = wildcards.family
@@ -231,7 +190,6 @@ def peddy_ped(wildcards):
         data_df = pd.DataFrame(data)
         data_df.to_csv(f"{family}_peddy.ped", sep="\t", index=False, header=True)
     else:
-        ped = format_pedigree(wildcards) #family +'.ped' #f"{family}.ped"
         ped = pd.read_csv(
             ped,
             sep=" ",
