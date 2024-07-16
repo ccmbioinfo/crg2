@@ -30,7 +30,7 @@ rule allsnvreport:
          elif [ {wildcards.p} == "denovo" ]; then  
          cre={params.cre} reference={params.ref} database={params.database_path} type=denovo {params.cre}/cre.sh {project} 
          else
-         cre={params.cre} reference={params.ref} database={params.database_path} type=wgs {params.cre}/cre.sh {project}
+         cre={params.cre} reference={params.ref} database={params.database_path} type=wgs max_af=1 {params.cre}/cre.sh {project}
          unset type
          fi;
          '''
