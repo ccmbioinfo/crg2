@@ -44,7 +44,9 @@ elif input_type == ["cram"]:
     cram_file = units.loc[sample, "cram"]
     dest = os.path.join(f"fastq/{family}_{sample}.cram")
 
-    copy_cmd = " cp {cram_file} {dest}; "
+    copy_cmd = " cp {cram_file} {dest} {log}; "
+    if 'resarchivezone' in cram_file: # CRAM is stored in iRods archive on hpf
+        copy_cmd = " module load irods_client; iget {cram_file} {dest} {log}; "
 
     get_header_cmd = " samtools view -H {dest} > fastq/{family}_{sample}_header.sam; "
 
