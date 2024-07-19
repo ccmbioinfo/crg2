@@ -22,22 +22,32 @@ print(input_type)
 if input_type == ["bam"]:
     print("File type is BAM")
     bam_file = units.loc[sample, "bam"]
+    dest=os.path.join(f"fastq/{family}_{sample}.bam")
+
+    copy_cmd = " cp {bam_file} {dest} {log}; "
+    if 'resarchivezone' in bam_file: # BAM is stored in iRods archive on hpf
+        copy_cmd = " module load irods_client; iget {bam_file} {dest} {log}; "
+    
+    shell("(" + copy_cmd + ")")
+    
     sort_cmd = ""
-    bamtofastq_cmd = " samtools fastq {bam_file} -1 fastq/{family}_{sample}_R1.fastq.gz -2 fastq/{family}_{sample}_R2.fastq.gz -s /dev/null; "
+    bamtofastq_cmd = " samtools fastq {dest} -1 fastq/{family}_{sample}_R1.fastq.gz -2 fastq/{family}_{sample}_R2.fastq.gz -s /dev/null; "
 
     if snakemake.params.sort_check:
         print("Checking sort_order")
-        bam = pysam.AlignmentFile(bam_file, "rb")
+        bam = pysam.AlignmentFile(dest, "rb")
         header = bam.header
         sort_order = header["HD"]["SO"]
         bam.close()
 
         if sort_order != "queryname":
             print("Sorting by queryname")
-            sort_cmd = "samtools sort -n -@ {snakemake.threads} -T {snakemake.params.outdir}/{snakemake.wildcards.sample} {bam_file} |"
+            sort_cmd = "samtools sort -n -@ {snakemake.threads} -T {snakemake.params.outdir}/{snakemake.wildcards.sample} {dest} |"
             bamtofastq_cmd = "samtools fastq -1 fastq/{family}_{sample}_R1.fastq.gz -2 fastq/{family}_{sample}_R2.fastq.gz -s /dev/null; "
+    
+    rm_cmd="rm fastq/{family}_{sample}.bam;"
 
-    shell("(" + sort_cmd + bamtofastq_cmd + ") {log}")
+    shell("(" + sort_cmd + bamtofastq_cmd + rm_cmd + ") {log}")
 
 elif input_type == ["cram"]:
     print("File type is CRAM")
