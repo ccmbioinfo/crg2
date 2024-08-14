@@ -8,7 +8,7 @@ rule EH:
         bam = "str/EH/{family}_{sample}_realigned.bam"
     params:
         ref = config["ref"]["genome"],
-        sex = lambda w: "`sh {}/scripts/str_helper.sh decoy_rm/{}_{}.no_decoy_reads.bam`".format(workflow.basedir, w.family, w.sample),
+        sex = lambda w: "`sh {}/scripts/str/str_helper.sh decoy_rm/{}_{}.no_decoy_reads.bam`".format(workflow.basedir, w.family, w.sample),
         catalog = config["annotation"]["eh"]["catalog"]
     log:
         "logs/str/{family}_{sample}-EH.log"
@@ -33,11 +33,11 @@ rule EH_report:
     shell:
         '''
         echo "generating multi-sample genotypes" > {log}
-        python {params.crg2}/scripts/generate_EH_genotype_table.generic.py str/EH > {output.tsv}
+        python {params.crg2}/scripts/str/generate_EH_genotype_table.generic.py str/EH > {output.tsv}
         echo "annotating gene name & size threshold" > {log}
-        python {params.crg2}/scripts/add_gene+threshold_to_EH_column_headings2.py {output.tsv} {params.trf} > {output.annot}
+        python {params.crg2}/scripts/str/add_gene+threshold_to_EH_column_headings2.py {output.tsv} {params.trf} > {output.annot}
         echo "generating final xlsx file" > {log}
-        python {params.crg2}/scripts/eh_sample_report.py {output.annot} {params.g1000} {output.xlsx} 
+        python {params.crg2}/scripts/str/eh_sample_report.py {output.annot} {params.g1000} {output.xlsx} 
         prefix=`echo {output.xlsx} | awk '{{split($1,a,".xlsx"); print a[1]; }}'`;
         d=`date +%Y-%m-%d`
         outfile="${{prefix}}.${{d}}.xlsx";
@@ -50,7 +50,7 @@ rule EHdn:
     output:
         json = "str/EHDN/{family}_EHDN_str.tsv"
     params:
-        crg = config["tools"]["crg"],
+        crg2 = config["tools"]["crg2"],
         ehdn = config["tools"]["ehdn"],
         ehdn_files = config["annotation"]["ehdn"]["files"],
         ref = config["ref"]["genome"],
@@ -63,7 +63,7 @@ rule EHdn:
         "../envs/ehdn.yaml"
     shell:
         '''
-        EHDN={params.ehdn} EHDN_files={params.ehdn_files} ref={params.ref} script_dir={params.crg} sh {params.crg}/crg.ehdn.sh {wildcards.family} crg2
+        EHDN={params.ehdn} EHDN_files={params.ehdn_files} ref={params.ref} script_dir={params.crg2}/scripts/str sh {params.crg2}/scripts/str/crg.ehdn.sh {wildcards.family} crg2
         '''
 
 rule EHdn_report:
@@ -72,14 +72,14 @@ rule EHdn_report:
     log: "logs/str/{family}_EHdn_report.log"
     params:
         repdir = "report/str",
-        crg = config["tools"]["crg"],
+        crg2 = config["tools"]["crg2"],
         family = config["run"]["project"],
         outdir = "str/EHDN",
     conda: "../envs/ehdn-report.yaml"
     shell:
         '''
         PATH="/hpf/largeprojects/ccmbio/naumenko/tools/bcbio/bin/:$PATH"
-	sh {params.crg}/ehdn_report.sh {params.family} {params.outdir}
+	sh {params.crg2}/scripts/str/ehdn_report.sh {params.family} {params.outdir}
         date=`date +%Y-%m-%d`;
         f={params.outdir}/outliers/{params.family}.EHDN.${{date}}.xlsx;
         if [ -f $f ]; then 
@@ -88,3 +88,39 @@ rule EHdn_report:
 	    cp {params.repdir}/{params.family}.EHDN.${{date}}.xlsx {params.repdir}/{params.family}.EHDN.xlsx
         else exit; fi;
         '''
+#rule EHDN_outlier:
+#    input: "str/EHDN/{family}_EHDN_str.tsv".format(family=config["run"]["project"])
+#    output: "str/EHDN/{family}_outliers.txt".format(family=config["run"]["project"])
+#    params:
+#        crg = config["tools"]["crg"]
+#    conda: "../envs/ehdn_outlier.yaml"
+#    shell:
+ #       python {params.crg}/scripts/find_outliers.py {input} {output}
+
+
+#rule EHDN_clustering:
+#    input:
+ #       profile = "str/EHDN/{family}_EHDN_str.tsv".format(family=config["run"]["project"])
+ #       outlier = "str/EHDN/{family}_outliers.txt".format(family=config["run"]["project"])
+ #   output:
+ #       outdir = "str/EHDN"
+ #       outlier = "str/EHDN/EHdn.expansions*tsv"
+ #   params:
+ #       crg = config["tools"]["crg"]
+ #   conda: "../envs/ehdn_report.yaml"
+
+ #   shell:
+ #       Rscript {params.crg}/str/DBSCAN.EHdn.parallel.R --infile {input.profile}  --outpath {output.outdir} --outlierlist {input.outlier}
+  #      Rscript {params.crg}/str/mergeExpansions.R --ehdn {input.profile}  --outlier {output.outlier} --outpath {output.outdir}
+    
+#rule EHDN_annovar:
+ #   input: 
+ #       merge_tsv = "str/EHDN/merged.rare.expansions.[0-9]*.tsv | head -n1`
+ #       outlier_tsv =`ls -t str/EHDN/EHdn.expansions*tsv | head -n1`;
+ #   output: 
+  #  params:
+  #      crg = config["tools"]["crg"]
+ #       g1k_manifest = config["tools"]["ehdn"]
+ #   conda: "../envs/ehdn_outlier.yaml"
+ #   shell:
+ #       python  {params.crg}/str/format_for_annovar.py {input.outlier_tsv} {input.merge_tsv} {params.g1k_manifest}
