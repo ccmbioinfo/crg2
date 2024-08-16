@@ -1,0 +1,16 @@
+channels:
+  - bioconda
+  - conda-forge
+dependencies:
+  - r-base=3.4.1
+  - r-dbscan=1.1.5
+  - r-ggplot2=3.1.0
+  - r-data.table=1.11.4
+  - r-doSNOW=1.0.20
+  - r-cowplot=0.9.3
+  - bioconductor-genomicranges=1.32.7
+  - bioconductor-genomeinfodb=1.16.0
+  - bioconductor-genomeinfodbdata=1.1.0
+  - bioconductor-biostrings=2.48.0
+  - numpy
+

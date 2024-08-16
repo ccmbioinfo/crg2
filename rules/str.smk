@@ -31,7 +31,7 @@ rule EH_report:
     conda:
         "../envs/eh-report.yaml"
     shell:
-        '''
+        """
         echo "generating multi-sample genotypes" >> {log}
         python {params.crg2}/scripts/str/generate_EH_genotype_table.generic.py str/EH > {output.tsv}
         echo "annotating gene name & size threshold" >> {log}
@@ -43,7 +43,7 @@ rule EH_report:
         outfile="${{prefix}}.${{d}}.xlsx";
         echo "Copying final report to filaname with timestamp: $outfile" >> {log}
         cp {output.xlsx} $outfile
-        '''
+        """
 
 rule EHdn:
     input: expand("decoy_rm/{family}_{sample}.no_decoy_reads.bam",family=config["run"]["project"], sample=samples.index)
@@ -78,8 +78,8 @@ rule EHdn_report:
     conda: "../envs/ehdn-report.yaml"
     shell:
         '''
-        PATH="/hpf/largeprojects/ccmbio/naumenko/tools/bcbio/bin/:$PATH"
-	sh {params.crg2}/scripts/str/ehdn_report.sh {params.family} {params.outdir}
+        export PATH="/hpf/largeprojects/ccmbio/naumenko/tools/bcbio/bin/:$PATH"
+	    sh {params.crg2}/scripts/str/ehdn_report.sh {params.family} {params.outdir}
         date=`date +%Y-%m-%d`;
         f={params.outdir}/outliers/{params.family}.EHDN.${{date}}.xlsx;
         if [ -f $f ]; then 
@@ -88,7 +88,7 @@ rule EHdn_report:
 	    cp {params.repdir}/{params.family}.EHDN.${{date}}.xlsx {params.repdir}/{params.family}.EHDN.xlsx
         else exit; fi;
         '''
-#rule EHDN_outlier:
+#rule EHDN_mark_outliers:
 #    input: "str/EHDN/{family}_EHDN_str.tsv".format(family=config["run"]["project"])
 #    output: "str/EHDN/{family}_outliers.txt".format(family=config["run"]["project"])
 #    params:
@@ -96,31 +96,36 @@ rule EHdn_report:
 #    conda: "../envs/ehdn_outlier.yaml"
 #    shell:
  #       python {params.crg}/scripts/find_outliers.py {input} {output}
+#rule EHDN_DBSCAN_outlier:
+#    input: 
+#        profile = "str/EHDN/{family}_EHDN_str.tsv".format(family=config["run"]["project"]),
+#        outliers = "str/EHDN/{family}_outliers.txt".format(family=config["run"]["project"]),
+#    output: directory("str/EHDN/outliers")
+#    params: 
+#        crg2=config["tools"]["crg2"]
+#    conda: "../envs/ehdn_dbscan.yaml"
+#    shell:
+#        """
+#        Rscript {params.crg2}/scripts/str/DBSCAN.EHdn.parallel.R --infile {input.profile} --outpath {output} --outlierlist {input.outliers}
+#        outlier_tsv=`ls -t {output}/EHdn.expansions*tsv | head -n1`;
+#        Rscript {params.crg2}/scripts/str/mergeExpansions.R --ehdn {input.profile}  --outlier outlier_tsv --outpath {output}
+#        """
 
 
-#rule EHDN_clustering:
-#    input:
- #       profile = "str/EHDN/{family}_EHDN_str.tsv".format(family=config["run"]["project"])
- #       outlier = "str/EHDN/{family}_outliers.txt".format(family=config["run"]["project"])
- #   output:
- #       outdir = "str/EHDN"
- #       outlier = "str/EHDN/EHdn.expansions*tsv"
- #   params:
- #       crg = config["tools"]["crg"]
- #   conda: "../envs/ehdn_report.yaml"
 
- #   shell:
- #       Rscript {params.crg}/str/DBSCAN.EHdn.parallel.R --infile {input.profile}  --outpath {output.outdir} --outlierlist {input.outlier}
-  #      Rscript {params.crg}/str/mergeExpansions.R --ehdn {input.profile}  --outlier {output.outlier} --outpath {output.outdir}
-    
 #rule EHDN_annovar:
  #   input: 
  #       merge_tsv = "str/EHDN/merged.rare.expansions.[0-9]*.tsv | head -n1`
  #       outlier_tsv =`ls -t str/EHDN/EHdn.expansions*tsv | head -n1`;
  #   output: 
   #  params:
-  #      crg = config["tools"]["crg"]
+  #      crg2 = config["tools"]["crg2"]
  #       g1k_manifest = config["tools"]["ehdn"]
- #   conda: "../envs/ehdn_outlier.yaml"
+ #   conda: "../envs/annovar.yaml"
  #   shell:
- #       python  {params.crg}/str/format_for_annovar.py {input.outlier_tsv} {input.merge_tsv} {params.g1k_manifest}
+ #       """
+       # python  {params.crg2}/str/format_for_annovar.py {input.outlier_tsv} {input.merge_tsv} {params.g1k_manifest}
+       # ${annovar}/table_annovar.pl ${annovar_input} ${annovar_db} -buildver hg19 -outfile "${outfile}-OMIM" -remove --onetranscript --otherinfo -protocol refGene -operation gx -nastring . -xreffile ${omim}
+       # ${annovar}/table_annovar.pl ${annovar_input} ${annovar_db} -buildver hg19 -outfile "${outfile}-gnoMAD" -remove --onetranscript --otherinfo -protocol refGene -operation gx -nastring . -xreffile ${gnomad}
+       # python ${scripts}/format_from_annovar.py ${gnomad_out} ${omim_out} ${xlsx}
+    #"""

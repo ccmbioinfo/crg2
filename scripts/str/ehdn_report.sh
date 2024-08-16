@@ -4,14 +4,14 @@
 #PBS -d .
 
 
-scripts=~/crg/str;
-EHDN_files=/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/ExpansionHunterDenovo;
+scripts=~/crg/str; ###remove###
+EHDN_files=/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/ExpansionHunterDenovo; ###remove### 
 g1k_outlier="${EHDN_files}/1000G_outlier";
 g1k_manifest="${EHDN_files}/manifest.1000G.txt";
 omim=${EHDN_files}/OMIM_hgnc_join_omim_phenos_2023-06-22.tsv;
 gnomad=${EHDN_files}/gnomad.v2.1.1.lof_metrics.by_gene.txt;
-annovar=/hpf/largeprojects/ccm_dccforge/dccdipg/Common/crg2-non-conda-tools/annovar;
-annovar_db=/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/annovar/humandb/;
+annovar=/hpf/largeprojects/ccm_dccforge/dccdipg/Common/crg2-non-conda-tools/annovar; ###remove### 
+annovar_db=/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/annovar/humandb/; ###remove###
 
 family=$1;
 outdir=$2;

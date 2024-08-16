@@ -76,13 +76,13 @@ cat $manifest ${g1k_manifest} > temp && mv temp $manifest;
 
 ##EHDN report per family
 echo "STEP2: generating multi-sample EHDN STR profile and report named ${outdir}/${family}_EHDN_str.tsv"
-module load python/3.7.7
+#module load python/3.7.7
 
 countsfile="${outdir}/${family}_counts.txt";
 profile="${outdir}/${family}_EHDN_str.tsv";
 python ${scripts}/combine_counts.py --manifest $manifest --combinedCounts $countsfile
 python ${scripts}/compare_anchored_irrs.py --manifest $manifest --inputCounts $countsfile --outputRegions $profile --minCount 2 --testMethod normal
-module unload python/3.7.7
+#module unload python/3.7.7
 
 ##add chr to chromosome column
 echo "STEP2.1: add chr prefix to first column ${outdir}/${family}_EHDN_str.tsv"
