@@ -32,16 +32,16 @@ rule EH_report:
         "../envs/eh-report.yaml"
     shell:
         '''
-        echo "generating multi-sample genotypes" > {log}
+        echo "generating multi-sample genotypes" >> {log}
         python {params.crg2}/scripts/str/generate_EH_genotype_table.generic.py str/EH > {output.tsv}
-        echo "annotating gene name & size threshold" > {log}
+        echo "annotating gene name & size threshold" >> {log}
         python {params.crg2}/scripts/str/add_gene+threshold_to_EH_column_headings2.py {output.tsv} {params.trf} > {output.annot}
-        echo "generating final xlsx file" > {log}
+        echo "generating final xlsx file" >> {log}
         python {params.crg2}/scripts/str/eh_sample_report.py {output.annot} {params.g1000} {output.xlsx} 
         prefix=`echo {output.xlsx} | awk '{{split($1,a,".xlsx"); print a[1]; }}'`;
         d=`date +%Y-%m-%d`
         outfile="${{prefix}}.${{d}}.xlsx";
-        echo "Copying final report to filaname with timestamp: $outfile" > {log}
+        echo "Copying final report to filaname with timestamp: $outfile" >> {log}
         cp {output.xlsx} $outfile
         '''
 

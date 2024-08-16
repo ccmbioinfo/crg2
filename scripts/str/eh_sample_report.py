@@ -11,7 +11,8 @@ from collections import namedtuple
 from xlsxwriter.workbook import Workbook
 
 annot_tsv = sys.argv[1] #output from add_gene+threshold_to_EH_column_headings2.py
-xlsx = sys.argv[2] #output xlsx filename
+g1000 = sys.argv[2]
+xlsx = sys.argv[3] #output xlsx filename
 
 def outlier_gt(threshold, gt_dict):
     outlier = []
@@ -52,10 +53,10 @@ def outlier_gt(threshold, gt_dict):
 EH = namedtuple('EH', 'pos, motif, gene, size, gt, mean, std, median')
 
 G1K = {}
-with open(os.path.expanduser("~/crg/1000G_EH_v1.0.tsv")) as f:
+with open(g1000) as f:
     for i in f:
         if not i.startswith("#"):
-            annot, mean, std, median = i.strip().split("\t")
+            annot, mean, median, std = i.strip().split("\t")
             if not annot in G1K:
                 G1K[annot] = [mean, std, median]
 
