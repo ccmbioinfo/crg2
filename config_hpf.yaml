@@ -27,6 +27,7 @@ tools:
   mity: "/hpf/largeprojects/ccmbio/ajain/mity/mity_package/bin"
   melt: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/crg2-non-conda-tools/MELT/MELTv2.2.2/MELT.jar"
   orad: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/crg2-non-conda-tools/orad_2_6_1/orad" 
+  annovar: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/crg2-non-conda-tools/annovar"
 
 
 ref:
@@ -123,6 +124,12 @@ annotation:
     1000g: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/ExpansionHunter/1000G_EH_v1.0.tsv"
   ehdn:
     files: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/ExpansionHunterDenovo/"
+    g1k_outlier: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/ExpansionHunterDenovo/1000G_outlier"
+    g1k_manifest: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/ExpansionHunterDenovo/manifest.1000G.txt"
+    omim: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/ExpansionHunterDenovo/OMIM_hgnc_join_omim_phenos_2023-06-22.tsv"
+    gnomad: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/ExpansionHunterDenovo//gnomad.v2.1.1.lof_metrics.by_gene.txt"
+    annovar_db: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/annovar/humandb/"
+
   cre:
      database_path: "/hpf/largeprojects/ccmbio/naumenko/tools/bcbio/genomes/Hsapiens/GRCh37/variation/"
   melt:
