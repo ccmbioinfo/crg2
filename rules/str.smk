@@ -113,7 +113,7 @@ rule EHDN_DBSCAN_outlier:
         """
         Rscript {params.crg2}/scripts/str/DBSCAN.EHdn.parallel.R --infile {input.profile} --outpath {output} --outlierlist {input.outliers}
         outlier_tsv=`ls -t {output}/EHdn.expansions*tsv | head -n1`;
-        Rscript {params.crg2}/scripts/str/mergeExpansions.R --ehdn {input.profile}  --outlier outlier_tsv --outpath {output}
+        Rscript {params.crg2}/scripts/str/mergeExpansions.R --ehdn {input.profile}  --outlier {{$outlier_tsv}} --outpath {output}
         """
 
 

@@ -5,26 +5,25 @@
 
 if [ -z $EHDN ]
 then
-    EHDN=/hpf/largeprojects/ccmbio/arun/Tools/EHDN.TCAG/ExpansionHunterDenovo-v0.7.0
+    exit;
 fi
 
-if [ -z $EHDN_files ]
+if [ -z ${g1k_manifest} ]
 then
-    EHDN_files=/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/ExpansionHunterDenovo
+    exit;
 fi
 
 if [ -z $ref ]
 then
-    ref=/hpf/largeprojects/ccmbio/naumenko/tools/bcbio/genomes/Hsapiens/GRCh37d5/seq/GRCh37d5.fa
+    exit;
 fi
 
 if [ -z $script_dir ]
 then
-    script_dir=~/cre
+    exit;
 fi
 
 scripts="${script_dir}";
-g1k_manifest="${EHDN_files}/manifest.1000G.txt";
 
 
 
