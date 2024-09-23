@@ -554,7 +554,12 @@ class PTQuery:
             else:
                 members[member]["parents_C4R"] = None
 
-        return members, node_to_C4R[0] 
+        # get proband id
+        proband_id = ped['pedigree']['proband']
+        proband_id = node_to_C4R[proband_id]
+        print(f"Proband in pedigree is {proband_id}")
+        
+        return members, proband_id
 
     def get_sex(self, pid: int) -> str:
         """Get sex of an individual given Phenotips ID of that individual"""

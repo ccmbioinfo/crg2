@@ -7,11 +7,13 @@ import subprocess
 import sys
 
 # creates bam slices for a specified gene and assembly for all alignments in alignment path
-# bam slices are output to /path/to/alignments/bam_slice/
-# usage: python3 bam_slice_by_gene.py -g <gene name> -f <flank size> -a <assembly, either hg19 or hg38> -p  </path/to/alignments>
+# bam slices are output to <current workding directory/bam_slice/
+# assumes you are running script from folder containing bams from which to create slices
+# usage: python3 bam_slice_by_gene.py -g <gene name> -f <flank size> -a <assembly, either hg19 or hg38> -p  <platform>
 
 
 def query_gene(gene, flank, assembly):
+    # query mygene.info with gene name to retrieve gene coordinates
     print(f"Querying mygene.info for gene {gene} coordinates in assembly {assembly}")
     if assembly == "hg19":
         r = requests.get(
@@ -33,50 +35,41 @@ def query_gene(gene, flank, assembly):
         coordinates = r.json()["hits"][0]["genomic_pos"]
     if type(coordinates) != dict:
         for i in coordinates:
-            if i["chr"] in [
-                "1",
-                "2",
-                "3",
-                "4",
-                "5",
-                "6",
-                "7",
-                "8",
-                "9",
-                "10",
-                "11",
-                "12",
-                "13",
-                "14",
-                "15",
-                "16",
-                "17",
-                "18",
-                "19",
-                "20",
-                "21",
-                "22",
-                "X",
-                "Y",
-            ]:
+            chromosomes = [str(chr) for chr in range(1, 23)] + ["X", "Y"]
+            if i["chr"] in chromosomes:
                 coordinates = i
     chr, start, end = coordinates["chr"], coordinates["start"], coordinates["end"]
     flank = int(flank)
     start = start - flank
     end = end + flank
     coordinates = f"{chr}:{start}-{end}"
+    if assembly == "hg38":
+        coordinates = f"chr{coordinates}"
     print(f"{gene} coordinates: {coordinates}")
 
     return coordinates
 
 
-def get_alignments(alignment_folder):
-    alignments = glob.glob(f"{alignment_folder}/*ram")
+def get_alignments(platform):
+    # get bams or crams present in working directory
+    if platform == "PacBio":
+        patterns = ["*haplotagged.bam", "*asm*bam"] # we only want bam slices from haplotagged bam and assembled bam
+        alignments = []
+        for pattern in patterns:
+            alignments.extend(glob.glob(pattern))
+    else:
+        alignments = glob.glob(f"*am")
     return alignments
 
 
-def create_bam_slices(coordinates, alignment, ref, bam_slice_dir, gene=None):
+def create_bam_slices(coordinates, alignment, ref, platform, gene=None):
+    # use samtools to generate bam slices
     sample = os.path.basename(alignment).split(".")[0]
+    if platform == "PacBio":
+        if "asm" in alignment:
+            sample = sample + "_asm"
+        elif "haplotagged" in alignment:
+            sample = sample + "_haplotagged"
     coordinates_name = coordinates.replace(":", "-")
     if gene:
         coordinates_name = f"{coordinates_name}-{gene}"
@@ -87,10 +80,10 @@ def create_bam_slices(coordinates, alignment, ref, bam_slice_dir, gene=None):
         "-T",
         ref,
         "-o",
-        f"{bam_slice_dir}/{sample}_{coordinates_name}.bam",
+        f"bam_slice/{sample}_{coordinates_name}.bam",
         catch_stdout=False,
     )
-    pysam.index(f"{bam_slice_dir}/{sample}_{coordinates_name}.bam")
+    pysam.index(f"bam_slice/{sample}_{coordinates_name}.bam")
 
 
 if __name__ == "__main__":
@@ -126,20 +119,20 @@ if __name__ == "__main__":
         required=True,
         help="Reference assembly version",
     )
-
     parser.add_argument(
         "-p",
-        "--path",
+        "--platform",
         type=str,
         required=True,
-        help="Path to directory containing alignments (BAMs or CRAMs)",
+        choices=["Illumina", "PacBio"],
+        help="Sequencing platform (Illumina or PacBio)"
     )
 
     args = parser.parse_args()
     gene = args.gene
     flank = args.flank
     assembly = args.assembly
-    alignment_folder = args.path
+    platform = args.platform
 
     if not gene:
         coordinates = args.coordinates.replace(",", "")
@@ -160,17 +153,16 @@ if __name__ == "__main__":
     else:
         ref = "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/genomes/GRCh37d5/GRCh37d5.fa"
 
-    bam_slice_dir = os.path.join(alignment_folder, "bam_slice")
-    if not os.path.isdir(bam_slice_dir):
-        os.mkdir(bam_slice_dir)
+    if not os.path.isdir("bam_slice"):
+        os.mkdir("bam_slice")
 
-    # get gene coordinates
-    alignments = get_alignments(alignment_folder)
+    alignments = get_alignments(platform)
+
     if gene:
         coordinates = query_gene(gene, flank, assembly)
         for a in alignments:
-            create_bam_slices(coordinates, a, ref, bam_slice_dir, gene=gene)
+            create_bam_slices(coordinates, a, ref, platform, gene=gene)
 
     else:
         for a in alignments:
-            create_bam_slices(coordinates, a, ref, bam_slice_dir)
+            create_bam_slices(coordinates, a, ref, platform)

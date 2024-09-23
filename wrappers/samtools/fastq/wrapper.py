@@ -48,6 +48,8 @@ with open(snakemake.log[0], "w") as f:
         dest = os.path.join(f"fastq/{family}_{sample}.cram")
 
         copy_cmd = " cp {cram_file} {dest} {log}; "
+        if 'resarchivezone' in cram_file: # CRAM is stored in iRods archive on hpf
+            copy_cmd = " module load irods_client; iget {cram_file} {dest} {log}; "
 
         fastq_cmd = (
             "export REF_CACHE={snakemake.params.ref_cache}; export REF_PATH={snakemake.params.ref_cache}; "
