@@ -2,10 +2,10 @@ rm(list=ls())
 
 #### parameters
 #### to run
-#### Rscript mergeExpansions.R --ehdn /hpf/largeprojects/tcagstor/users/btrost/papers/STRs/Qatar_ASD/output_regions.min2.1000G+SSC+MSSNG+QASD.txt 
-#### --outlier dbscan.tsv --outpath output/
-trf <- "/hpf/largeprojects/ccmbio/aarthi/old_projects/proj_CHEO/CRG/str/ExpansionAnalysisPackage/UCSC_simple_repeats_hg19_coord_motif.tsv"
-source(path.expand("~/crg/str/ExpansionAnalysisFunctions.R"))
+#### Rscript mergeExpansions.R --rscript ~/crg2/scripts/str/ExpansionAnalysis.R --ehdn /hpf/largeprojects/tcagstor/users/btrost/papers/STRs/Qatar_ASD/output_regions.min2.1000G+SSC+MSSNG+QASD.txt 
+#### --outlier dbscan.tsv --outpath output/ --trf /hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/ExpansionHunterDenovo/UCSC_simple_repeats_hg19_coord_motif.tsv
+###trf <- "/hpf/largeprojects/ccmbio/aarthi/old_projects/proj_CHEO/CRG/str/ExpansionAnalysisPackage/UCSC_simple_repeats_hg19_coord_motif.tsv"
+###source(path.expand("~/crg2/str/ExpansionAnalysisFunctions.R"))
 
 #### read arguments from command line
 args = commandArgs(trailingOnly=TRUE)
@@ -30,6 +30,7 @@ for(i in 1:length(paramNames)){
   params[paramNames[i]] <- args[paramValues[i]]
 }
 
+source(path.expand(params$rscript))
 outpath <- params$outpath
 if(length(grep("\\/$", outpath)) == 0){
   outpath <- paste0(outpath, "/")
@@ -74,7 +75,7 @@ queryString <- function(str1, str2){
 #### prepare map TRF
 message(sprintf("reading %s##", params$ehdn))
 ehdn <- fread(params$ehdn)
-trf <- fread(trf)
+trf <- fread(params$trf)
 ehdn <- as.data.frame(ehdn)[, c(1:6)]
 ehdn$repeatID <- paste(ehdn$V1, ehdn$V2, ehdn$V3, ehdn$V4, sep="#")
 names(ehdn) <- c("chr", "start", "end", "motif", "var1", "var2", "repeatID")
@@ -173,7 +174,7 @@ for(i in 1:nrow(olap)){
   expansion.m <- rbind(expansion.m, data.frame(chr, start, end, motif, outliers, stringsAsFactors = F))
 }
 
-write.table(expansion.m, sprintf("%smerged.rare.expansions.%s.tsv", outpath, Sys.Date()), sep="\t", row.names=F, col.names=T, quote=F)
+write.table(expansion.m, sprintf("%smerged.rare.expansions.tsv", outpath), sep="\t", row.names=F, col.names=T, quote=F)
             
 expansion.m$ref <- "0"
 expansion.m$alt <- "-"
@@ -181,8 +182,8 @@ expansion.m$varid <- paste(expansion.m$chr, expansion.m$start, expansion.m$end, 
 names(expansion.m)[1] <- "#chr"
 exp.annovar <- expansion.m[, c("#chr", "start", "end", "ref", "alt", "varid")]
 
-write.table(exp.annovar, sprintf("%smerged.rare.expansions.forannotation.%s.tsv",outpath, Sys.Date()), sep="\t", row.names=F, quote=F, col.names=T)
+write.table(exp.annovar, sprintf("%smerged.rare.expansions.forannotation.tsv",outpath), sep="\t", row.names=F, quote=F, col.names=T)
 #####
 #####
-print("Printing sessioninfo from mergeExpansions.R")
-sessionInfo()
+###print("Printing sessioninfo from mergeExpansions.R")
+###sessionInfo()

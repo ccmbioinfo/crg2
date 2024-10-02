@@ -1,8 +1,8 @@
 rm(list = ls())
 #### to run
 #### Rscript DBSCAN.EHdn.parallel.R --infile /hpf/largeprojects/tcagstor/users/btrost/papers/STRs/Qatar_ASD/output_regions.min2.1000G+SSC+MSSNG+QASD.txt 
-#### --outpath output/ --samplelist samples.txt --outlierlist outliers.txt
-a1000g <- readLines("/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/ExpansionHunterDenovo/1000G.samples.txt")
+#### --outpath output/ --a1000g /hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/ExpansionHunterDenovo/1000G.samples.txt --samplelist samples.txt --outlierlist outliers.txt
+#### a1000g <- readLines("/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/ExpansionHunterDenovo/1000G.samples.txt")
 
 ###("/hpf/largeprojects/tcagstor/users/worrawat/Expansion/1000G.samples.txt")
 
@@ -34,7 +34,7 @@ library(ggplot2)
 library(data.table)
 
 set.seed(2000)
-
+a1000g <- readLines(params$a1000g)
 outpath <- params$outpath
 if(length(grep("\\/$", outpath)) == 0){
   outpath <- paste0(outpath, "/")
@@ -161,9 +161,10 @@ get1000Freq <- function(outlier, fam.1000g){
 dt.out$a1000g_freq_perc <- sapply(as.character(dt.out$outliers), get1000Freq, a1000g)
 
 stopCluster(cl) 
-write.table(dt.out, sprintf("%sEHdn.expansions.%s.tsv", outpath, Sys.Date()), sep="\t", row.names=F, col.names=T, quote=F)
+#write.table(dt.out, sprintf("%sEHdn.expansions.%s.tsv", outpath, Sys.Date()), sep="\t", row.names=F, col.names=T, quote=F)
+write.table(dt.out, params$exp, sep="\t", row.names=F, col.names=T, quote=F)
 time.end <- Sys.time()
 print(difftime(time.end, time.start))
 
-print("Printing	sessioninfo from DBSCAN.EHdn.parallel.R")
-sessionInfo()
+#print("Printing	sessioninfo from DBSCAN.EHdn.parallel.R")
+#sessionInfo()

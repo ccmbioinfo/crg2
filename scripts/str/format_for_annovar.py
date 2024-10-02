@@ -19,9 +19,9 @@ python format_for_annovar.py EHdn.expansions.2021-02-18.tsv merged.rare.expansio
 ehdn_out = sys.argv[1]
 dbscan_out = sys.argv[2]
 g1k_manifest = sys.argv[3]
-date = ehdn_out.split(".")[-2]
+#date = ehdn_out.split(".")[-2]
 d = os.path.dirname(dbscan_out)
-outfile = os.path.join(d,"merged.rare.EHdn.expansion." + date + ".tsv")
+outfile = os.path.join(d,"merged.rare.EHdn.expansion.tsv")
 samples = []
 print("input files: ", ehdn_out, dbscan_out, g1k_manifest)
 print("out:", outfile)
