@@ -158,7 +158,7 @@ rule EHDN_annovar:
         annovar_db = config["annotation"]["ehdn"]["annovar_db"],
         omim = config["annotation"]["ehdn"]["omim"],
         gnomad = config["annotation"]["ehdn"]["gnomad"],
-        prefix = "str/EHDN/merged.rare.EHdn.expansion"
+        prefix = "str/EHDN/outliers/merged.rare.EHdn.expansion"
     conda: "../envs/eh-report.yaml"
     shell:
         """
