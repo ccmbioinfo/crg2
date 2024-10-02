@@ -88,6 +88,7 @@ rule EHdn:
 #	    cp {params.repdir}/{params.family}.EHDN.${{date}}.xlsx {params.repdir}/{params.family}.EHDN.xlsx
 #        else exit; fi;
 #        '''
+
 rule EHDN_mark_outliers:
     input: "str/EHDN/{family}_EHDN_str.tsv".format(family=config["run"]["project"])
     output: "str/EHDN/{family}_outliers.txt".format(family=config["run"]["project"])
@@ -101,49 +102,68 @@ rule EHDN_mark_outliers:
         python {params.crg2}/scripts/str/find_outliers.py {input} {output}
         cat {output} {params.g1k_outlier} > temp && mv temp {output}
         """
+
 rule EHDN_DBSCAN_outlier:
     input: 
         profile = "str/EHDN/{family}_EHDN_str.tsv".format(family=config["run"]["project"]),
         outliers = "str/EHDN/{family}_outliers.txt".format(family=config["run"]["project"]),
-    output: directory("str/EHDN/outliers")
+    output: 
+        clean="str/EHDN/outliers/clean.samples.txt",
+        expansions="str/EHDN/outliers/EHdn.expansions.tsv",
+        tr="str/EHDN/outliers/samples.with.TRcount.txt"
+
     params: 
-        crg2=config["tools"]["crg2"]
+        outdir="str/EHDN/outliers",
+        crg2=config["tools"]["crg2"],
+        trf=config["annotation"]["ehdn"]["trf"],
+        g1k_samples=config["annotation"]["ehdn"]["g1k_samples"]
     conda: "../envs/ehdn-dbscan.yaml"
     shell:
         """
-        Rscript {params.crg2}/scripts/str/DBSCAN.EHdn.parallel.R --infile {input.profile} --outpath {output} --outlierlist {input.outliers}
+        Rscript {params.crg2}/scripts/str/DBSCAN.EHdn.parallel.R --infile {input.profile} --outpath {params.outdir} --outlierlist {input.outliers} --a1000g {params.g1k_samples} --exp {output.expansions}
         echo "Finished running DBSCAN.EHdn.parallel.R";
-        outlier_tsv=`find {output} -name "EHdn.expansions*tsv"`;
-        echo "Passing $outlier_tsv to mergeExpansions.R";
-        Rscript {params.crg2}/scripts/str/mergeExpansions.R --ehdn {input.profile}  --outlier {{$outlier_tsv}} --outpath {output}
+        echo "`ls {params.outdir}`";
+        
+        """
+
+rule EHDN_merge_expansions:
+    input: "str/EHDN/outliers/EHdn.expansions.tsv", "str/EHDN/{family}_EHDN_str.tsv".format(family=config["run"]["project"])
+    output:  "str/EHDN/outliers/merged.rare.expansions.tsv","str/EHDN/outliers/merged.rare.expansions.forannotation.tsv",
+            "str/EHDN/outliers/map.TRF.EHdn.0.66.tsv", "str/EHDN/outliers/merged.ehdn.tsv", 
+    params: 
+        outdir="str/EHDN/outliers",
+        crg2=config["tools"]["crg2"],
+        trf=config["annotation"]["ehdn"]["trf"],
+        g1k_samples=config["annotation"]["ehdn"]["g1k_samples"]
+    conda: "../envs/ehdn-dbscan.yaml"
+    shell:
+        """
+        Rscript {params.crg2}/scripts/str/mergeExpansions.R --rscript {params.crg2}/scripts/str/ExpansionAnalysisFunctions.R --ehdn {input[1]}  --trf {params.trf} --outlier {input[0]} --outpath {params.outdir}
         """
 
 
-
-#rule EHDN_annovar:
- #   input: 
- #       merge_tsv = "str/EHDN/merged.rare.expansions.[0-9]*.tsv | head -n1`
- #       outlier_tsv =`ls -t str/EHDN/EHdn.expansions*tsv | head -n1`;
- #   output: 
- #          merged_rare_exp = "str/EHDN/merged.rare.EHdn.expansion.[0-9]*.tsv",
- #          omim_out = "str/EHDN/merged.rare.EHdn.expansion.[0-9]*-OMIM.hg19_multianno.txt",
- #          gnomad_out = "str/EHDN/merged.rare.EHdn.expansion.[0-9]*-gnoMAD.hg19_multianno.txt",
- #          xlsx="report/str/{family}.EHDN.xlsx"
- 
-
-
-  #  params:
-  #      crg2 = config["tools"]["crg2"]
- #       g1k_manifest = config["annotation"]["ehdn"]["g1k_manifest"],
- #       annovar = config["tools"]["annovar"],
- #       annovar_db = config["annotation"]["ehdn"]["annovar_db"],
-#        omim = config["annotation"]["ehdn"]["omim"],
-#        gnomad = config["annotation"]["ehdn"]["gnomad"],
- #   conda: "../envs/eh-report.yaml"
- #   shell:
- #       """
-       # python  {params.crg2}/scripts/str/format_for_annovar.py {input.outlier_tsv} {input.merge_tsv} {params.g1k_manifest}
-       # {params.annovar}/table_annovar.pl ${annovar_input} {params.annovar_db} -buildver hg19 -outfile "${outfile}-OMIM" -remove --onetranscript --otherinfo -protocol refGene -operation gx -nastring . -xreffile {params.omim}
-       # {params.annovar}/table_annovar.pl ${annovar_input} {params.annovar_db} -buildver hg19 -outfile "${outfile}-gnoMAD" -remove --onetranscript --otherinfo -protocol refGene -operation gx -nastring . -xreffile {params.gnomad}
-       # python ${scripts}/format_from_annovar.py ${gnomad_out} ${omim_out} ${xlsx}
-    #"""
+rule EHDN_annovar:
+    input: 
+        merged_exp = "str/EHDN/outliers/merged.rare.expansions.tsv",
+        ehdn_exp = "str/EHDN/outliers/EHdn.expansions.tsv"
+    output: 
+        merged_rare_exp = "str/EHDN/outliers/merged.rare.EHdn.expansion.tsv",
+        omim_out = "str/EHDN/outliers/merged.rare.EHdn.expansion-OMIM.hg19_multianno.txt",
+        gnomad_out = "str/EHDN/outliers/merged.rare.EHdn.expansion-gnoMAD.hg19_multianno.txt",
+        xlsx="report/str/{family}.EHDN.xlsx".format(family=config["run"]["project"])
+    params:
+        crg2 = config["tools"]["crg2"],
+        g1k_manifest = config["annotation"]["ehdn"]["g1k_manifest"],
+        annovar = config["tools"]["annovar"],
+        annovar_db = config["annotation"]["ehdn"]["annovar_db"],
+        omim = config["annotation"]["ehdn"]["omim"],
+        gnomad = config["annotation"]["ehdn"]["gnomad"],
+        prefix = "str/EHDN/merged.rare.EHdn.expansion"
+    conda: "../envs/eh-report.yaml"
+    shell:
+        """
+            python  {params.crg2}/scripts/str/format_for_annovar.py {input.ehdn_exp} {input.merged_exp} {params.g1k_manifest}
+            {params.annovar}/table_annovar.pl {output.merged_rare_exp} {params.annovar_db} -buildver hg19 -outfile {params.prefix}"-OMIM" -remove --onetranscript --otherinfo -protocol refGene -operation gx -nastring . -xreffile {params.omim}
+            {params.annovar}/table_annovar.pl {output.merged_rare_exp} {params.annovar_db} -buildver hg19 -outfile {params.prefix}"-gnoMAD" -remove --onetranscript --otherinfo -protocol refGene -operation gx -nastring . -xreffile {params.gnomad}
+            python {params.crg2}/scripts/str/format_from_annovar.py {output.gnomad_out} {output.omim_out} {output.xlsx}
+        """
