@@ -1,8 +1,8 @@
 # ExpansionHunterDenovo version: 
     - location of the executable v0.7.0 is hard-coded in `config.yaml` file at
-    config['tools']['ehdn']: "/hpf/largeprojects/ccmbio/arun/Tools/EHDN.TCAG/ExpansionHunterDenovo-v0.7.0". This version is not availble from GitHub or conda anymore, and the 1000G profiles from Brett Trost are based on this, so keeping this version as is.
+    config['tools']['ehdn']: "/hpf/largeprojects/ccmbio/arun/Tools/EHDN.TCAG/ExpansionHunterDenovo-v0.7.0". This version is not available from GitHub or conda anymore, and the 1000G profiles from Brett Trost are based on this, so keeping this version as is.
 
-# Scripts:
+# Description of scripts used before the changes:
 ## R scripts:
 
 1. scripts are fetched from `crg/str` repo
@@ -22,6 +22,25 @@
 6. ~/crg/str/add_gene+threshold_to_EH_column_headings2.py: argparse
 7. ~/crg/str/format_for_annovar.py: collections, re
 8. ~/crg/str/format_from_annovar.py: pandas, xlsxwriter
-    
+
+
+# Summary of changes related to issue 142:
+1. Moved all required scripts from `~/crg` and `~/cre` to `~/crg2/scripts/str`
+2. Removed hard-coded paths from str related scripts and added them to `config.yaml` to be passed as arguments via snakemake params.
+3. Moved following annotations and tools to /hpf/largeprojects/ccm_dccforge/dccdipg/Common/:
+    annotation/ExpansionHunterDenovo/UCSC_simple_repeats_hg19_coord_motif.tsv
+    crg2-non-conda-tools/EHDN.TCAG/ExpansionHunterDenovo-v0.7.0
+    annotation/ExpansionHunterDenovo/1000G_JSON
+    updated annotation/ExpansionHunterDenovo/manifest.1000G.txt
+4. Split the single "EHdn_report" rule into four, with separate env for each rule 
+    - EHDN_mark_outliers: 
+    - EHDN_DBSCAN_outlier
+    - EHDN_merge_expansions
+    - EHDN_annovar
+4. Created `envs/ehdn-dbscan.yaml` for rules "EHDN_DBSCAN_outlier" and "EHDN_merge_expansions". The version of the R-packages are not the same as in `ccmmarvin`. If I constrain them by version available via 'ccmmarvin`, then conda fails to create env due to conflicts. The versions installed on ccmmarvin were done manually in 2020, not via conda
+5. Fixed minor bugs, and removed unwanted yaml. 
+6. Edited above R scripts to remove hard-coded file paths, add command-line arguments, and removed  suffixing output with date, as the Snakemake rule requires the output names be known before execution (using dynamic only works if all outputs from a rule are dynamic)
+7. Tested with NA12878, C4R sample: and outputs were same before and after changes.
+
 
 
