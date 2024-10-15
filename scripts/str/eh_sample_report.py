@@ -11,7 +11,7 @@ from collections import namedtuple
 from xlsxwriter.workbook import Workbook
 
 annot_tsv = sys.argv[1] #output from add_gene+threshold_to_EH_column_headings2.py
-g1000 = sys.argv[2] #median/mean/std GT sizes from 1000G EH 
+g1000 = sys.argv[2]
 xlsx = sys.argv[3] #output xlsx filename
 
 def outlier_gt(threshold, gt_dict):
@@ -23,6 +23,8 @@ def outlier_gt(threshold, gt_dict):
         y = x.split("/") if "/" in x else x
         if not "." in y:
             y = max(list(map(int,y))) if isinstance(y,list) else int(y)
+        else:
+            return " "
         if y:
             if "(" in threshold or " " in threshold:
                 continue
@@ -54,7 +56,7 @@ G1K = {}
 with open(g1000) as f:
     for i in f:
         if not i.startswith("#"):
-            annot, mean, std, median = i.strip().split("\t")
+            annot, mean, median, std = i.strip().split("\t")
             if not annot in G1K:
                 G1K[annot] = [mean, std, median]
 
@@ -93,7 +95,6 @@ header = ["#location", "repeat motif", "gene", "disease threshold"] + ["GT."+i f
 worksheet.write_row(0, 0, header)
 row = 1
 for i in trf:
-        # for i in eh_gt[sample]:
         info = trf[i][samples[0]]
         content = [info.pos, info.motif, info.gene, info.size]
         content += [ trf[i][s].gt for s in samples ]          
