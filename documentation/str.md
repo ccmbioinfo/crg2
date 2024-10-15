@@ -39,7 +39,7 @@
 4. Created `envs/ehdn-dbscan.yaml` for rules "EHDN_DBSCAN_outlier" and "EHDN_merge_expansions". The version of the R-packages are not the same as in `ccmmarvin`. If I constrain them to versions available in 'ccmmarvin`, then conda fails to create env due to conflicts. The versions installed on ccmmarvin were done manually in 2020, not via conda, 
 5. Fixed minor bugs, and removed unwanted yaml. 
 6. Edited above R scripts to remove hard-coded file paths, add command-line arguments, and removed  suffixing output with date, as the Snakemake rule requires the output names be known before execution (using dynamic only works if all outputs from a rule are dynamic)
-7. Tested with NA12878, C4R sample: and outputs were same before and after changes.
+7. Tested with NA12878
 
 
 
