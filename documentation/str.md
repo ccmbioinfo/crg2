@@ -1,20 +1,19 @@
 # ExpansionHunterDenovo version: 
-    - location of the executable v0.7.0 is hard-coded in `config.yaml` file at
-    config['tools']['ehdn']: "/hpf/largeprojects/ccmbio/arun/Tools/EHDN.TCAG/ExpansionHunterDenovo-v0.7.0". This version is not available from GitHub or conda anymore, and the 1000G profiles from Brett Trost are based on this, so keeping this version as is.
+    EHDN v0.7.0 is not available from GitHub or conda anymore, and the 1000G profiles from Brett Trost are based on this, so keeping this version; tool path in 'config.yaml' is updated to
+    `config['tools']['ehdn']: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/crg2-non-conda-tools/EHDN.TCAG/ExpansionHunterDenovo-v0.7.0"`
 
 # Description of scripts used before the changes:
-## R scripts:
+## BASH and R scripts:
 
 1. scripts are fetched from `crg/str` repo
-2. ~/crg/crg.ehdn.sh: runs the EHDN with many checks/searches for the relevant bam files based on run type: exome/genome and cre/crg/crg2 pipeline directory structures
+2. ~/crg/crg.ehdn.sh: runs  EHDN with many checks/searches for the relevant bam files based on run type: exome/genome and cre/crg/crg2 pipeline directory structures
 3. ~/crg/ehdn_report.sh: main script that uses all the R packages from ~/crg/str, 1000G EHDN profiles, and generates script
     - ~/crg/str/DBSCAN.EHdn.parallel.R: library(dbscan), library(ggplot2), library(data.table), library(parallel), library(doSNOW)
     - ~/crg/str//mergeExpansions.R: library(data.table), library(GenomicRanges), library(ggplot2), library(cowplot), library(Biostrings)
     
 
-
 ## Python scripts:
-1. ~/crg/str/compare_anchored_irrs.py: depends on "core" package local present
+1. ~/crg/str/compare_anchored_irrs.py: depends on "core" package  present locally
 2. ~/crg/str/find_outliers.py: numpy, matplotlib
 3. ~/crg/str/generate_EH_genotype_table.generic.py: argparse, glob, BTlib(local), collections, pandas, path
 4. ~/crg/str/combine_counts.py: argparse, json, core(local)
@@ -37,7 +36,7 @@
     - EHDN_DBSCAN_outlier
     - EHDN_merge_expansions
     - EHDN_annovar
-4. Created `envs/ehdn-dbscan.yaml` for rules "EHDN_DBSCAN_outlier" and "EHDN_merge_expansions". The version of the R-packages are not the same as in `ccmmarvin`. If I constrain them by version available via 'ccmmarvin`, then conda fails to create env due to conflicts. The versions installed on ccmmarvin were done manually in 2020, not via conda
+4. Created `envs/ehdn-dbscan.yaml` for rules "EHDN_DBSCAN_outlier" and "EHDN_merge_expansions". The version of the R-packages are not the same as in `ccmmarvin`. If I constrain them to versions available in 'ccmmarvin`, then conda fails to create env due to conflicts. The versions installed on ccmmarvin were done manually in 2020, not via conda, 
 5. Fixed minor bugs, and removed unwanted yaml. 
 6. Edited above R scripts to remove hard-coded file paths, add command-line arguments, and removed  suffixing output with date, as the Snakemake rule requires the output names be known before execution (using dynamic only works if all outputs from a rule are dynamic)
 7. Tested with NA12878, C4R sample: and outputs were same before and after changes.
