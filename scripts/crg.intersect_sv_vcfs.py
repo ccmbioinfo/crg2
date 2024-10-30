@@ -135,7 +135,7 @@ def main(
             "gnomAD_FREQ_HOMREF",
             "gnomAD_FREQ_HET",
             "gnomAD_FREQ_HOMALT",
-            "gnomAD_POPMAX_AF",
+            "gnomAD_GRPMAX_AF",
             "DDD_disease",
             "DDD_mode",
             "DDD_pmids",
@@ -201,7 +201,7 @@ def main(
         "gnomAD_FREQ_HOMREF",
         "gnomAD_FREQ_HET",
         "gnomAD_FREQ_HOMALT",
-        "gnomAD_POPMAX_AF",
+        "gnomAD_GRPMAX_AF",
     ]
     non_numeric = [col for col in sv_records.df.columns if col not in numeric]
     for col in numeric:
