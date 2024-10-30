@@ -481,6 +481,7 @@ class SVAnnotator:
             "FREQ_HET",
             "FREQ_HOMALT",
             "GRPMAX_AF",
+            "FILTER",
         ]
         gnomad_ann_cols = [
             "gnomAD_SVTYPE",
@@ -494,6 +495,7 @@ class SVAnnotator:
             "gnomAD_FREQ_HET",
             "gnomAD_FREQ_HOMALT",
             "gnomAD_GRPMAX_AF",
+            "gnomAD_FILTER"
         ]
         gnomad_df = pd.read_csv(gnomad, sep="\t", dtype="str").astype(str)
         gnomad_df.columns = gnomad_df.columns.str.replace("#", "")

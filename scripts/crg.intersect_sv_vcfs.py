@@ -136,6 +136,7 @@ def main(
             "gnomAD_FREQ_HET",
             "gnomAD_FREQ_HOMALT",
             "gnomAD_GRPMAX_AF",
+            "gnomAD_FILTER",
             "DDD_disease",
             "DDD_mode",
             "DDD_pmids",
