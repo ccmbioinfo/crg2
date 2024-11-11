@@ -24,6 +24,9 @@ tools:
   crg2: "/srv/shared/pipelines/crg2"
   ehdn: "/srv/shared/data/dccdipg/crg2-non-conda-tools/EHDN/ExpansionHunterDenovo-v0.7.0"
   mity: ""
+  melt: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/crg2-non-conda-tools/MELT/MELTv2.2.2/MELT.jar"
+  orad: "/srv/shared/data/dccdipg/crg2-non-conda-tools/orad_2_6_1/orad" 
+  annovar: "/srv/shared/data/dccdipg/crg2-non-conda-tools/annovar"
 
 ref:
   name: GRCh37.75
@@ -37,6 +40,8 @@ ref:
   gatk-known: "/srv/shared/data/dccdipg/annotation/vcfanno/Mills_and_1000G_gold_standard.indels.vcf.gz"
   ref_cache: "/srv/shared/data/dccdipg/genomes/GRCh37d5/REF_CACHE/cache/%2s/%2s/%s:/srv/shared/data/dccdipg/genomes/hg19/REF_CACHE/cache/%2s/%2s/%s"
   bed_index: "/srv/shared/data/dccdipg/genomes/GRCh37/GRCh37.fa.bedtoolsindex"
+  melt_element_ref: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/MELT/transposon_file_list.txt"
+  orad_ref: "/srv/shared/data/dccdipg/crg2-non-conda-tools/orad_2_6_1/oradata"
 
 filtering:
   vqsr: false
@@ -107,6 +112,7 @@ annotation:
     exac: "/srv/shared/data/dccdipg/annotation/ExAC/fordist_cleaned_nonpsych_z_pli_rec_null_data.txt"
     omim: "/srv/shared/data/dccdipg/annotation/OMIM_2024-02-06/genemap2.txt"
     gnomad: "/srv/shared/data/dccdipg/annotation/gnomad_v2_sv.sites.bed"
+    gnomad_ins: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/MELT/gnomad_v2_sv.sites.INS.bed"
     biomart: "/srv/shared/data/dccdipg/annotation/BioMaRt.GrCh37.75.ensembl.mim.hgnc.entrez.txt"
     mssng_manta_counts: "/srv/shared/data/dccdipg/annotation/MSSNG_COUNTS/Canadian_MSSNG_parent_SVs.Manta.counts.txt"
     mssng_lumpy_counts: "/srv/shared/data/dccdipg/annotation/MSSNG_COUNTS/Canadian_MSSNG_parent_SVs.LUMPY.counts.txt"
@@ -116,8 +122,17 @@ annotation:
     1000g: "/srv/shared/data/dccdipg/annotation/ExpansionHunter/1000G_EH_v1.0.tsv"
   ehdn:
     files: "/srv/shared/data/dccdipg/annotation/ExpansionHunterDenovo/"
+    g1k_outlier: "/srv/shared/data/dccdipg/annotation/ExpansionHunterDenovo/1000G_outlier"
+    g1k_manifest: "/srv/shared/data/dccdipg/annotation/ExpansionHunterDenovo/manifest.1000G.txt"
+    g1k_samples: "/srv/shared/data/dccdipg/annotation/ExpansionHunterDenovo/1000G.samples.txt"
+    trf: "/srv/shared/data/dccdipg/annotation/ExpansionHunterDenovo/UCSC_simple_repeats_hg19_coord_motif.tsv"
+    omim: "/srv/shared/data/dccdipg/annotation/ExpansionHunterDenovo/OMIM_hgnc_join_omim_phenos_2024-02-06.tsv"
+    gnomad: "/srv/shared/data/dccdipg/annotation/ExpansionHunterDenovo//gnomad.v2.1.1.lof_metrics.by_gene.txt"
+    annovar_db: "/srv/shared/data/dccdipg/annotation/annovar/humandb/"
   cre:
     database_path: "/srv/shared/data/dccdipg/annotation/C4R_database/"
+  melt:
+    genes: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/crg2-non-conda-tools/MELT/MELTv2.2.2/add_bed_files/1KGP_Hg19/hg19.genes.bed"
 
 validation:
   benchmark: "benchmark_cheo_ri.tsv"

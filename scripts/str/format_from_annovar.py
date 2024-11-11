@@ -1,3 +1,4 @@
+from datetime import date
 import pandas as pd, sys
 import xlsxwriter
 
@@ -44,3 +45,8 @@ output_columns += ['chr#start#end', 'a1000g_freq_perc', 'GeneDetail','ExonicFunc
 if not ".xlsx" in outfile:
     outfile = outfile + ".xlsx"
 annot_rare.to_excel(outfile, index=False)
+today = date.today().strftime("%Y-%m-%d")
+outfile_prefix = outfile.replace(".xlsx", "") 
+outfile = f"{outfile_prefix}.{today}.xlsx"
+annot_rare.to_excel(outfile, index=False)
+

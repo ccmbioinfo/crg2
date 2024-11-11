@@ -128,7 +128,7 @@ annotation:
     g1k_manifest: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/ExpansionHunterDenovo/manifest.1000G.txt"
     g1k_samples: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/ExpansionHunterDenovo/1000G.samples.txt"
     trf: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/ExpansionHunterDenovo/UCSC_simple_repeats_hg19_coord_motif.tsv"
-    omim: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/ExpansionHunterDenovo/OMIM_hgnc_join_omim_phenos_2023-06-22.tsv"
+    omim: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/ExpansionHunterDenovo/OMIM_hgnc_join_omim_phenos_2024-02-06.tsv"
     gnomad: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/ExpansionHunterDenovo//gnomad.v2.1.1.lof_metrics.by_gene.txt"
     annovar_db: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/annovar/humandb/"
 
