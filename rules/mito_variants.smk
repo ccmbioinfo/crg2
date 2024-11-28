@@ -3,7 +3,7 @@ rule mity_call:
     input:
         bam=[expand("recal/{family}_{sample}.bam".format(family=config["run"]["project"], sample=s)) for s in samples.index]
     output:
-        protected("mitochondrial_variants/{family}.pre-normalised.mity.vcf.gz")
+        protected("mitochondrial_variants/{family}.pre-normalised.mity.call.vcf.gz")
     params:
         outdir="mitochondrial_variants/",
         prefix="{family}.pre-normalised",
@@ -15,9 +15,9 @@ rule mity_call:
 
 rule mity_normalise:
     input:
-        "mitochondrial_variants/{family}.pre-normalised.mity.vcf.gz"
+        "mitochondrial_variants/{family}.pre-normalised.mity.call.vcf.gz"
     output:
-        protected("mitochondrial_variants/{family}.normalised.mity.vcf.gz")
+        protected("mitochondrial_variants/{family}.normalise.vcf.gz")
     params:
         tool=config["tools"]["mity"]
     log:
@@ -27,7 +27,7 @@ rule mity_normalise:
 
 rule mito_vcfanno:
     input:
-        "mitochondrial_variants/{family}.normalised.mity.vcf.gz"
+        "mitochondrial_variants/{family}.normalise.vcf.gz"
     output:
         "mitochondrial_variants/vcfanno/{family}.normalised.mity.vcfanno.vcf"
     log:
