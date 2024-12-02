@@ -498,12 +498,6 @@ class SVAnnotator:
             "gnomAD_FILTER"
         ]
         gnomad_df = pd.read_csv(gnomad, sep="\t", dtype="str").astype(str)
-        gnomad_df.columns = gnomad_df.columns.str.replace("#", "")
-        gnomad_df.columns = gnomad_df.columns.str.strip()
-        gnomad_df.rename({"chrom": "CHROM", "start": "START", "end": "END", "name": "NAME", "svtype": "SVTYPE", "samples": "SAMPLES" }, axis=1, inplace=True)
-        gnomad_df["CHROM"] = gnomad_df["CHROM"].str.replace("chr", "")
-        # in gnomAD v4.1 bed file, 'END' and 'SVTYPE' columns are duplicated
-        gnomad_df = gnomad_df.loc[:, ~gnomad_df.columns.duplicated()]
         gnomad_df = gnomad_df[gnomad_cols]
         gnomad_bed = BedTool(gnomad_df.itertuples(index=False))
 
