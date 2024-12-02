@@ -1,5 +1,5 @@
 import pandas as pd
-from os import mkdir, path
+from os import mkdir, path, environ
 from shutil import move
 from pathlib import Path
 from datetime import date
@@ -228,6 +228,7 @@ def main(
 if __name__ == "__main__":
 
     report_dir = snakemake.output[0]
+    environ['TMPDIR'] = report_dir
     metasv = [vcf for vcf in snakemake.input if "metasv" in vcf]
     manta = [vcf for vcf in snakemake.input if "manta" in vcf]
 
