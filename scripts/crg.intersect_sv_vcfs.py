@@ -1,5 +1,5 @@
 import pandas as pd
-from os import mkdir, path
+from os import mkdir, path, environ
 from shutil import move
 from pathlib import Path
 from datetime import date
@@ -135,7 +135,8 @@ def main(
             "gnomAD_FREQ_HOMREF",
             "gnomAD_FREQ_HET",
             "gnomAD_FREQ_HOMALT",
-            "gnomAD_POPMAX_AF",
+            "gnomAD_GRPMAX_AF",
+            "gnomAD_FILTER",
             "DDD_disease",
             "DDD_mode",
             "DDD_pmids",
@@ -201,7 +202,7 @@ def main(
         "gnomAD_FREQ_HOMREF",
         "gnomAD_FREQ_HET",
         "gnomAD_FREQ_HOMALT",
-        "gnomAD_POPMAX_AF",
+        "gnomAD_GRPMAX_AF",
     ]
     non_numeric = [col for col in sv_records.df.columns if col not in numeric]
     for col in numeric:
@@ -227,6 +228,7 @@ def main(
 if __name__ == "__main__":
 
     report_dir = snakemake.output[0]
+    environ['TMPDIR'] = report_dir
     metasv = [vcf for vcf in snakemake.input if "metasv" in vcf]
     manta = [vcf for vcf in snakemake.input if "manta" in vcf]
 
