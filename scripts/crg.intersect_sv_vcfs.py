@@ -36,11 +36,6 @@ def main(
 ):
     SVScore_cols = [
         "variants/SVLEN",
-        "variants/SVSCORESUM",
-        "variants/SVSCOREMAX",
-        "variants/SVSCORETOP5",
-        "variants/SVSCORETOP10",
-        "variants/SVSCOREMEAN",
     ]
     MetaSV_col = "variants/NUM_SVTOOLS"
     HPO_cols = ["N_UNIQUE_HPO_TERMS", "HPO Features", "N_GENES_IN_HPO", "Genes in HPO"]
