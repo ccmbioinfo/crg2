@@ -135,20 +135,6 @@ properties:
         required:
           - dataDir
 
-      svscore:
-        type: object
-        properties:
-          exon_bed:
-            type: string
-          intron_bed:
-            type: string
-          cadd:
-            type: string
-        required:
-          - exon_bed
-          - intron_bed
-          - cadd
-
       svreport:
         type: object
         properties:
