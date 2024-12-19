@@ -17,7 +17,6 @@ genes:
   hgnc: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/HGNC_20210617.txt"
 
 tools:
-  svscore_script: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/crg2-non-conda-tools/SVScore/svscore.pl"
   annotsv: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/crg2-non-conda-tools/AnnotSV_2.1"
   cre: "~/cre"
   crg: "~/crg"
@@ -102,10 +101,6 @@ annotation:
     dir_cache: "/hpf/largeprojects/ccmbio/nhanafi/c4r/downloads/databases/vep"
   snpeff:
     dataDir: "/hpf/largeprojects/ccmbio/nhanafi/c4r/downloads/databases/snpeff/data"
-  svscore:
-    exon_bed: "/hpf/largeprojects/ccmbio/nhanafi/c4r/downloads/databases/svscore/refGene.txt.exons.bed.gz"
-    intron_bed: "/hpf/largeprojects/ccmbio/nhanafi/c4r/downloads/databases/svscore/refGene.txt.introns.bed.gz"
-    cadd: "/hpf/largeprojects/ccmbio/nhanafi/c4r/downloads/databases/CADD_v1.6_whole_genome_SNVs.tsv.gz"
   svreport:
     reference: GRCh38
     hgmd: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/HGMD_2018/hgmd_pro.db"
@@ -172,8 +167,6 @@ params:
     config: "~/crg2/rules/multiqc_config.yaml"
   snpeff:
     java_opts: "-Xms750m -Xmx20g"
-  svscore:
-    operations: "max,sum,top5,top10,mean"
   samtools:
     mpileup: " -t DP -t AD -u -g "
   bcftools:

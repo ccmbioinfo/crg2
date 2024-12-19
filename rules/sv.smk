@@ -105,28 +105,3 @@ rule snpeff:
     wrapper:
         get_wrapper_path("snpeff")
 
-rule svscore:
-    input:
-        "sv/{tool}/{family}_{sample}/variants.snpeff.vcf"
-    output:
-        "sv/{tool}/{family}_{sample}/variants.snpeff.svscore.vcf"
-    log:
-        "logs/svscore/{tool}/{family}_{sample}.log"
-    params:
-        svscore_script=config["tools"]["svscore_script"],
-        operations=config["params"]["svscore"]["operations"],
-        exon_bed=config["annotation"]["svscore"]["exon_bed"],
-	intron_bed=config["annotation"]["svscore"]["intron_bed"],
-	cadd=config["annotation"]["svscore"]["cadd"],
-    conda:
-        "../envs/svscore.yaml"
-    shell:
-        """
-        perl -w {params.svscore_script} \
-        -o {params.operations} \
-        -e {params.exon_bed} \
-        -f {params.intron_bed} \
-        -c {params.cadd} \
-        -i {input[0]} \
-        > {output[0]}
-        """
