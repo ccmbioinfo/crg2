@@ -28,8 +28,6 @@ properties:
   tools:
     type: object
     properties:
-      svscore_script:
-        type: string
       annotsv:
         type: string
       cre:
@@ -37,7 +35,6 @@ properties:
       crg:
         type: string
     required:
-      - svscore_script
       - annotsv
       - cre
       - crg
@@ -168,7 +165,6 @@ properties:
       - vep
       - vcfanno
       - snpeff
-      - svscore
       - svreport
 
   params:
@@ -247,19 +243,10 @@ properties:
         required:
           - java_opts
 
-      svscore:
-        type: object
-        properties:
-          operations:
-            type: string
-        required:
-          - operations
-
     required:
       - gatk
       - picard
       - snpeff
-      - svscore
 
 required:
   - run
