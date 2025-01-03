@@ -4,3 +4,4 @@ channels:
   - defaults
 dependencies:
   - bedtools =2.29.0
+  - tabix

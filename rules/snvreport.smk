@@ -70,6 +70,8 @@ if config["run"]["hpo"]:
         input: "genes/{family}.bed"
         output: "genes/{family}_{p}.bed"
         params: config["run"]["flank"]
+    	conda:
+        	"../envs/crg.yaml"
         shell:
             '''
             cat {input} | awk -F "\t" '{{print $1"\t"$2-{params}"\t"$3+{params}}}' | sed 's/-[0-9]*/0/g' | bedtools sort | bedtools merge > {output}
