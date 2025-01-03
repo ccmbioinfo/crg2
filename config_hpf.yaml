@@ -24,7 +24,7 @@ tools:
   crg: "~/crg"
   crg2: "~/crg2"
   ehdn: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/crg2-non-conda-tools/EHDN.TCAG/ExpansionHunterDenovo-v0.7.0"
-  mity: "/hpf/largeprojects/ccmbio/ajain/mity/mity_package/bin"
+  mity: "/hpf/largeprojects/ccmbio/ajain/mity/mity_v1.1.0/package/bin"
   melt: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/crg2-non-conda-tools/MELT/MELTv2.2.2/MELT.jar"
   orad: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/crg2-non-conda-tools/orad_2_6_1/orad" 
   annovar: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/crg2-non-conda-tools/annovar"
