@@ -3,3 +3,4 @@ channels:
 dependencies:
   - manta ==1.6.0
   - bcftools ==1.9
+  - openssl ==1.1.1d
