@@ -112,7 +112,7 @@ annotation:
     protein_coding_genes: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/grch37.p13.ensembl.sorted.protein.coding.genes.bed"
     exon_bed: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/exons/hg19_UCSC_exons_canonical.bed"
     exac: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/ExAC/fordist_cleaned_nonpsych_z_pli_rec_null_data.txt"
-    omim: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/OMIM_2024-02-06/genemap2.txt"
+    omim: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/OMIM_2025-01-06/genemap2.txt"
     gnomad: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/gnomad_v2_sv.sites.bed"
     gnomad_ins: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/MELT/gnomad_v2_sv.sites.INS.bed"
     biomart: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/BioMaRt.GrCh37.75.ensembl.mim.hgnc.entrez.txt"
