@@ -14,3 +14,16 @@ rule run_mity:
         "logs/mity/{family}.mity_run_all.log"
     wrapper:
         get_wrapper_path("mity")
+
+rule generate_mt_report:
+    input:
+        vcf="mitochondrial_variants/{family}.normalise.mity.annotated.vcf.gz",
+        report="mitochondrial_variants/{family}.annotated_variants.xlsx"
+    output:
+        "report/mitochondrial/{family}.mitochondrial.report.csv"        
+    log:
+        "logs/report/mitochondrial/{family}.mitochondrial.report.log"
+    conda:
+        "../envs/mt_report.yaml"
+    script:
+        "../scripts/mt_report.py"
