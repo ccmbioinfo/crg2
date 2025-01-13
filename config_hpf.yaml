@@ -24,7 +24,7 @@ tools:
   crg: "~/crg"
   crg2: "~/crg2"
   ehdn: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/crg2-non-conda-tools/EHDN.TCAG/ExpansionHunterDenovo-v0.7.0"
-  mity: "/hpf/largeprojects/ccmbio/ajain/mity/mity_v1.1.0/package/bin"
+  mity: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/crg2-non-conda-tools/mity_v1.1.0/bin"
   melt: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/crg2-non-conda-tools/MELT/MELTv2.2.2/MELT.jar"
   orad: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/crg2-non-conda-tools/orad_2_6_1/orad" 
   annovar: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/crg2-non-conda-tools/annovar"
@@ -97,7 +97,6 @@ annotation:
     base_path: "/hpf/largeprojects/ccmbio/naumenko/tools/bcbio/genomes/Hsapiens/GRCh37/variation/"
   mt.vcfanno:
     conf: "~/crg2/vcfanno/mt.vcfanno.conf"
-    base_path: "/hpf/largeprojects/ccmbio/ajain/mity/vcfanno"
   vep:
     dir: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/snakemake/6f4af8a1/share/ensembl-vep-104.0-0/"
     dir_cache: "/hpf/largeprojects/ccmbio/naumenko/tools/bcbio/genomes/Hsapiens/GRCh37/vep/"
