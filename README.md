@@ -60,13 +60,12 @@ Make sure to replace ```~/crg2-conda``` with the path made in step 4. This will 
 - Add the paths to the output files, Homo_sapiens.GRCh37.87.gtf_subset.csv and GRCh37_latest_genomic.gff_subset.csv, to the `config["gene"]["ensembl"]` and `config["gene"]["refseq"]` fields.
 - You will also need the HGNC alias file: download this from https://www.genenames.org/download/custom/ using the default fields. Add the path this file to `config["gene"]["hgnc"]`.
 
-12. You will need to have R in your $PATH to generate the str (EH and EHDN) reports. You will also need to install the following packages: dbscan, doSNOW. 
-    ```
-    $ R
-    > install.packages("dbscan")
-    > install.packages("doSNOW")
-    ```
-13. To generate a mobile element insertion report (WGS only), MELT installation is required and some paths must be added to config_hpf.yaml: 
+12. crg2 uses [mity](https://github.com/KCCG/mity) to call and annotate small mitochondrial variants. Mity is not available via conda unfortunately, so it must be installed manually into an environment. The first time you run crg2 WGS, snakemake will build the conda environments specified in wrappers/mity/*/environment.yaml, which include the dependencies necessary to run mity. You can find the conda environment associated with rule `mity_call` by looking at the slurm log file for that rule after the pipeline tries and fails to run mity. Activate this environment, then manually install mity into this conda environment: 
+```pip install mitywgs==0.4.0```
+Replace `config["tools"]["mity"]` with the path to the conda environment binaries, e.g. "/srv/shared/conda_envs/crg2-conda/8a9bda62/bin/". You may also need to add a shebang at the top of the mity program (in this example, /srv/shared/conda_envs/crg2-conda/8a9bda62/bin/mity): 
+```#!/srv/shared/conda_envs/crg2-conda/8a9bda62/bin/python3```
+
+12. To generate a mobile element insertion report (WGS only), MELT installation is required and some paths must be added to config_hpf.yaml: 
 - Download MELT from https://melt.igs.umaryland.edu/downloads.php.  
 - Unpack the .tar.gz file: ```tar zxf MELTvX.X.tar.gz ```
   This should create a MELTvX.X directory in your current directory. 
