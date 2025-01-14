@@ -97,7 +97,7 @@ annotation:
     conf: "~/crg2/vcfanno/mt.vcfanno.conf"
     base_path: "/hpf/largeprojects/ccmbio/ajain/mity/vcfanno"
   vep:
-    dir: "/srv/shared/data/dccdipg/snakemake/6ea37454/share/ensembl-vep-101.0-0/"
+    dir: "/srv/shared/conda_envs/crg2-conda/b59ddfb3/share/ensembl-vep-113.3-0/"
     dir_cache: "/srv/shared/data/dccdipg/annotation/vep-cache"
   snpeff:
     dataDir: "/srv/shared/data/snpeff/"
