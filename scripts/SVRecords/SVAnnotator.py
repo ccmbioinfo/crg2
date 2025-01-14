@@ -142,6 +142,7 @@ class SVAnnotator:
             return min_distance, min_boundary, gene
 
         exons = pd.read_csv(exon_bed, sep="\t", names=["CHROM", "POS", "END", "GENE"])
+        exons["CHROM"] = exons["CHROM"].astype(str)
         # make single column containing all exon boundaries
         exons = pd.melt(exons, id_vars=["CHROM", "GENE"], value_vars=["POS", "END"])
 
