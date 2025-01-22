@@ -49,23 +49,6 @@ def get_INFO_annot(df):
 
     return annotations_df
 
-
-def correct_mitotip_interpretations(df):
-    """Change the MITOTIP INTERPRETATION column to correct values based on values of MITOTIP SCORE"""
-
-    # Change datatype of column
-    df["MITOTIP SCORE"] = pd.to_numeric(df["MITOTIP SCORE"], errors="coerce")
-
-    df.loc[df["MITOTIP SCORE"] > 8.44, "MITOTIP INTERPRETATION"] = "possibly benign"
-    df.loc[
-        df["MITOTIP SCORE"] > 12.66, "MITOTIP INTERPRETATION"
-    ] = "possibly pathogenic"
-    df.loc[df["MITOTIP SCORE"] > 16.25, "MITOTIP INTERPRETATION"] = "likely pathogenic"
-    df["MITOTIP SCORE"] = df["MITOTIP SCORE"].replace(np.nan, ".")
-    log_message("Corrected the MITOTIP INTERPRETATION column in report.")
-    return df
-
-
 def change_annot_9155(df):
     """Change status_mitomap column for m.9155A>G from . to Confirmed"""
     variant_entry = df.loc[df.HGVS == "m.9155A>G"]
@@ -79,7 +62,6 @@ def change_annot_9155(df):
             "Found variant m.9155A>G in the report and updated status_mitomap to confirmed."
         )
         return df
-
 
 def concat_df(df1, df2):
     """Concatenate two dataframes along axis 1 (column)"""
@@ -295,12 +277,12 @@ def reorder_cols(df):
         "gnomAD_AF_het",
         "gnomAD_max_hl",
         "MGRB FREQUENCY",
-        "MGRB FILTER",
+        #"MGRB FILTER",
         "MGRB AC",
         "MGRB AN",
     ]
-
-    reordered_df[replace_col_values] = reordered_df[replace_col_values].replace(".", 0)
+    for col in replace_col_values:
+        reordered_df[col] = reordered_df[col].replace(".", 0)
 
     log_message(
         "Replaced . and - with 0 for frequency columns and rearanged the columns in the dataframe"
@@ -339,7 +321,6 @@ def main(vcf, report, family):
     final_report = remove_cols(merged_report)
     final_report = check_sort(vcf_df,final_report)
     final_report = reorder_cols(final_report)
-    final_report = correct_mitotip_interpretations(final_report)
     final_report = change_annot_9155(final_report)
     
     final_report.to_csv(
@@ -355,5 +336,4 @@ if __name__ == "__main__":
     family = snakemake.wildcards.family
     vcf= snakemake.input.vcf
     report=snakemake.input.report
-    #report = f"report/mitochondrial/{family}.annotated_variants.xlsx"
     main(vcf,report,family)

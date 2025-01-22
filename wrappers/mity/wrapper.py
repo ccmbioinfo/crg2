@@ -12,7 +12,7 @@ pythonpath = tool.replace("bin", "")
 mod1 = " module load python/3.12.4; "
 mod2 = " module load freebayes/1.3.1; "
 python = " export PYTHONPATH={pythonpath}; "
-mity = " {tool}/mity runall --prefix {prefix} --output-dir {outdir} -k --custom-vcfanno-config {vcfanno_config} {snakemake.input.bam}; "
+mity = " {tool}/mity runall --prefix {prefix} --output-dir {outdir} -k {snakemake.input.bam}; "
 shell("(" + mod1 + mod2 + python + mity + ") {log}")
 
 bgzip = " bgzip mitochondrial_variants/{family}.normalise.mity.annotated.vcf;"
