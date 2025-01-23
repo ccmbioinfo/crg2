@@ -8,7 +8,6 @@ rule run_mity:
         outdir="mitochondrial_variants",
         prefix="{family}",
         tool=config["tools"]["mity"],
-        vcfanno_config=config["annotation"]["mt.vcfanno"]["conf"]
     log:
         "logs/mity/{family}.mity_run_all.log"
     wrapper:
