@@ -6,7 +6,6 @@ family = snakemake.wildcards.family
 outdir = snakemake.params.outdir
 prefix = snakemake.params.prefix
 tool = snakemake.params.tool
-vcfanno_config= snakemake.params.vcfanno_config
 pythonpath = tool.replace("bin", "")
 
 python = " export PYTHONPATH={pythonpath}; "
