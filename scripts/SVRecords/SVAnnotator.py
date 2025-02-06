@@ -480,7 +480,8 @@ class SVAnnotator:
             "FREQ_HOMREF",
             "FREQ_HET",
             "FREQ_HOMALT",
-            "POPMAX_AF",
+            "GRPMAX_AF",
+            "FILTER",
         ]
         gnomad_ann_cols = [
             "gnomAD_SVTYPE",
@@ -493,11 +494,10 @@ class SVAnnotator:
             "gnomAD_FREQ_HOMREF",
             "gnomAD_FREQ_HET",
             "gnomAD_FREQ_HOMALT",
-            "gnomAD_POPMAX_AF",
+            "gnomAD_GRPMAX_AF",
+            "gnomAD_FILTER"
         ]
         gnomad_df = pd.read_csv(gnomad, sep="\t", dtype="str").astype(str)
-        gnomad_df.columns = gnomad_df.columns.str.replace("#", "")
-        gnomad_df.columns = gnomad_df.columns.str.strip()
         gnomad_df = gnomad_df[gnomad_cols]
         gnomad_bed = BedTool(gnomad_df.itertuples(index=False))
 

@@ -31,3 +31,7 @@ log = snakemake.log_fmt_shell(stdout=False, stderr=True)
 shell(
     "(vcf2db.py {incalls} {ped} {outdb}) {log}"
 )
+
+shell(
+    "(sqlite3 {outdb} 'UPDATE variants SET gnomad_fafmax_faf95_max = -1 WHERE gnomad_fafmax_faf95_max IS NULL;') {log}"
+)
