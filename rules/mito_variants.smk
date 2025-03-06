@@ -3,7 +3,7 @@ rule mity_call:
     input:
         bam=[expand("recal/{family}_{sample}.bam".format(family=config["run"]["project"], sample=s)) for s in samples.index]
     output:
-        protected("mitochondrial_variants/{family}.pre-normalised.mity.vcf.gz")
+        protected("mitochondrial_variants/{family}.pre-normalised.mity.call.vcf.gz")
     params:
         outdir="mitochondrial_variants/",
         prefix="{family}.pre-normalised",
