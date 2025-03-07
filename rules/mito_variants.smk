@@ -3,10 +3,9 @@ rule mity_call:
     input:
         bam=[expand("recal/{family}_{sample}.bam".format(family=config["run"]["project"], sample=s)) for s in samples.index]
     output:
-        protected("mitochondrial_variants/{family}.pre-normalised.mity.call.vcf.gz")
+        protected("mitochondrial_variants/{family}.mity.call.vcf.gz")
     params:
         outdir="mitochondrial_variants/",
-        prefix="{family}.pre-normalised",
         tool=config["tools"]["mity"]
     log:
         "logs/mity/mity_call/{family}.mity_call.log"
@@ -15,10 +14,11 @@ rule mity_call:
 
 rule mity_normalise:
     input:
-        "mitochondrial_variants/{family}.pre-normalised.mity.vcf.gz"
+        "mitochondrial_variants/{family}.mity.call.vcf.gz"
     output:
-        protected("mitochondrial_variants/{family}.normalised.mity.vcf.gz")
+        protected("mitochondrial_variants/{family}.mity.normalise.decompose.vcf.gz")
     params:
+        outdir="mitochondrial_variants/",
         tool=config["tools"]["mity"]
     log:
         "logs/mity/mity_normalise/{family}.mity_normalise.log"
