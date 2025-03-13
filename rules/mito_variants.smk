@@ -25,30 +25,14 @@ rule mity_normalise:
     wrapper:    
         get_wrapper_path("mity/normalise")
 
-rule mito_vcfanno:
-    input:
-        "mitochondrial_variants/{family}.normalised.mity.vcf.gz"
-    output:
-        "mitochondrial_variants/vcfanno/{family}.normalised.mity.vcfanno.vcf"
-    log:
-        "logs/mity/vcfanno/{family}.mity.vcfanno.log"
-    threads: 10
-    resources:
-        mem_mb = 20000
-    params:
-       	conf = config["annotation"]["mt.vcfanno"]["conf"],
-        base_path = config["annotation"]["mt.vcfanno"]["base_path"]
-    wrapper:
-        get_wrapper_path("vcfanno")
-
 rule mity_report:
     input:
-        "mitochondrial_variants/vcfanno/{family}.normalised.mity.vcfanno.vcf"
+        "mitochondrial_variants/{family}.mity.normalise.decompose.vcf.gz"
     output:
-        "report/mitochondrial/{family}.mitochondrial.report.csv"
+        "mitochondrial_variants/{family}.mity.annotated.vcf",
+        "mitochondrial_variants/{family}.annotated_variants.xlsx"
     params:
-        outdir="report/mitochondrial/",
-        prefix="{family}_mito",
+        outdir="mitochondrial_variants/",
         tool=config["tools"]["mity"]
     log:
         "logs/mity/mity_report/{family}.mity_report.log"
