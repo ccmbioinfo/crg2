@@ -21,7 +21,7 @@ rule EH_report:
     output:
         tsv = "str/EH/{family}_EH_str.tsv",
         annot = "str/EH/{family}_EH_str.annot.tsv",
-        xlsx = "report/str/{family}.EH-v1.1.xlsx"
+        xlsx = "report/str/{family}.EH-v1.1.2.xlsx"
     log:
         "logs/str/{family}-eh-report.log"
     params:
