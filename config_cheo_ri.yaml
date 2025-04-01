@@ -23,7 +23,7 @@ tools:
   crg: "/srv/shared/pipelines/crg"
   crg2: "/srv/shared/pipelines/crg2"
   ehdn: "/srv/shared/data/dccdipg/crg2-non-conda-tools/EHDN/ExpansionHunterDenovo-v0.7.0"
-  mity: "/srv/shared/conda_envs/crg2-conda/2b62d8a5/bin"
+  mity: "/srv/shared/data/dccdipg/crg2-non-conda-tools/mity_v1.1.0/bin/"
   melt: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/crg2-non-conda-tools/MELT/MELTv2.2.2/MELT.jar"
   orad: "/srv/shared/data/dccdipg/crg2-non-conda-tools/orad_2_6_1/orad" 
   annovar: "/srv/shared/data/dccdipg/crg2-non-conda-tools/annovar"
