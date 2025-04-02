@@ -93,9 +93,6 @@ annotation:
     conf: "/srv/shared/pipelines/crg2/vcfanno/crg.vcfanno.conf" 
     lua_script: "/srv/shared/pipelines/crg2/vcfanno/crg.vcfanno.lua"
     base_path: "/srv/shared/data/dccdipg/annotation/vcfanno"
-  mt.vcfanno:
-    conf: "~/crg2/vcfanno/mt.vcfanno.conf"
-    base_path: "/hpf/largeprojects/ccmbio/ajain/mity/vcfanno"
   vep:
     dir: "/srv/shared/conda_envs/crg2-conda/b59ddfb3/share/ensembl-vep-113.3-0/"
     dir_cache: "/srv/shared/data/dccdipg/annotation/vep-cache"
