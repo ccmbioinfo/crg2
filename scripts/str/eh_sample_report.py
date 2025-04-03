@@ -30,10 +30,7 @@ def outlier_gt(threshold, gt_dict):
             else:
                 if threshold == "":
                     continue
-                try:
-                    threshold = float(threshold)
-                except ValueError:
-                    threshold = int(threshold)
+                threshold = float(threshold)
                 if y >= float(threshold): 
                         outlier.append(sample)
 
@@ -88,7 +85,7 @@ worksheet.write_row(0, 0, header)
 row = 1
 for i in trf:
         info = trf[i][samples[0]]
-        content = [info.pos, info.motif, info.gene, info.size]
+        content = [info.pos, info.motif, info.gene, info.size.replace(".0", "")]
         content += [ trf[i][s].gt for s in samples ]          
         content += [info.mean, info.std, info.median] 
         gt = { s:trf[i][s].gt for s in samples }
