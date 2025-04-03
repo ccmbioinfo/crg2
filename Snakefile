@@ -26,7 +26,7 @@ elif config["run"]["pipeline"] == "wgs":
             expand("report/{p}/{family}", p=["panel", "panel-flank", "denovo"], family=project) if (config["run"]["hpo"] or config["run"]["panel"]) and config["run"]["ped"] else [],
             "report/coding/{family}".format(family=project),
             "report/sv",
-            expand("report/str/{family}.{report_name}.xlsx", family=project, report_name=["EH-v1.1","EHDN"]),
+            expand("report/str/{family}.{report_name}.xlsx", family=project, report_name=["EH-v1.1.2","EHDN"]),
             "qc/multiqc/multiqc.html",
             #"plots/depths.svg",
             #"plots/allele-freqs.svg"

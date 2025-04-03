@@ -7,6 +7,7 @@ writes o/p as excel file
 '''
 
 import sys, os, re
+import numpy as np
 from collections import namedtuple
 from xlsxwriter.workbook import Workbook
 
@@ -17,8 +18,6 @@ xlsx = sys.argv[3] #output xlsx filename
 def outlier_gt(threshold, gt_dict):
     outlier = []
     for sample in gt_dict:
-        threshold = re.sub(u'\u2014','-',str(threshold))
-        #threshold = str(threshold.strip())
         x = gt_dict[sample]
         y = x.split("/") if "/" in x else x
         if not "." in y:
@@ -26,26 +25,16 @@ def outlier_gt(threshold, gt_dict):
         else:
             return " "
         if y:
-            if "(" in threshold or " " in threshold:
-                continue
-            elif ">" in threshold:
-                if "-" in threshold:
-                    condition = int(threshold.split(">")[1].split("-")[0])
-                else:
-                    condition = int(threshold.split(">")[1])
-                    if y >= condition:
-                        outlier.append(sample)
-            elif "-" in threshold:
-                condition = list(map(int, threshold.split("-")))
-                if y in range(condition[0], condition[1]):
-                    outlier.append(sample)
-            elif "," in threshold:
-                condition = list(map(int, threshold.split(",")))
-                if y in condition:
-                    outlier.append(sample)
+            if threshold == np.nan: 
+                return " "
             else:
-                if threshold.isdigit() and y >= int(threshold):
-                    outlier.append(sample)    
+                if threshold == "":
+                    continue
+                threshold = float(threshold)
+                if y >= float(threshold): 
+                        outlier.append(sample)
+
+ 
     return ",".join(outlier) if outlier else ' '
     
 
@@ -96,7 +85,7 @@ worksheet.write_row(0, 0, header)
 row = 1
 for i in trf:
         info = trf[i][samples[0]]
-        content = [info.pos, info.motif, info.gene, info.size]
+        content = [info.pos, info.motif, info.gene, info.size.replace(".0", "")]
         content += [ trf[i][s].gt for s in samples ]          
         content += [info.mean, info.std, info.median] 
         gt = { s:trf[i][s].gt for s in samples }
