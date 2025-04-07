@@ -3,6 +3,7 @@ import logging
 import numpy as np
 import io
 import gzip
+from datetime import datetime 
 
 
 def log_message(*message):
@@ -49,23 +50,6 @@ def get_INFO_annot(df):
 
     return annotations_df
 
-
-def correct_mitotip_interpretations(df):
-    """Change the MitoTip_interpretation column to correct values based on values of MitoTip_Score"""
-
-    # Change datatype of column
-    df["MitoTip_score"] = pd.to_numeric(df["MitoTip_score"], errors="coerce")
-
-    df.loc[df["MitoTip_score"] > 8.44, "MitoTip_interpretation"] = "possibly benign"
-    df.loc[
-        df["MitoTip_score"] > 12.66, "MitoTip_interpretation"
-    ] = "possibly pathogenic"
-    df.loc[df["MitoTip_score"] > 16.25, "MitoTip_interpretation"] = "likely pathogenic"
-    df["MitoTip_score"] = df["MitoTip_score"].replace(np.nan, ".")
-    log_message("Corrected the MitoTip_interpretation column in report.")
-    return df
-
-
 def change_annot_9155(df):
     """Change status_mitomap column for m.9155A>G from . to Confirmed"""
     variant_entry = df.loc[df.HGVS == "m.9155A>G"]
@@ -80,7 +64,6 @@ def change_annot_9155(df):
         )
         return df
 
-
 def concat_df(df1, df2):
     """Concatenate two dataframes along axis 1 (column)"""
 
@@ -88,17 +71,16 @@ def concat_df(df1, df2):
     log_message("Successfully joined the two dataframes")
     return concatenated_df
 
-
 def remove_cols(df):
     """Remove unwanted columns from the report dataframe"""
 
     # List of column to be removed from the file
     remove_cols = [
-        "tier",
-        "ref_depth",
-        "total_locus_depth",
-        "variant_quality",
-        "locus_mitomap",
+        "TIER",
+        "REF DEPTH",
+        "TOTAL LOCUS DEPTH",
+        "VARIANT QUALITY",
+        "LOCUS MITOMAP",
         "QUAL",
     #    "FILTER",
         "MQM_INFO",
@@ -135,15 +117,15 @@ def split_cols_by_sample(grouped_df):
     samples_info = {}
     for variant, row in grouped_df.iterrows():
         sample = str.split(row.SAMPLE, ";")
-        alt_depth = str.split(row.alt_depth, ";")
-        sample_depth = str.split(row.total_sample_depth, ";")
-        variant_heteroplasmy = str.split(row.variant_heteroplasmy, ";")
+        ALT_DEPTH = str.split(row["ALT DEPTH"], ";")
+        SAMPLE_DEPTH = str.split(row["TOTAL SAMPLE DEPTH"], ";")
+        VARIANT_HETEROPLASMY = str.split(row["VARIANT HETEROPLASMY"], ";")
 
         x = {}
         for i in range(0, len(sample)):
-            x[f"{sample[i]}.variant_heteroplasmy"] = variant_heteroplasmy[i]
-            x[f"{sample[i]}.alt_depth"] = alt_depth[i]
-            x[f"{sample[i]}.total_sample_depth"] = sample_depth[i]
+            x[f"{sample[i]}.VARIANT HETEROPLASMY"] = VARIANT_HETEROPLASMY[i]
+            x[f"{sample[i]}.ALT DEPTH"] = ALT_DEPTH[i]
+            x[f"{sample[i]}.TOTAL SAMPLE DEPTH"] = SAMPLE_DEPTH[i]
         samples_info[variant] = x
     df = pd.DataFrame(samples_info).transpose().sort_index(axis=1).fillna("-")
     df["HGVS"] = df.index
@@ -157,26 +139,26 @@ def sort_by_sample(df):
         [
             "HGVS",
             "SAMPLE",
-            "alt_depth",
-            "total_sample_depth",
-            "variant_heteroplasmy",
+            "ALT DEPTH",
+            "TOTAL SAMPLE DEPTH",
+            "VARIANT HETEROPLASMY",
         ]
     ]
     grouped_df = subset_df.groupby("HGVS").agg(
         {
             "SAMPLE": lambda x: ";".join(str(i) for i in x),
-            "alt_depth": lambda x: ";".join(str(i) for i in x),
-            "total_sample_depth": lambda x: ";".join(str(i) for i in x),
-            "variant_heteroplasmy": lambda x: ";".join(str(i) for i in x),
+            "ALT DEPTH": lambda x: ";".join(str(i) for i in x),
+            "TOTAL SAMPLE DEPTH": lambda x: ";".join(str(i) for i in x),
+            "VARIANT HETEROPLASMY": lambda x: ";".join(str(i) for i in x),
         }
     )
 
     df = df.drop(
         [
             "SAMPLE",
-            "alt_depth",
-            "total_sample_depth",
-            "variant_heteroplasmy",
+            "ALT DEPTH",
+            "TOTAL SAMPLE DEPTH",
+            "VARIANT HETEROPLASMY",
         ],
         1,
     )
@@ -200,13 +182,13 @@ def get_vcf_info(vcf,report,samples):
             #If pos, ref and alt match with the respective columns in the VCF then get the sample depth for that sample
             depth=list(vcf[(vcf["POS"]==pos) & (vcf["REF"]==ref) & (vcf["ALT"]==alt)][i])[0].split(":")[1]
             vaf=list(vcf[(vcf["POS"]==pos) & (vcf["REF"]==ref) & (vcf["ALT"]==alt)][i])[0].split(":")[9]
-            AD=list(vcf[(vcf["POS"]==pos) & (vcf["REF"]==ref) & (vcf["ALT"]==alt)][i])[0].split(":")[6]
+            AD=list(vcf[(vcf["POS"]==pos) & (vcf["REF"]==ref) & (vcf["ALT"]==alt)][i])[0].split(":")[5]
             sample_depths.append(depth)
             vafs.append(vaf)
             alt_depths.append(AD)
-        report[f"{i}.total_sample_depth"]=sample_depths
-        report[f"{i}.variant_heteroplasmy"]=vafs
-        report[f"{i}.alt_depth"]=alt_depths
+        report[f"{i}.TOTAL SAMPLE DEPTH"]=sample_depths
+        report[f"{i}.VARIANT HETEROPLASMY"]=vafs
+        report[f"{i}.ALT DEPTH"]=alt_depths
 
     return report
 
@@ -230,9 +212,9 @@ def reorder_cols(df):
 
     colnames = df.columns
 
-    variant_heteroplasmy = [x for x in colnames if x.endswith("variant_heteroplasmy")]
-    alt_depth = [x for x in colnames if x.endswith("alt_depth")]
-    total_sample_depth = [x for x in colnames if x.endswith("total_sample_depth")]
+    variant_heteroplasmy = [x for x in colnames if x.endswith("VARIANT HETEROPLASMY")]
+    alt_depth = [x for x in colnames if x.endswith("ALT DEPTH")]
+    total_sample_depth = [x for x in colnames if x.endswith("TOTAL SAMPLE DEPTH")]
 
     df=remove_blacklist_pos(df)
 
@@ -242,43 +224,43 @@ def reorder_cols(df):
         "REF",
         "ALT",
         "HGVS",
-        "gene/locus",
-        "gene/locus description",
-        "COHORT_COUNT",
+        "GENE/LOCUS",
+        "GENE/LOCUS DESCRIPTION",
+        "COHORT COUNT",
         "SAMPLE",
     ]
 
     col_list2 = [
-        "disease_mitomap",
-        "status_mitomap",
-        "disease_amino_acid_change_mitomap",
-        "allele_frequency_mitomap",
-        "GenBank_frequency_mitomap",
+        "DISEASE MITOMAP",
+        "STATUS MITOMAP",
+        "DISEASE AMINO ACID CHANGE MITOMAP",
+        "ALLELE FREQUENCY MITOMAP",
+        "GENBANK FREQUENCY MITOMAP",
         "clinvar_pathogenic",
         "gnomAD_AC_hom",
         "gnomAD_AC_het",
         "gnomAD_AF_hom",
         "gnomAD_AF_het",
         "gnomAD_max_hl",
-        "homoplasmy_mitomap",
-        "heteroplasmy_mitomap",
-        "num_references_mitomap",
-        "variant_amino_acid_change_mitomap",
-        "codon_position_mitomap",
-        "codon_number_mitomap",
-        "num_disease_references_mitomap",
-        "RNA_mitomap",
-        "commercial_panels",
-        "phylotree_haplotype",
-        "MitoTip_score",
-        "MitoTip_interpretation",
-        "MitoTip_percentile",
-        "anticodon",
-        "MGRB_frequency",
-        "MGRB_FILTER",
-        "MGRB_AC",
-        "MGRB_AN",
-        "phylotree_mut",
+        "HOMOPLASMY MITOMAP",
+        "HETEROPLASMY MITOMAP",
+        "NUMBER OF REFERENCES MITOMAP",
+        "VARIANT AMINO ACID CHANGE MITOMAP",
+        "CODON POSITION MITOMAP",
+        "CODON NUMBER MITOMAP",
+        "NUM DISEASE REFERENCES MITOMAP",
+        "RNA MITOMAP",
+        "COMMERCIAL PANELS",
+        "PHYLOTREE HAPLOTYPE",
+        "MITOTIP SCORE",
+        "MITOTIP INTERPRETATION",
+        "MITOTIP PERCENTILE",
+        "ANTICODON",
+        "MGRB FREQUENCY",
+        "MGRB FILTER",
+        "MGRB AC",
+        "MGRB AN",
+        "PHYLOTREE MUT",
     ]
     final_col_list = (
         col_list + variant_heteroplasmy + alt_depth + total_sample_depth + col_list2
@@ -288,20 +270,20 @@ def reorder_cols(df):
 
     # replace '.'/'-' with '0' for some columns
     replace_col_values = [
-        "allele_frequency_mitomap",
-        "GenBank_frequency_mitomap",
+        "ALLELE FREQUENCY MITOMAP",
+        "GENBANK FREQUENCY MITOMAP",
         "gnomAD_AC_hom",
         "gnomAD_AC_het",
         "gnomAD_AF_hom",
         "gnomAD_AF_het",
         "gnomAD_max_hl",
-        "MGRB_frequency",
-        "MGRB_FILTER",
-        "MGRB_AC",
-        "MGRB_AN",
+        "MGRB FREQUENCY",
+        #"MGRB FILTER",
+        "MGRB AC",
+        "MGRB AN",
     ]
-
-    reordered_df[replace_col_values] = reordered_df[replace_col_values].replace(".", 0)
+    for col in replace_col_values:
+        reordered_df[col] = reordered_df[col].replace(".", 0)
 
     log_message(
         "Replaced . and - with 0 for frequency columns and rearanged the columns in the dataframe"
@@ -323,7 +305,7 @@ def read_vcf(vcf):
     return vcf_df
 
 def main(vcf, report, family):
-    logfile = f"logs/mity/mity_report/{family}.mity_report.log"
+    logfile = f"logs/report/mitochondrial/{family}.mitochondrial.report.log"
     logging.basicConfig(
         filename=logfile,
         filemode="w",
@@ -332,7 +314,7 @@ def main(vcf, report, family):
         datefmt="%Y-%m-%d %H:%M",
     )
 
-    report_df = pd.read_csv(report)
+    report_df = pd.read_excel(report,engine="openpyxl")
     vcf_df=read_vcf(vcf)
 
     CV_gnomad_annots_df = get_INFO_annot(report_df)
@@ -340,11 +322,16 @@ def main(vcf, report, family):
     final_report = remove_cols(merged_report)
     final_report = check_sort(vcf_df,final_report)
     final_report = reorder_cols(final_report)
-    final_report = correct_mitotip_interpretations(final_report)
     final_report = change_annot_9155(final_report)
-    
+
     final_report.to_csv(
         f"report/mitochondrial/{family}.mitochondrial.report.csv", index=False
+    )
+
+    current_date=datetime.now().strftime("%Y-%m-%d")
+
+    final_report.to_csv(
+        f"report/mitochondrial/{family}.mitochondrial.report.{current_date}.csv", index=False
     )
 
     log_message(
@@ -354,6 +341,6 @@ def main(vcf, report, family):
 
 if __name__ == "__main__":
     family = snakemake.wildcards.family
-    vcf= snakemake.input
-    report = f"report/mitochondrial/{family}_mito.annotated_variants.csv"
+    vcf= snakemake.input.vcf
+    report=snakemake.input.report
     main(vcf,report,family)

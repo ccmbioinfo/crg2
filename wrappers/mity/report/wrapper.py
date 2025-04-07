@@ -1,28 +1,30 @@
 from snakemake.shell import shell
-import os
-import process_report
 
-log = snakemake.log_fmt_shell(stdout=True, stderr=True, append=True)
+log = snakemake.log_fmt_shell(stdout=True, stderr=True,append=True)
 
 family = snakemake.wildcards.family
 outdir = snakemake.params.outdir
-prefix = snakemake.params.prefix
 tool = snakemake.params.tool
 pythonpath = tool.replace("bin", "")
 
-mod1 = " module load python/3.9.2_torch_gpu; "
 python = " export PYTHONPATH={pythonpath}; "
-bgzip = " bgzip {snakemake.input}; "
-mity = " {tool}/mity report --prefix {prefix} --out-folder-path {outdir} {snakemake.input}.gz; "
-remove_excel = " rm report/mitochondrial/{family}_mito.annotated_variants.xlsx; "
 
-try: # hpf
-    shell("(" + mod1 + python + mity + remove_excel + ") {log}")
-except:
-    shell("(" + python + bgzip + mity + remove_excel + ") {log}")
+# Temporary fix until mity fixes bug in their code base
+# Creating a copy of the input file with a different name to prevent xlsxwriter from throwing 
+# "xlsxwriter.exceptions.InvalidWorksheetName: Excel worksheet name '...' must be <= 31 chars." error
 
-report = f"report/mitochondrial/{family}_mito.annotated_variants.csv"
-process_report.main(f"{snakemake.input}.gz", report, family)
+orig_input_filename=f"{snakemake.input}"
+new_filename=f"mitochondrial_variants/{family}.vcf.gz"
+copy_input_file = " cp {orig_input_filename} {new_filename}; "
+copy_input_file_tbi = " cp {orig_input_filename}.tbi {new_filename}.tbi; "
 
-remove_csv = " rm report/mitochondrial/{family}_mito.annotated_variants.csv; "
-shell("(" + remove_csv + ") {log}")
+shell ("(" + copy_input_file + copy_input_file_tbi + ") {log} ")
+
+mity = " {tool}/mity report --prefix {family} -k --output-dir {outdir} {new_filename};"
+#rename_vcf_file= " mv mitochondrial_variants/{family}.mity.normalise.decompose.mity.annotated.vcf mitochondrial_variants/{family}.mity.annotated.vcf ; "
+
+# Remove input file copy
+rm_copy= "rm {new_filename}; "
+rm_copy_tbi= "rm {new_filename}.tbi;"
+
+shell("(" + python + mity + rm_copy + rm_copy_tbi +") {log}")
