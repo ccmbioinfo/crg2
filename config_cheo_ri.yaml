@@ -38,7 +38,7 @@ ref:
   canon_bed: "/srv/shared/data/dccdipg/genomes/grch37.canon.bed"
   split_genome: "/srv/shared/data/dccdipg/genomes/split_genome/"
   gatk-known: "/srv/shared/data/dccdipg/annotation/vcfanno/Mills_and_1000G_gold_standard.indels.vcf.gz"
-  ref_cache: "/srv/shared/data/dccdipg/genomes/GRCh37d5/REF_CACHE/cache/%2s/%2s/%s:/srv/shared/data/dccdipg/genomes/hg19/REF_CACHE/cache/%2s/%2s/%s"
+  ref_cache: "/srv/shared/data/dccdipg/genomes/GRCh37d5/REF_CACHE/cache/%2s/%2s/%s:/srv/shared/data/dccdipg/genomes/hg19/REF_CACHE/cache/%2s/%2s/%s:/srv/shared/data/dccdipg/genomes/hg38-alt-aware/REF_CACHE/%2s/%2s/%s"
   bed_index: "/srv/shared/data/dccdipg/genomes/GRCh37/GRCh37.fa.bedtoolsindex"
   melt_element_ref: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/MELT/transposon_file_list.txt"
   orad_ref: "/srv/shared/data/dccdipg/crg2-non-conda-tools/orad_2_6_1/oradata"
