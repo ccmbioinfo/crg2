@@ -56,7 +56,11 @@ if len(sys.argv) > 2:
 
 else:
     read1 = [path for path in Path(folder_name).rglob("*R1*fastq.gz")]
+    if len(read1) == 0:
+        read1 = [path for path in Path(folder_name).rglob("*R1*ora")]
     read2 = [path for path in Path(folder_name).rglob("*R2*fastq.gz")]
+    if len(read2) == 0:
+        read2 = [path for path in Path(folder_name).rglob("*R2*ora")]
     regexp = re.compile("_S[0-9]+_")
     for i in read1:
         filename = os.path.basename(i)
