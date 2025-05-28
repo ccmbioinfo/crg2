@@ -2,7 +2,7 @@ PIPELINE_VERSION="0.9.0"
 
 include: "rules/common.smk"
 
-samples = pd.read_table(config["run"]["samples"]).set_index("sample", drop=False)
+samples = pd.read_table(config["run"]["samples"], dtype=str).set_index("sample", drop=False)
 
 ##### Target rules #####
 project = config["run"]["project"]
@@ -35,7 +35,7 @@ elif config["run"]["pipeline"] == "wgs":
             [expand("recal/{family}_{sample}.cram.crai".format(family=project, sample=s)) for s in samples.index],
             [expand("recal/{family}_{sample}.cram.md5".format(family=project, sample=s)) for s in samples.index],
             "report_upload/demultiplexed_reports/{}".format(project) if config["run"]["PT_credentials"] else [],
-            #directory("report/MELT/")################### MELT
+	    "report/MELT/"
 
 elif config["run"]["pipeline"] == "annot":
     rule all:
