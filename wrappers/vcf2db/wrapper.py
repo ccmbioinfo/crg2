@@ -33,5 +33,5 @@ shell(
 )
 
 shell(
-    "(sqlite3 {outdb} 'UPDATE variants SET gnomad_fafmax_faf95_max = -1 WHERE gnomad_fafmax_faf95_max IS NULL;') {log}"
+    "(sqlite3 {outdb} 'UPDATE variants SET gnomad_genome_af_popmax = -1 WHERE gnomad_genome_af_popmax IS NULL;') {log}"
 )
