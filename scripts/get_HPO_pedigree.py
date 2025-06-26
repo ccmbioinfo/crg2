@@ -3,6 +3,7 @@ import logging
 import pandas as pd
 from PTFunctions import PTQuery
 import sys
+from datetime import date
 
 
 def main(C4R_ID: str, query: PTQuery.PTQuery) -> None:
@@ -32,8 +33,9 @@ def main(C4R_ID: str, query: PTQuery.PTQuery) -> None:
     # get HPO terms
     logging.info(f"Retrieving HPO terms for {proband_id}")
     HPO_df = query.get_HPO(proband_pid)
+    today = date.today().strftime('%Y-%m-%d')
     HPO_df.to_csv(
-        f"/home/ccmmarvin/gene_data/HPO/{C4R_family}_HPO.txt", sep="\t", index=False
+        f"/srv/shared/metadata/HPO/{C4R_family}_HPO_{today}.txt", sep="\t", index=False
     )
 
 

@@ -8,7 +8,7 @@ Usage: python parser.py -f <fastq_input_sample.tsv> -a <stager_analyses_report.c
 Parse five-column(family,sample,fq1,fq2,bam) TSV file (1st argument) and sets up necessary directories (under 2nd argument), files as below:
 1. create family and directory passed as "-s"
 2. symlink BAM files if "-s" is not fastq
-3. copy config_hpf.yaml, slurm-config.yaml and dnaseq_slurm_hpf.sh from crg2 repo and replace necessary string
+3. copy config_cheo_ri.yaml, slurm-config.yaml and dnaseq_slurm_cheo_ri.sh from crg2 repo and replace necessary string
 4. create units.tsv and samples.tsv for snakemake
 5. generate CNV report from TCAG CNV tsvs
 6. submit job if all the above goes well
@@ -34,22 +34,22 @@ def setup_directories(family, sample_list, filepath, step):
         print(d)
         os.makedirs(d, exist_ok=True)
 
-    # copy config_hpf.yaml, slurm_config.yaml, and dnaseq_slurm_hpf.sh
+    # copy config_cheo_ri.yaml, slurm_config.yaml, and dnaseq_slurm_cheo_ri.sh
     for i in [
-        "config_hpf.yaml",
+        "config_cheo_ri.yaml",
         "slurm_profile/slurm-config.yaml",
-        "dnaseq_slurm_hpf.sh",
+        "dnaseq_slurm_cheo_ri.sh",
     ]:
         cmd = ["cp", os.path.join(crg2_dir, i), d]
         subprocess.check_call(cmd)
 
-    # replace family ID and pipeline in config_hpf.yaml & dnaseq_slurm_hpf.sh
+    # replace family ID and pipeline in config_cheo_ri.yaml & dnaseq_slurm_cheo_ri.sh
     replace = "s/NA12878/{}/".format(family)
     pipeline = "s/wes/wgs/"
     PT_credentials = 's+PT_credentials: ""+PT_credentials: {}+'.format(
-        "~/crg2/credentials.csv"
+        "/srv/shared/crg2/credentials.csv"
     )
-    config = os.path.join(d, "config_hpf.yaml")
+    config = os.path.join(d, "config_cheo_ri.yaml")
     if os.path.isfile(config):
         cmd = ["sed", "-i", replace, config]
         subprocess.check_call(cmd)
@@ -58,8 +58,8 @@ def setup_directories(family, sample_list, filepath, step):
         cmd = ["sed", "-i", PT_credentials, config]
         subprocess.check_call(cmd)
     replace = "s/job-name=crg2/job-name={}/".format(family)
-    config_path = "s+~/crg2/config_hpf.yaml+{}/config_hpf.yaml+".format(d)
-    slurm = os.path.join(d, "dnaseq_slurm_hpf.sh")
+    config_path = "s+/srv/shared/crg2/config_cheo_ri.yaml+{}/config_cheo_ri.yaml+".format(d)
+    slurm = os.path.join(d, "dnaseq_slurm_cheo_ri.sh")
     if os.path.isfile(slurm):
         cmd = ["sed", "-i", replace, slurm]
         subprocess.check_call(cmd)
@@ -67,28 +67,27 @@ def setup_directories(family, sample_list, filepath, step):
         subprocess.check_call(cmd)
 
     # glob hpo
-    hpo_path = os.path.expanduser("~/gene_data/HPO")
-    hpo = glob.glob(("{}/{}_HPO.txt").format(hpo_path, family))
-    if len(hpo) > 1:
-        print(f"Multiple HPO files found: {hpo}. Exiting!")
-        exit()
-    if len(hpo) == 1 and os.path.isfile(config):
-        hpo = hpo[0]
+    hpo_path = os.path.expanduser("/srv/shared/metadata/HPO")
+    try:
+        hpo = glob.glob(("{}/{}_HPO*.txt").format(hpo_path, family))[-1] # get most recent HPO file
+    except IndexError:
+        print(f"No HPO files found for family: {family}")
+        hpo = ""
+
+    if os.path.isfile(config):
         replace = 's+hpo: ""+hpo: "{}"+'.format(hpo)
         cmd = ["sed", "-i", replace, config]
         subprocess.check_call(cmd)
 
     # glob ped
-    ped_path = os.path.expanduser("~/gene_data/pedigrees")
-    ped = glob.glob(("{}/{}*ped").format(ped_path, family))
-    if len(ped) > 1:
-        print(f"Multiple ped files found: {ped}. Exiting!")
-        exit()
-    if len(ped) == 0:
+    ped_path = os.path.expanduser("/srv/shared/metadata/pedigrees")
+    try:
+        ped = glob.glob(("{}/{}*ped").format(ped_path, family))[-1] # get most recent ped file
+    except IndexError:
         print(f"No ped files found for family: {family}")
-        return False
-    if len(ped) == 1 and os.path.isfile(config):
-        ped = ped[0]
+        ped = ""
+
+    if os.path.isfile(config):
         pedi = pd.read_csv(
             ped,
             sep=" ",
@@ -152,7 +151,7 @@ def setup_directories(family, sample_list, filepath, step):
         return True
 
     # fastq: no directory creations required; inputs can be fastq or bam
-    # set input: bam or fastq(default) in config_hpf.yaml
+    # set input: bam or fastq(default) in config_cheo_ri.yaml
     if step == "fastq":
         if len(sample_list) == len([i for i in sample_list if i.bam]):
             return True
@@ -180,7 +179,7 @@ def submit_jobs(directory, family):
     if not os.path.isdir(directory):
         print(f"{directory} not found. Exiting!")
         exit()
-    slurm = "dnaseq_slurm_hpf.sh"
+    slurm = "dnaseq_slurm_cheo_ri.sh"
     if os.path.isfile(os.path.join(directory, slurm)):
         cwd = os.getcwd()
         os.chdir(directory)
@@ -204,7 +203,7 @@ def valid_dir(dir):
 def valid_file(filename):
     if not os.path.isfile(filename):
         message = "{} file does not exist".format(filename)
-        log_message(message)
+        print(message)
         raise argparse.ArgumentTypeError(message)
     else:
         if not os.path.getsize(filename) > 0:
@@ -216,14 +215,14 @@ def valid_file(filename):
 
 def cp_cnv(project, family, filepath):
     cnvs = glob.glob(
-        f"/hpf/largeprojects/ccmbio_ephemeral/from_tcag/{project}_cnv_*/FAM_{family}/cnv/*tsv"
+        f"/srv/shared/data/TCAG_SRWGS_raw/{project}_cnv_*/FAM_{family}/cnv/*tsv"
     )
     os.makedirs(f"{filepath}/report/cnv", exist_ok=True)
     d = f"{filepath}/report/cnv"
     for c in cnvs:
         cmd = ["cp", c, d]
         subprocess.check_call(cmd)
-    crg_dir = crg2_dir.replace("crg2", "crg")
+    crg_dir = crg2_dir.replace("/crg2/", "/crg/")
     cmd = ["sbatch", f"{crg_dir}/merge.cnv.reports.sh", family]
     os.chdir(d)
     subprocess.check_call(cmd)
@@ -295,7 +294,7 @@ if __name__ == "__main__":
         print(i, filepath)
 
         # create project directory
-        # copy config_hpf.yaml, dnaseq_slurm_hpf.sh & replace family id; copy slurm_config.yaml
+        # copy config_cheo_ri.yaml, dnaseq_slurm_cheo_ri.sh & replace family id; copy slurm_config.yaml
         print(f"\nStarting to setup project directories for family: {i}")
         submit_flag = setup_directories(i, sample_list, filepath, args.step)
         write_units(sample_list, filepath)

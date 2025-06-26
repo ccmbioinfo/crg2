@@ -40,52 +40,52 @@ if [ "$genome_type" != "TCAG" ] && [ "$genome_type" != "GSO" ]; then
         exit
 fi
 
-$mc mb minio/results-c4r/$family
+mkdir /srv/minio/results-c4r/$family
 
 if [ "$NGS_type" == wgs ]; then
-	$mc cp ${family_dir}/report/coding/${family}/${family}.wes.regular*csv minio/results-c4r/$family
-	$mc cp ${family_dir}/report/denovo/${family}/${family}.denovo*csv minio/results-c4r/$family
-	$mc cp  ${family_dir}/report/sv/${family}.BND.wgs.sv*.tsv minio/results-c4r/$family
-	$mc cp  ${family_dir}/report/str/${family}.EHDN.202*xlsx minio/results-c4r/$family
-	$mc cp  ${family_dir}/report/str/${family}.EH-v1.1.202*xlsx minio/results-c4r/$family
-	$mc cp  ${family_dir}/report/mitochondrial/${family}.mitochondrial.report.csv minio/results-c4r/$family
+	cp ${family_dir}/report/coding/${family}/${family}.wes.regular*csv /srv/minio/results-c4r/$family
+	cp ${family_dir}/report/denovo/${family}/${family}.denovo*csv /srv/minio/results-c4r/$family
+	cp  ${family_dir}/report/sv/${family}.BND.wgs.sv*.tsv /srv/minio/results-c4r/$family
+	cp  ${family_dir}/report/str/${family}.EHDN.202*xlsx /srv/minio/results-c4r/$family
+	cp  ${family_dir}/report/str/${family}.EH-v1.1.2.202*xlsx /srv/minio/results-c4r/$family
+	cp  ${family_dir}/report/mitochondrial/${family}.mitochondrial.report.202*csv /srv/minio/results-c4r/$family
 
 	if [ "$genome_type" == TCAG ]; then
-        	$mc cp ${family_dir}/report/cnv/${family}*cnv.withSVoverlaps.tsv minio/results-c4r/$family
-        	$mc cp  ${family_dir}/report/sv/${family}.unfiltered.wgs*overlaps.tsv minio/results-c4r/$family
-        	$mc cp  ${family_dir}/report/sv/${family}.wgs*overlaps.tsv minio/results-c4r/$family
+        	cp ${family_dir}/report/cnv/${family}*cnv.withSVoverlaps.tsv /srv/minio/results-c4r/$family
+        	cp  ${family_dir}/report/sv/${family}.unfiltered.wgs*overlaps.tsv /srv/minio/results-c4r/$family
+        	cp  ${family_dir}/report/sv/${family}.wgs*overlaps.tsv /srv/minio/results-c4r/$family
 	else
 		# no CNV reports
-                $mc cp  ${family_dir}/report/sv/${family}.unfiltered.wgs*tsv minio/results-c4r/$family
-                $mc cp  ${family_dir}/report/sv/${family}.wgs*tsv minio/results-c4r/$family
+                cp  ${family_dir}/report/sv/${family}.unfiltered.wgs*tsv /srv/minio/results-c4r/$family
+                cp  ${family_dir}/report/sv/${family}.wgs*tsv /srv/minio/results-c4r/$family
 	fi
 	
 	if [ -f ${family_dir}/report/panel/${family}/${family}.wgs.panel*csv ]; then	
-		$mc cp ${family_dir}/report/panel/${family}/${family}.wgs.panel*csv minio/results-c4r/$family
+		cp ${family_dir}/report/panel/${family}/${family}.wgs.panel*csv /srv/minio/results-c4r/$family
 	else
 		panel=${family_dir}/report/panel/${family}/${family}.wgs*csv
 		panel_date=`basename $panel | cut -d'.' -f3`
 		mv $panel ${family_dir}/report/panel/${family}/${family}.wgs.panel.${panel_date}.csv
-		$mc cp ${family_dir}/report/panel/${family}/${family}.wgs.panel.${panel_date}.csv minio/results-c4r/$family
+		cp ${family_dir}/report/panel/${family}/${family}.wgs.panel.${panel_date}.csv /srv/minio/results-c4r/$family
 	fi 
 
 	if [ -f ${family_dir}/report/panel-flank/${family}/${family}.wgs.panel-flank*csv ]; then
-		$mc cp ${family_dir}/report/panel-flank/${family}/${family}.wgs.panel-flank*csv minio/results-c4r/$family
+		cp ${family_dir}/report/panel-flank/${family}/${family}.wgs.panel-flank*csv /srv/minio/results-c4r/$family
 	else
 		panel_flank=${family_dir}/report/panel-flank/${family}/${family}.wgs*csv
 		panel_flank_date=`basename $panel_flank | cut -d'.' -f3`
 		mv $panel_flank ${family_dir}/report/panel-flank/${family}/${family}.wgs.panel-flank.${panel_flank_date}.csv
-		$mc cp ${family_dir}/report/panel-flank/${family}/${family}.wgs.panel-flank.${panel_flank_date}.csv minio/results-c4r/$family
+		cp ${family_dir}/report/panel-flank/${family}/${family}.wgs.panel-flank.${panel_flank_date}.csv /srv/minio/results-c4r/$family
 	fi 
 else
-	$mc cp ${family_dir}/report/coding/${family}/${family}.clinical.wes.regular*csv minio/results-c4r/$family
-	$mc cp ${family_dir}/report/coding/${family}/${family}.clinical.wes.synonymous*csv minio/results-c4r/$family
-	$mc cp ${family_dir}/report/coding/${family}/${family}.wes.regular*csv minio/results-c4r/$family
-	$mc cp ${family_dir}/report/coding/${family}/${family}.wes.synonymous*csv minio/results-c4r/$family
+	cp ${family_dir}/report/coding/${family}/${family}.clinical.wes.regular*csv /srv/minio/results-c4r/$family
+	cp ${family_dir}/report/coding/${family}/${family}.clinical.wes.synonymous*csv /srv/minio/results-c4r/$family
+	cp ${family_dir}/report/coding/${family}/${family}.wes.regular*csv /srv/minio/results-c4r/$family
+	cp ${family_dir}/report/coding/${family}/${family}.wes.synonymous*csv /srv/minio/results-c4r/$family
 fi
 	
 if [ "$multiqc" == multiqc ]; then
-	$mc cp ${family_dir}/qc/multiqc/multiqc.html minio/results-c4r/$family
+	cp ${family_dir}/qc/multiqc/multiqc.html /srv/minio/results-c4r/$family
 fi
 
 if [[ "$coverages" == coverages ]]; then
@@ -96,12 +96,12 @@ if [[ "$coverages" == coverages ]]; then
    for direc in ${family_dir}/${family}_*_coverages
      do 
      sample_cov=$(basename $direc)
-     $mc mb minio/results-c4r/$family/$sample_cov
-     $mc cp ${direc}/${family}*.dedup.bam.coverage_stats.csv minio/results-c4r/$family/$sample_cov
-     $mc cp ${direc}/${family}*.dedup.bam.less20x_coverage.csv minio/results-c4r/$family/$sample_cov
-     $mc cp ${direc}/${family}*.dedup.bam.less20x.stats.csv minio/results-c4r/$family/$sample_cov
-     $mc cp ${direc}/${family}*.dedup.bam.median minio/results-c4r/$family/$sample_cov
-     $mc cp ${direc}/${family}*.dedup.bam.per_exon.csv minio/results-c4r/$family/$sample_cov
-     $mc cp ${direc}/${family}*.dedup.bam.per_exon.distribution.csv minio/results-c4r/$family/$sample_cov
+     mkdir /srv/minio/results-c4r/$family/$sample_cov
+     cp ${direc}/${family}*.dedup.bam.coverage_stats.csv /srv/minio/results-c4r/$family/$sample_cov
+     cp ${direc}/${family}*.dedup.bam.less20x_coverage.csv /srv/minio/results-c4r/$family/$sample_cov
+     cp ${direc}/${family}*.dedup.bam.less20x.stats.csv /srv/minio/results-c4r/$family/$sample_cov
+     cp ${direc}/${family}*.dedup.bam.median /srv/minio/results-c4r/$family/$sample_cov
+     cp ${direc}/${family}*.dedup.bam.per_exon.csv /srv/minio/results-c4r/$family/$sample_cov
+     cp ${direc}/${family}*.dedup.bam.per_exon.distribution.csv /srv/minio/results-c4r/$family/$sample_cov
      done
 fi

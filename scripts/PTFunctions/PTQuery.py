@@ -5,6 +5,7 @@ import pandas as pd
 import requests
 import sys
 from typing import Optional
+from datetime import date
 
 
 """ headers, in order, from template singleton report """
@@ -231,7 +232,7 @@ class PTQuery:
     ) -> str:
         """search metadata for participant's latest upload attempt"""
 
-        PAGE_SIZE = 25
+        PAGE_SIZE = 15
 
         if not params:
             params = {"patientLimit": PAGE_SIZE, "patientOffset": 0}
@@ -611,7 +612,8 @@ class PTQuery:
         """
         Write a pedigree text file given dictionary derived from Phenotips pedigree JSON
         """
-        with open(f"/home/ccmmarvin/gene_data/pedigrees/{C4R_family}_pedigree.ped", "w") as f:
+        today = date.today().strftime('%Y-%m-%d')
+        with open(f"/srv/shared/metadata/pedigrees/{C4R_family}_pedigree_{today}.ped", "w") as f:
             for member in members:
                 family_id = member.split("_")[0]
                 sample_id = member
