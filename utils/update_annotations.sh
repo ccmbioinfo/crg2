@@ -3,7 +3,6 @@
 # get OMIM files
 set -e
 
-cre_dir=/srv/shared/pipelines/cre
 DATE=`date +%Y-%m-%d`
 OMIM_key=$1 # e.g. lWLUD8lnRx-LhhI9832mXY
 
