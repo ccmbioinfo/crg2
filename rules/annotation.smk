@@ -26,7 +26,8 @@ rule pass:
     threads: 6
     resources:
         mem=lambda wildcards, threads: threads * 2
-    params: "-f PASS"
+    params: 
+        filter="-f PASS"
     wrapper:
         get_wrapper_path("bcftools", "view")
 
