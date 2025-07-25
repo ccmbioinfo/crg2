@@ -21,7 +21,6 @@ units = pd.read_table(config["run"]["units"], dtype=str).set_index(["sample"], d
 validate(units, schema="../schemas/units.schema.yaml")
 
 project = config["run"]["project"]
-flank = config["run"]["flank"]
 gatk = config["run"]["gatk"] 
 
 ##### Wildcard constraints #####
