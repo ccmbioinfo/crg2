@@ -10,9 +10,9 @@ tools:
   orad: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/crg2-non-conda-tools/orad_2_6_1/orad" 
 
 ref:
-  name: GRCm39
-  genome: "/hpf/largeprojects/ccmbio/mcouse/dmalkin/mouse_WES/data/genome/GRCm39.genome.fa"
-  canon_bed: ""
+  name: GRCm38
+  genome: "/hpf/largeprojects/ccmbio/mcouse/dmalkin/mouse_WES/data/genome/GRCm38.p4.genome.fa"
+  canon_bed: "/hpf/largeprojects/ccmbio/mcouse/dmalkin/mouse_WES/data/genome/mm10_canon_chr.txt"
   known-variants: "/hpf/largeprojects/ccmbio/mcouse/dmalkin/mouse_WES/data/dbSNP/mgp.v5.merged.dbSNP142.normed.vcf.gz"
   orad_ref: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/crg2-non-conda-tools/orad_2_6_1/oradata"
   ref_cache: ""
