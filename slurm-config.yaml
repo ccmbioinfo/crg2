@@ -23,34 +23,6 @@ __default__:
   time: "20:00:00"
   output: "slurm/%x-%j.out"
 
-map_reads:
-  time: "350:00:00"
-
-snpeff:
-  mem: "25G"
-
-qualimap:
-  mem: "60G"
-  time: "100:00:00"
-
-allsnvreport:
-  mem: "60G"
-
-wham:
-  mem: "100G"
-
-smoove:
-  mem: "100G"
-
-manta:
-  mem: "100G"
-
-recalibrate_base_qualities:
-  time: "100:00:00"
-
-melt_indiv_analysis:
-  time: "100:00:00"
-
 
 
 

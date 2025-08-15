@@ -9,38 +9,18 @@ properties:
     type: object
     project:
       type: ["number", "string"]
-    samples:
+    accession:
       type: ["number", "string"]
-    units:
-      type: string
-    ped:
-      type: string
-    panel:
-      type: string
-    hpo:
-      type: string
-    flank:
-      type: string
     required:
-      - samples
-      - units
+      - accession
 
   tools:
     type: object
     properties:
-      svscore_script:
-        type: string
-      annotsv:
-        type: string
-      cre:
-        type: string
-      crg:
+      sratoolkit:
         type: string
     required:
-      - svscore_script
-      - annotsv
-      - cre
-      - crg
+      - sratoolkit
 
   ref:
     type: object

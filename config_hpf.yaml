@@ -1,15 +1,6 @@
 run:
-  project: "NA12878"
-  samples: samples.tsv
-  units: units.tsv
-  ped: "" # leave this string empty if there is no ped
-  panel: "" # three-column BED file based on hpo file; leave this string empty if there is no panel
-  hpo: "" # five-column TSV with HPO terms; leave this string empty is there are no hpo terms
-  flank: 100000
-  gatk: "gatk"
-  pipeline: "wes" #either wes (exomes) or wgs (genomes) or annot (to annotate and produce reports for an input vcf) or mity (to generate mitochondrial reports)
-  minio: ""
-  PT_credentials: ""
+  project: "SAMN12350833"
+  accession: accession.tsv
 
 genes:
   ensembl: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/Homo_sapiens.GRCh37.87.gtf_subset.csv"
@@ -18,17 +9,8 @@ genes:
 
 
 tools:
-  svscore_script: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/crg2-non-conda-tools/SVScore/svscore.pl"
-  annotsv: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/crg2-non-conda-tools/AnnotSV_2.1"
-  cre: "~/cre"
-  crg: "~/crg"
-  crg2: "~/crg2"
-  ehdn: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/crg2-non-conda-tools/EHDN.TCAG/ExpansionHunterDenovo-v0.7.0"
-  mity: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/crg2-non-conda-tools/mity_v1.1.0/bin"
-  melt: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/crg2-non-conda-tools/MELT/MELTv2.2.2/MELT.jar"
-  orad: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/crg2-non-conda-tools/orad_2_6_1/orad" 
-  annovar: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/crg2-non-conda-tools/annovar"
-
+  sratoolkit: "/hpf/largeprojects/ccmbio/ajain/isaac_chantel_project/pipelines/tools/sratoolkit.3.2.1-alma_linux64/bin"
+  kraken2: "/hpf/largeprojects/ccmbio/ajain/isaac_chantel_project/pipelines/tools/kraken2/kraken2"
 
 ref:
   name: GRCh37.75
