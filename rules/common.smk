@@ -7,28 +7,21 @@ from datetime import date
 
 min_version("5.7.1")
 
-report: "../report/workflow.rst"
-
-###### Config file and sample sheets #####
+###### Config file and accession sheets #####
 #configfile: "config.yaml"
 validate(config, schema="../schemas/config.schema.yaml")
 
-samples = pd.read_table(config["run"]["samples"], dtype=str).set_index("sample", drop=False)
-validate(samples, schema="../schemas/samples.schema.yaml")
+sra_run=pd.read_table("accession.tsv", dtype=str)["sra_run"][0]
+acc_table=pd.read_table("accession.tsv", dtype=str)
 
-units = pd.read_table(config["run"]["units"], dtype=str).set_index(["sample"], drop=False)
-
-validate(units, schema="../schemas/units.schema.yaml")
+validate(acc_table, schema="../schemas/accession.schema.yaml")
 
 project = config["run"]["project"]
-flank = config["run"]["flank"]
-gatk = config["run"]["gatk"] 
 
 ##### Wildcard constraints #####
 wildcard_constraints:
-    vartype = "snvs|indels",
-    sample = "|".join(samples.index),
-    family = str(project)
+    sra_run = sra_run,
+    sample = str(project)
 
 
 ##### Helper functions #####
