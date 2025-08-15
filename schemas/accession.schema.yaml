@@ -1,0 +1,10 @@
+$schema: "http://json-schema.org/draft-04/schema#"
+
+description: SRA accession number
+properties:
+  sra_acc:
+    type: ["number", "string"]
+    description: SRA Run accession number
+
+required:
+  - sra_run
