@@ -10,7 +10,7 @@ genes:
 
 tools:
   sratoolkit: "/hpf/largeprojects/ccmbio/ajain/isaac_chantel_project/pipelines/tools/sratoolkit.3.2.1-alma_linux64/bin"
-  kraken2: "/hpf/largeprojects/ccmbio/ajain/isaac_chantel_project/pipelines/tools/kraken2/kraken2"
+  kraken2_db: "/hpf/largeprojects/ccmbio/ajain/isaac_chantel_project/pipelines/tools/k2_standard"
 
 ref:
   name: GRCh37.75

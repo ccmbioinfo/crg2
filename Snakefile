@@ -15,4 +15,8 @@ rule all:
     input:
         f"fastq/{sra_run}_1.fastq",
         f"fastq/{sra_run}_2.fastq",
-        f"qc/fastqc/{sra_run}"
+        f"qc/fastqc/{sra_run}",
+        f"qc/kraken2/{sra_run}_report.txt",
+        f"qc/kraken2/{sra_run}_output.txt",
+        f"qc/krona/{sra_run}.taxonomy.krona.html",
+        f"qc/bracken/{sra_run}.bracken.txt"

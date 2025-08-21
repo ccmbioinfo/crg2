@@ -1,80 +1,23 @@
-# crg2
-Clinical research pipeline for exploring variants in whole genome (WGS) and exome (WES) sequencing data
+# crg2-bacterial
+Research pipeline for de-novo assembly of whole genome (WGS) of bacterial isolates. It aims to provide reproducible results, be computationally efficient, and transparent in it's workflow.crg2 uses Snakemake and Conda to manage jobs and software dependencies.
 
 <div align="center">
     <img src="/crg2logolarge.png" width="800px"</img> 
 </div>
 
-crg2 is a research pipeline aimed at discovering clinically relevant variants in whole genome and exome sequencing data.
-It aims to provide reproducible results, be computationally efficient, and transparent in it's workflow.
+## Conda environment set-up
+Snakemake will build the conda-environment for each rule according to the environment.yaml file present in the respective wrapper's directory.
 
-crg2 uses Snakemake and Conda to manage jobs and software dependencies.
+To set up the krona environment, I had to follow a few additional steps. Documenting it here for future reference:
+1. Actiavte conda environment: `conda activate /hpf/largeprojects/ccm_dccforge/dccdipg/Common/snakemake/0017e84a`
+1. Remove the taxonomy directory:  `rm -rf /hpf/largeprojects/ccm_dccforge/dccdipg/Common/snakemake/0017e84a/opt/krona/taxonomy`
+2. Create the taxonomy directory in another folder:  `mkdir /hpf/largeprojects/ccmbio/ajain/isaac_chantel_project/conda_envs/krona/taxonomy`
+3. Create a symlink: `ln -s /hpf/largeprojects/ccmbio/ajain/isaac_chantel_project/conda_envs/krona/taxonomy /hpf/largeprojects/ccm_dccforge/dccdipg/Common/snakemake/0017e84a/opt/krona/taxonomy`
+4. Change directory to the newly created taxonomy directory: `cd /hpf/largeprojects/ccmbio/ajain/isaac_chantel_project/conda_envs/krona/taxonomy`
+5. Download the taxonomy file: `wget ftp://ftp.ncbi.nih.gov/pub/taxonomy/taxdump.tar.gz`
+6. Build the taxonomy database:  `ktUpdateTaxonomy.sh --only-build`
 
-## Installation instructions
 
-A note about the config files: the values in config_hpf.yaml refer to tool/filepaths on SickKid's HPC4Health tenancy (hpf), while the values in config_cheo_ri.yaml refer to tool/filepaths on CHEO's HPC4Health tenancy. For simplicity, we refer below only to config_hpf.yaml; if you are running crg2 on CHEO's tenancy, use config_cheo_ri.yaml instead. 
-
-1. If you are running crg2 on the hpf, skip to the 'Running the pipeline' section.
-2. Download and setup Anaconda: https://docs.conda.io/projects/conda/en/latest/user-guide/install/linux.html
-3. Install Snakemake 5.10.0 via Conda: https://snakemake.readthedocs.io/en/stable/getting_started/installation.html
-4. Git clone this repo, [crg](https://github.com/ccmbioinfo/crg), and [cre](https://github.com/ccmbioinfo/cre). crg2 uses various scripts from other two repos to generate final reports.
-5. Make a directory for Conda to install all its environments and executables in, for example:
-```
-mkdir ~/crg2-conda
-```
-
-6. Navigate to the crg2 directory. Install all software dependencies using:
-- WGS:
-  ```
-  cd crg2
-  snakemake --use-conda -s Snakefile --conda-prefix ~/crg2-conda --create-envs-only
-  ```
-- WES: This will install additional tools like freebayes, platypus, mosdepth and gatk3.
-  ```
-  cd crg2
-  snakemake --use-conda -s cre.Snakefile --conda-prefix ~/crg2-conda --create-envs-only
-  ```
-Make sure to replace ```~/crg2-conda``` with the path made in step 4. This will take a while.
-
-7. Install these plugins for VEP: ```LoF, MaxEntScan, SpliceRegion```. Refer to this page for installation instructions: https://useast.ensembl.org/info/docs/tools/vep/script/vep_plugins.html. The INSTALL.pl script has been renamed to vep_install in the VEP's Conda build. It is located in the conda environment directory, under ```share/ensembl-vep-99.2-0/vep_install```. Therefore, your command should be similar to: ```fb5f2eb3/share/ensembl-vep-99.2-0/vep_install -a p --PLUGINS LoF,MaxEntScan,SpliceRegion```
-
-8. Git clone cre: ```git clone https://github.com/ccmbioinfo/cre``` to a safe place.
-
-9. Replace the VEP paths to the VEP directory installed from step 6. Replace the cre path in crg2/config_hpf.yaml with the one from step 7.
-
-10. AnnotSV 2.1 is required for SV report generation.
-- Download AnnotSV:  ```wget https://lbgi.fr/AnnotSV/Sources/AnnotSV_2.1.tar.gz```
-- Unpack : ```tar -xzvf AnnotSV_2.1.tar.gz```
-- Set the value of $ANNOTSV in your .bashrc: ```export ANNOTSV=/path_of_AnnotSV_installation/bin```
-- Modify AnnotSV_2.1/configfile:
-  - set ```-bedtools:              bedtools```
-  - set ```-overlap:               50``` 
-  - set ```-reciprocal             yes```
-  - set ```-svtBEDcol:     4```
-
-11. To generate a gene panel from an HPO text file exported from PhenomeCentral or G4RD, add the HPO filepath to `config["run"]["hpo"]`. You will also need to generate Ensembl and RefSeq gene files as well as an HGNC gene mapping file.
-- Download and unzip Ensembl gtf: ```wget -qO- http://ftp.ensembl.org/pub/grch37/current/gtf/homo_sapiens/Homo_sapiens.GRCh37.87.gtf.gz  | gunzip -c > Homo_sapiens.GRCh37.87.gtf```
-- Download and unzip RefSeq gff: ```wget https://ftp.ncbi.nlm.nih.gov/refseq/H_sapiens/annotation/GRCh37_latest/refseq_identifiers/GRCh37_latest_genomic.gff.gz | gunzip -c > GRCh37_latest_genomic.gff```
-- Download RefSeq chromosome mapping file: ```wget https://ftp.ncbi.nlm.nih.gov/refseq/H_sapiens/annotation/GRCh37_latest/refseq_identifiers/GRCh37_latest_assembly_report.txt```
-- Run script to parse the above files: ```python scripts/clean_gtf.py --ensembl_gtf /path/to/Homo_sapiens.GRCh37.87.gtf --refseq_gff3 /path/to/GRCh37_latest_genomic.gff --refseq_assembly /path/to/GRCh37_latest_assembly_report.txt```
-- Add the paths to the output files, Homo_sapiens.GRCh37.87.gtf_subset.csv and GRCh37_latest_genomic.gff_subset.csv, to the `config["gene"]["ensembl"]` and `config["gene"]["refseq"]` fields.
-- You will also need the HGNC alias file: download this from https://www.genenames.org/download/custom/ using the default fields. Add the path this file to `config["gene"]["hgnc"]`.
-
-12. crg2 uses [mity](https://github.com/KCCG/mity) to call and annotate small mitochondrial variants. Mity is not available via conda unfortunately, so it must be installed manually into an environment. The first time you run crg2 WGS, snakemake will build the conda environments specified in wrappers/mity/*/environment.yaml, which include the dependencies necessary to run mity. You can find the conda environment associated with rule `mity_call` by looking at the slurm log file for that rule after the pipeline tries and fails to run mity. Activate this environment, then manually install mity into this conda environment: 
-```pip install mitywgs==0.4.0```
-Replace `config["tools"]["mity"]` with the path to the conda environment binaries, e.g. "/srv/shared/conda_envs/crg2-conda/8a9bda62/bin/". You may also need to add a shebang at the top of the mity program (in this example, /srv/shared/conda_envs/crg2-conda/8a9bda62/bin/mity): 
-```#!/srv/shared/conda_envs/crg2-conda/8a9bda62/bin/python3```
-
-12. To generate a mobile element insertion report (WGS only), MELT installation is required and some paths must be added to config_hpf.yaml: 
-- Download MELT from https://melt.igs.umaryland.edu/downloads.php.  
-- Unpack the .tar.gz file: ```tar zxf MELTvX.X.tar.gz ```
-  This should create a MELTvX.X directory in your current directory. 
-- In config_hpf.yaml, add the path to the MELTvX.X directory to `config[“tools”][”melt”]` .
-- Generate a transposon reference text file containing a list of full paths to the mobile element references. For example: 
-  ```ls <full_path_to>/MELTv2.2.2/me_refs/1KGP_Hg19/*_MELT.zip > transposon_file_list.txt ```
-- In config_hpf.yaml, add the full path to the transposon reference text file to `config[“ref”][“melt_element_ref”]`.
-- In config_hpf.yaml, add the full path to hg19.genes.bed, containing the gene annotation for the FASTA reference to `config[“annotation”][“melt”][“genes”]`. The file can be found at: 
-  ```<full_path_to>/MELTv2.2.2/add_bed_files/1KGP_Hg19/hg19.genes.bed ```
 
 ## Pipeline details
 
