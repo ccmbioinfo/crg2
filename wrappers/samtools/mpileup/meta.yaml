@@ -1,4 +1,0 @@
-name: samtools mpileup
-description: Generate pileup using samtools.
-authors:
-  - Patrik Smeds

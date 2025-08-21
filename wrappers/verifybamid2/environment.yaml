@@ -1,6 +1,0 @@
-channels:
-  - bioconda
-  - conda-forge
-  - defaults
-dependencies:
-  - verifybamid2==2.0.1

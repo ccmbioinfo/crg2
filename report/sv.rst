@@ -1,1 +1,0 @@
-SV results: {{snakemake.output}}

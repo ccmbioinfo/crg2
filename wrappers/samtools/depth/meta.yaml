@@ -1,4 +1,0 @@
-name: samtools depth
-description: Compute the read depth at each position or region using samtools.
-authors:
-  - Dayne Filer

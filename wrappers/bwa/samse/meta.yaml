@@ -1,4 +1,0 @@
-name: "bwa samse"
-description: Map single-end reads with bwa samse.
-authors:
-  - Julian de Ruiter

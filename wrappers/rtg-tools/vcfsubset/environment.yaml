@@ -1,7 +1,0 @@
-channels:
-  - bioconda
-  - conda-forge
-  - defaults
-dependencies:
-  - rtg-tools ==3.12
-  - bcftools ==1.11

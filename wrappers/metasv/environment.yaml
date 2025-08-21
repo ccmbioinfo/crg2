@@ -1,4 +1,0 @@
-channels:
-  - bioconda
-dependencies:
-  - metasv ==0.5.4

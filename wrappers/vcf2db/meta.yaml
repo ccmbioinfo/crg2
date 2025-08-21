@@ -1,4 +1,0 @@
-name: "vcf2db"
-description: Create a gemini-compatible database from a VCF
-authors:
-  - Dennis Kao

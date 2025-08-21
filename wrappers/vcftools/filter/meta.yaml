@@ -1,4 +1,0 @@
-name: vcftools filter
-description: Filter vcf files using vcftools
-authors:
-  - Patrik Smeds
