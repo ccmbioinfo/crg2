@@ -15,7 +15,7 @@ Snakemake will build the conda-environment for each rule according to the enviro
 4. Add the database path to the `config_hpf.yaml`
 
 ### Setting up the Krona database 
-1. Actiavte conda environment created by snakemake: `conda activate /hpf/largeprojects/ccm_dccforge/dccdipg/Common/snakemake/0017e84a`
+1. Activate conda environment created by snakemake: `conda activate /hpf/largeprojects/ccm_dccforge/dccdipg/Common/snakemake/0017e84a`
 2. Remove the taxonomy directory:  `rm -rf /hpf/largeprojects/ccm_dccforge/dccdipg/Common/snakemake/0017e84a/opt/krona/taxonomy`
 3. Create the taxonomy directory in another folder:  `mkdir /hpf/largeprojects/ccmbio/ajain/isaac_chantel_project/pipelines/data/krona/taxonomy`
 4. Create a symlink: `ln -s /hpf/largeprojects/ccmbio/ajain/isaac_chantel_project/pipelines/data/krona/taxonomy /hpf/largeprojects/ccm_dccforge/dccdipg/Common/snakemake/0017e84a/opt/krona/taxonomy`
@@ -25,7 +25,7 @@ Snakemake will build the conda-environment for each rule according to the enviro
 
 ### Setting up the Bakta database
 To set up the Bakta environment, I had to follow a few additional steps. Documenting it here for future reference:
-1. Activate the conda environment that snakemake created: `conda activate /hpf/largeprojects/ccm_dccforge/dccdipg/Common/snakemake/26ae42d8`'
+1. Activate the conda environment that snakemake created: `conda activate /hpf/largeprojects/ccm_dccforge/dccdipg/Common/snakemake/26ae42d8`
 2. Change directory to: `cd /hpf/largeprojects/ccmbio/ajain/isaac_chantel_project/pipelines/data/`
 3. Download the bakta database:  `wget https://zenodo.org/records/14916843/files/db.tar.xz?download=1`
 4. Rename the downloaded file: `mv db.tar.xz?download=1 db.tar.xz`
@@ -129,13 +129,6 @@ This was a dry-run (flag -n). The order of jobs does not reflect the order of ex
     Job scheduler: Slurm
       * Parallelized jobs on SickKids hpf:
       ```sbatch dnaseq_slurm_hpf.sh```
-
-## Pipeline outputs
-
-## Reports
-
-
-
 
 # References:
 1. SRA Toolkit: https://github.com/ncbi/sra-tools/wiki/08.-prefetch-and-fasterq-dump
