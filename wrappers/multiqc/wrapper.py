@@ -18,7 +18,6 @@ log = snakemake.log_fmt_shell(stdout=True, stderr=True)
 
 shell(
     "multiqc"
-    " -c {snakemake.params}"
     " --force"
     " -o {output_dir}"
     " -n {output_name}"

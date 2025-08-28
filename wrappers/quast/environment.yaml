@@ -3,8 +3,6 @@ channels:
   - conda-forge
   - defaults
 dependencies:
-  - multiqc==1.30
   - python=3.9
+  - quast
   - setuptools
-  - pyyaml
-  - polars-lts-cpu

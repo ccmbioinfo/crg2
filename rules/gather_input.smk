@@ -19,7 +19,7 @@ rule fasterq_dump:
         sratoolkit = config["tools"]["sratoolkit"]
     output:
         fastq1 = "fastq/{sra_run}_1.fastq",
-        fastq2 = "fastq/{sra_run}_2.fastq",
+        fastq2 = "fastq/{sra_run}_2.fastq"
     shell:
         '''
         {params.sratoolkit}/fasterq-dump --outdir {params.outdir} {input.sra}
