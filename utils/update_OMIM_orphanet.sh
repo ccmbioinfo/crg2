@@ -1,5 +1,5 @@
 #!/bin/bash
-# Update OMIM and Orphanet annotations for cre and crg2-pacbio cre
+# Update OMIM and Orphanet annotations for cre, the cre-hg38 branch, and crg2-pacbio cre
 #
 # This script will:
 # 1. Update OMIM and Orphanet annotations in both repos
@@ -33,7 +33,7 @@ curl -o data/mimTitles.txt https://data.omim.org/downloads/${OMIM_key}/mimTitles
 curl -o data/genemap2.txt https://data.omim.org/downloads/${OMIM_key}/genemap2.txt 
 curl -o data/morbidmap.txt https://data.omim.org/downloads/${OMIM_key}/morbidmap.txt 
 
-sh cre.update_omim.sh
+sh cre.update_omim.sh `pwd`
 
 # update cre.vcf2db.R to use new OMIM files
 previous_date=`grep 202 cre.vcf2db.R  | rev | cut -d '_' -f1 | rev | tr -d '.tsv")'`
@@ -45,9 +45,32 @@ sh cre.orphanet.sh
 mv orphanet.txt data/orphanet.txt
 
 # now add all changes to the cre branch and commit
+git add data/hgnc_${DATE}.txt data/genemap2.txt data/mim2gene.txt data/mimTitles.txt data/morbidmap.txt data/OMIM_hgnc_join_omim_phenos_${DATE}.tsv data/OMIM_remaining_unmapped_omim_with_info_${DATE}.tsv data/orphanet.txt cre.vcf2db.R
+git commit -m "Update OMIM and orphanet"
+#git push origin anno-update-${DATE}
+
+# update same files for cre hg38 branch
+cd ../
+mv cre cre-hg19
+git clone https://github.com/ccmbioinfo/cre
+cd cre
+git checkout hg38
+git checkout -b anno-update-${DATE} hg38
+
+# copy OMIM files
+cp ../cre-hg19/data/OMIM_hgnc_join_omim_phenos_${DATE}.tsv ../cre-hg19/data/OMIM_remaining_unmapped_omim_with_info_${DATE}.tsv data
+cp ../cre-hg19/data/genemap2.txt ../cre-hg19/data/mim2gene.txt ../cre-hg19/data/mimTitles.txt ../cre-hg19/data/hgnc_${DATE}.txt  data
+cp ../cre-hg19/data/orphanet.txt data 
+
+# update cre.vcf2db.R to use new OMIM files
+previous_date=`grep 202 cre.vcf2db.R  | rev | cut -d '_' -f1 | rev | tr -d '.tsv")'`
+sed -i "s/${previous_date}/${DATE}/g" cre.vcf2db.R
+
+# now add all changes to the cre branch and commit
 git add data/hgnc_${DATE}.txt data/genemap2.txt data/mim2gene.txt data/mimTitles.txt data/OMIM_hgnc_join_omim_phenos_${DATE}.tsv data/OMIM_remaining_unmapped_omim_with_info_${DATE}.tsv data/orphanet.txt cre.vcf2db.R
 git commit -m "Update OMIM and orphanet"
 git push origin anno-update-${DATE}
+
 
 # update same files for crg2-pacbio cre
 cd ../
@@ -55,9 +78,9 @@ git clone https://github.com/ccmbioinfo/crg2-pacbio
 cd crg2-pacbio
 git checkout -b anno-update-${DATE}
 
-cp ../cre/data/OMIM_hgnc_join_omim_phenos_${DATE}.tsv  scripts/cre/data
-cp ../cre/data/genemap2.txt ../cre/data/mim2gene.txt ../cre/data/mimTitles.txt ../cre/data/morbidmap.txt  scripts/cre/data
-cp ../cre/data/orphanet.txt scripts/cre/data 
+cp ../cre-hg19/data/OMIM_hgnc_join_omim_phenos_${DATE}.tsv  scripts/cre/data
+cp ../cre-hg19/data/genemap2.txt ../cre-hg19/data/mim2gene.txt ../cre-hg19/data/mimTitles.txt ../cre-hg19/data/morbidmap.txt  scripts/cre/data
+cp ../cre-hg19/data/orphanet.txt scripts/cre/data 
 
 # update cre.vcf2db.R
 previous_date=`grep 202 scripts/cre/cre.vcf2db.R  | rev | cut -d '_' -f1 | rev | tr -d '.tsv")'`
