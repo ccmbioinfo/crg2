@@ -1,10 +1,43 @@
+def get_filt_vcf(wildcards):
+    if wildcards.p == "coding":
+        return "filtered/{family}.vcf.gz"
+    elif wildcards.p == "denovo":
+        return "filtered/{family}.vcf.gz"
+    else:
+        return "filtered/{p}/{family}.{p}.vcf.gz".format(p=wildcards.p,family=project)
+
+
+rule vt:
+    input: get_filt_vcf # (vcf, bcf, or vcf.gz)
+    output:
+        temp("filtered/{p}/{family}.{p}.uniq.normalized.decomposed.vcf"),
+    params:
+        ref=config["ref"]["genome"],
+    log:
+        "logs/vt/{family}.vt.{p}.uniq.normalized.decomposed.log"
+    wrapper:
+        get_wrapper_path("vt")
+
+rule pass:
+    input:
+       	"{prefix}.{ext}"
+    output:
+        temp("{prefix}.pass.{ext,(vcf|vcf\.gz)}")
+    threads: 6
+    resources:
+        mem=lambda wildcards, threads: threads * 2
+    params: 
+        filter = "-f PASS"
+    wrapper:
+        get_wrapper_path("bcftools", "view")
+
 rule vep:
     input:
-        "annotated/coding/{family}.ensemble.decomposed.vcf.gz",
+        "filtered/{p}/{family}.{p}.uniq.normalized.decomposed.pass.vcf",
     output:
-        temp("annotated/coding/vep/{family}.coding.vep.vcf")
+        temp("annotated/{p}/vep/{family}.{p}.vep.vcf"),
     log:
-        "logs/vep/{family}.vep.coding.log"
+        "logs/vep/{family}.vep.{p}.log"
     threads: 10
     resources:
         mem_mb = 30000
@@ -15,34 +48,14 @@ rule vep:
     wrapper:
         get_wrapper_path("vep")
 
-rule vcfanno:
-    input:
-        "annotated/coding/vep/{family}.coding.vep.vcf"
-    output:
-        "annotated/coding/vcfanno/{family}.coding.vep.vcfanno.vcf"
-    log:
-        "logs/vcfanno/{family}.vcfanno.coding.log"
-    threads: 10
-    resources:
-        mem_mb = 20000
-    params:
-        lua_script = config["annotation"]["cre.vcfanno"]["lua_script"],
-       	conf = config["annotation"]["cre.vcfanno"]["conf"],
-        base_path = config["annotation"]["cre.vcfanno"]["base_path"],
-    wrapper:
-        get_wrapper_path("vcfanno")
-
-
 
 rule vcf2db:
     input:
-        "annotated/coding/vcfanno/{family}.coding.vep.vcfanno.vcf".format(family=project)
+        "annotated/{p}/vep/{family}.{p}.vep.vcf.gz",
     output:
-         db = "annotated/coding/{family}-gemini.db",
+         db="annotated/{p}/{family}-gemini.db",
     log:
-        "logs/vcf2db/vcf2db.{family}.log"
-    params:
-        ped = config["run"]["ped"],
+        "logs/vcf2db/{family}.vcf2db.{p}.log"
     threads: 1
     resources:
         mem_mb = 20000

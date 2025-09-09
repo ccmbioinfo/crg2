@@ -31,4 +31,6 @@ rule write_version:
 
 ##### Modules #####
 include: "rules/mapping.smk"
-#  
+include: "rules/cre/calling.smk"  
+include: "rules/cre/filtering.smk"
+include: "rules/cre/annotation.smk"

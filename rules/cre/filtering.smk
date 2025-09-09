@@ -1,151 +1,67 @@
+def get_vartype_arg(wildcards):
+    return "--select-type-to-include {}".format(
+        "SNP" if wildcards.vartype == "snvs" else "INDEL")
 
-callers = [ gatk + "_haplotype", "samtools", "freebayes", "platypus" ]
-#callers = [ gatk + "_haplotype" ]
 
-#list used for annotating VCFs with INFO/CALLERS
-if len(callers) > 1:
-    caller_annotation = [ "gatk-haplotype", "samtools", "freebayes", "platypus" ] 
-
-def get_cre_vcfs():    
-    return ["filtered/{family}-{caller}.uniq.normalized.decomposed.pass.vcf.gz".format(family=project,caller=i) for i in callers ]
-
-def get_cre_vcf_tbi():
-    return ["filtered/{family}-{caller}.uniq.normalized.decomposed.pass.vcf.gz.tbi".format(family=project,caller=i) for i in callers ]
-    
-
-rule vt:
+rule select_calls:
     input:
-        "genotyped/{prefix}.vcf.gz", "genotyped/{prefix}.vcf.gz.tbi"
-    output:
-        "filtered/{prefix}.uniq.normalized.decomposed.vcf"  
-    params:
         ref=config["ref"]["genome"],
-    log:
-        "logs/vt/{prefix}.log"
-    wrapper:
-        get_wrapper_path("vt")
-
-rule soft_filter:
-    input: 
-        "filtered/{prefix}.uniq.normalized.decomposed.vcf.gz", "filtered/{prefix}.uniq.normalized.decomposed.vcf.gz.tbi" 
+        vcf="genotyped/gatk/{family}.vcf.gz"
     output:
-        "filtered/{prefix}.uniq.normalized.decomposed.softfiltered.vcf.gz" 
-    params: 
-        soft = config["filtering"]["soft"],
+        vcf=temp("filtered/{family}.{vartype}.vcf.gz")
+    params:
+        extra=get_vartype_arg
     log:
-        "logs/bcftools/soft/{prefix}.log"
+        "logs/gatk/selectvariants/{family}.{vartype}.log"
     wrapper:
-        get_wrapper_path("bcftools", "filter")
+        get_wrapper_path("gatk", "selectvariants")
 
-rule pass:
+
+def get_filter(wildcards):
+    return {
+        "snv-hard-filter":
+        config["filtering"]["hard"][wildcards.vartype]}
+
+
+rule hard_filter_calls:
     input:
-        "filtered/{prefix}.uniq.normalized.decomposed.softfiltered.vcf.gz", "filtered/{prefix}.uniq.normalized.decomposed.softfiltered.vcf.gz.tbi"
+        ref=config["ref"]["genome"],
+        vcf="filtered/{family}.{vartype}.vcf.gz"
     output:
-        "filtered/{prefix}.uniq.normalized.decomposed.pass.vcf.gz"
-    threads: 6
-    resources:
-        mem=lambda wildcards, threads: threads * 2
-    params: 
-        samples = get_sample_order,
-        filter = "-f 'PASS,.' "
+        vcf=temp("filtered/{family}.{vartype}.hardfiltered.vcf.gz")
+    params:
+        filters=get_filter
+    log:
+        "logs/gatk/variantfiltration/{family}.{vartype}.log"
     wrapper:
-        get_wrapper_path("bcftools", "view")
-
-if len(get_cre_vcfs()) > 1:
-    rule vcf_isec:
-        input:
-            vcf =  get_cre_vcfs(),
-            tbi = get_cre_vcf_tbi()
-        output:
-            vcf = expand("isec/000{index}.vcf.gz", index=range(len(get_cre_vcfs()))),
-            sites = "isec/sites.txt"
-        params:
-            outdir = "isec",
-            filters = 'PASS',
-            numpass = "+1",
-        threads: 8
-        log: "logs/isec.log"
-        wrapper:
-            get_wrapper_path("bcftools","isec")
+        get_wrapper_path("gatk", "variantfiltration")
 
 
-    rule annot_caller:
-        input: 
-            all_sites = "isec/sites.txt",
-            isec_vcf = expand("isec/000{index}.vcf.gz", index=range(len(get_cre_vcfs())))
-        output: 
-            all_sites = "isec/sites.caller.txt",
-            callerwise_sites = expand("isec/{caller}.annot.{ext}", caller=caller_annotation,ext=["txt","txt.gz","txt.gz.tbi"]),
-            callerwise_vcf = expand("isec/{caller}.annot.vcf.gz",caller=caller_annotation),
-            hdr = "isec/hdr.txt"
-        params:
-            crg2 = config["tools"]["crg2"],
-            callers = caller_annotation
-        conda:
-            "../../envs/common.yaml"
-        shell:
-            '''
-            cat {input.all_sites} | parallel -k -j 50 {params.crg2}/scripts/annotate-caller.sh {{}} >> {output.all_sites}
-            echo -e '##INFO=<ID=CALLERS,Number=.,Type=String,Description="Variant called by"\\n##INFO=<ID=NUMCALLS,Number=1,Type=Integer,Description="Number of callers at this location">' > {output.hdr}
-            for i in {params.callers}; do 
-                sh {params.crg2}/scripts/callerwise_annotation.sh ${{i}} {output.all_sites} isec isec/${{i}}.annot.vcf.gz
-            done;
-            '''
-    rule vcf_concat:
-        input:
-            vcf = expand("isec/{caller}.annot.vcf.gz",caller=caller_annotation),
-            tbi = expand("isec/{caller}.annot.vcf.gz.tbi",caller=caller_annotation)
+rule recalibrate_calls:
+    input:
+        vcf="filtered/{family}.{vartype}.vcf.gz"
+    output:
+        vcf=temp("filtered{family}.{vartype}.recalibrated.vcf.gz")
+    params:
+        extra=config["params"]["gatk"]["VariantRecalibrator"]
+    log:
+        "logs/gatk/variantrecalibrator/{family}.{vartype}.log"
+    wrapper:
+        get_wrapper_path("gatk", "variantrecalibrator")
 
-        output: 
-            "filtered/{family}.numpass1.uniq.normalized.decomposed.vcf.gz"
-        params: 
-            "-a -d none"
-        log: 
-            "logs/bcftools/concat/{family}.log"
-        threads: 8
-        wrapper:
-            get_wrapper_path("bcftools", "concat")
 
-    rule ensemble:
-        input: 
-            "filtered/{family}.numpass1.uniq.normalized.decomposed.vcf.gz".format(family=project)
-        output: 
-            "annotated/coding/{family}.ensemble.decomposed.vcf.gz"
-        log: 
-            "logs/bcftools/filter/{family}.ensemble.log"
-        params: 
-            hard = " -i '(INFO/CALLERS=\"gatk-haplotype\" || INFO/NUMCALLS>=2)' "
-        wrapper:
-            get_wrapper_path("bcftools", "filter")
-            
-
-else:
-    rule annot_caller:
-        input: get_cre_vcfs()
-        output: 
-            txt = "isec/sites.caller.txt",
-            bz = "isec/sites.caller.txt.gz",
-            hdr = "isec/hdr.txt"
-        conda:
-            "../../envs/common.yaml"
-        shell:
-            '''
-            mkdir -p isec
-            bcftools query -f '%CHROM\\t%POS\\t%REF\\t%ALT\\tgatk-haplotype\\n' {input} > {output.txt}
-            bgzip -c {output.txt} > {output.bz}
-            tabix -s1 -b2 -e2 {output.bz}
-            echo -e '##INFO=<ID=CALLERS,Number=.,Type=String,Description="Variant called by"\\n##INFO=<ID=NUMCALLS,Number=1,Type=Integer,Description="Number of callers at this location">' > {output.hdr}
-            '''
-
-    rule vcf_annotate:
-        input: 
-            vcf = get_cre_vcfs(),
-            annot = "isec/sites.caller.txt.gz",
-            hdr = "isec/hdr.txt"
-        output: 
-            "annotated/coding/{family}.ensemble.decomposed.vcf.gz"
-        log: 
-            "logs/bcftools/annotate/{family}.log"
-        wrapper:
-            get_wrapper_path("bcftools", "annotate")
+rule merge_calls:
+    input:
+        vcfs=expand("filtered/{family}.{vartype}.{filtertype}.vcf.gz",
+                   vartype=["snvs", "indels"],
+                   family=project,
+                   filtertype="recalibrated"
+                              if config["filtering"]["vqsr"]
+                              else "hardfiltered")
+    output:
+        vcf="filtered/{family}.vcf.gz"
+    log:
+        "logs/picard/{family}.merge-filtered.log"
+    wrapper:
+        get_wrapper_path("picard", "mergevcfs")
 

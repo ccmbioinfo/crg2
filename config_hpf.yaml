@@ -61,7 +61,7 @@ qc:
 annotation:
   vep:
     dir: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/snakemake/9db6af70/share/ensembl-vep-113.3-1/"
-    dir_cache: "/hpf/largeprojects/ccmbio/mcouse/dmalkin/mouse_WES/data/genome/vep_cache/"
+    dir_cache: "/hpf/largeprojects/ccmbio/mcouse/dmalkin/mouse_WES/data/genome/vep_cache_GRCm38/"
 
 params:
   bwa:
