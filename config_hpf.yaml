@@ -1,49 +1,21 @@
 run:
-  project: "NA12878"
+  project: "mouse"
   samples: samples.tsv
   units: units.tsv
-  ped: "" # leave this string empty if there is no ped
-  panel: "" # three-column BED file based on hpo file; leave this string empty if there is no panel
-  hpo: "" # five-column TSV with HPO terms; leave this string empty is there are no hpo terms
-  flank: 100000
   gatk: "gatk"
-  pipeline: "wes" #either wes (exomes) or wgs (genomes) or annot (to annotate and produce reports for an input vcf) or mity (to generate mitochondrial reports)
-  minio: ""
-  PT_credentials: ""
-
-genes:
-  ensembl: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/Homo_sapiens.GRCh37.87.gtf_subset.csv"
-  refseq: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/GRCh37_latest_genomic.gff_subset.csv" 
-  hgnc: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/HGNC_20210617.txt"
-
+  pipeline: "wgs"
 
 tools:
-  svscore_script: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/crg2-non-conda-tools/SVScore/svscore.pl"
-  annotsv: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/crg2-non-conda-tools/AnnotSV_2.1"
-  cre: "~/cre"
-  crg: "~/crg"
-  crg2: "~/crg2"
-  ehdn: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/crg2-non-conda-tools/EHDN.TCAG/ExpansionHunterDenovo-v0.7.0"
-  mity: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/crg2-non-conda-tools/mity_v1.1.0/bin"
-  melt: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/crg2-non-conda-tools/MELT/MELTv2.2.2/MELT.jar"
+  crg2: " /hpf/largeprojects/ccmbio/mcouse/dmalkin/mouse_WES/crg2"
   orad: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/crg2-non-conda-tools/orad_2_6_1/orad" 
-  annovar: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/crg2-non-conda-tools/annovar"
-
 
 ref:
-  name: GRCh37.75
-  no_decoy_name: GRCh37
-  genome: /hpf/largeprojects/ccm_dccforge/dccdipg/Common/genomes/GRCh37d5/GRCh37d5.fa
-  known-variants: /hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/dbsnp.b147.20160601.tidy.vcf.gz
-  no_decoy: /hpf/largeprojects/ccm_dccforge/dccdipg/Common/genomes/GRCh37/GRCh37.fa
-  decoy_bed: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/pipelines/cre/data/grch37d5.decoy.bed"
-  canon_bed: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/genomes/grch37.canon.bed"
-  split_genome: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/genomes/split_genome"
-  gatk-known: "/hpf/largeprojects/ccmbio/naumenko/tools/bcbio/genomes/Hsapiens/GRCh37/variation/Mills_and_1000G_gold_standard.indels.vcf.gz"
-  ref_cache: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/genomes/REF_CACHE/GRCh37d5/%2s/%2s/%s:/hpf/largeprojects/ccm_dccforge/dccdipg/Common/genomes/REF_CACHE/hg19/%2s/%2s/%s"
-  bed_index: "/hpf/largeprojects/ccmbio/naumenko/tools/bcbio/genomes/Hsapiens/GRCh37/seq/GRCh37.fa.bedtoolsindex"
-  melt_element_ref: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/MELT/transposon_file_list.txt"
+  name: GRCm38
+  genome: "/hpf/largeprojects/ccmbio/mcouse/dmalkin/mouse_WES/data/genome/GRCm38.p4.genome.fa"
+  canon_bed: "/hpf/largeprojects/ccmbio/mcouse/dmalkin/mouse_WES/data/genome/mm10_canon_chr.txt"
+  known-variants: "/hpf/largeprojects/ccmbio/mcouse/dmalkin/mouse_WES/data/dbSNP/mgp.v5.merged.dbSNP142.normed.vcf.gz"
   orad_ref: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/crg2-non-conda-tools/orad_2_6_1/oradata"
+  ref_cache: ""
 
 filtering:
   vqsr: false
@@ -87,55 +59,9 @@ qc:
     conf: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/qc/FastQ_Screen_Genomes/fastq_screen.conf"
   
 annotation:
-  cre.vcfanno:
-    conf: "~/crg2/vcfanno/cre.vcfanno.conf"
-    lua_script: "~/crg2/vcfanno/cre.vcfanno.lua"
-    base_path: "/hpf/largeprojects/ccmbio/naumenko/tools/bcbio/genomes/Hsapiens/GRCh37/variation/"
-  vcfanno:
-    conf: "~/crg2/vcfanno/crg.vcfanno.conf" 
-    lua_script: "~/crg2/vcfanno/crg.vcfanno.lua"
-    base_path: "/hpf/largeprojects/ccmbio/naumenko/tools/bcbio/genomes/Hsapiens/GRCh37/variation/"
   vep:
     dir: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/snakemake/9db6af70/share/ensembl-vep-113.3-1/"
-    dir_cache: "/hpf/largeprojects/ccmbio/naumenko/tools/bcbio/genomes/Hsapiens/GRCh37/vep/"
-  snpeff:
-    dataDir: "/hpf/largeprojects/ccmbio/naumenko/tools/bcbio/genomes/Hsapiens/GRCh37/snpeff"
-  svscore:
-    exon_bed: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/SVScore/refGene.exons.bed.gz"
-    intron_bed: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/SVScore/refGene.introns.bed.gz"
-    cadd: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/SVScore/whole_genome_SNVs.tsv.gz"
-  svreport:
-    hgmd: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/HGMD_2018/hgmd_pro.db"
-    protein_coding_genes: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/grch37.p13.ensembl.sorted.protein.coding.genes.bed"
-    exon_bed: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/exons/hg19_UCSC_exons_canonical.bed"
-    exac: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/ExAC/fordist_cleaned_nonpsych_z_pli_rec_null_data.txt"
-    omim: "~/cre/data/genemap2.txt"
-    gnomad: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/gnomad_v2_sv.sites.bed"
-    gnomad_ins: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/MELT/gnomad_v2_sv.sites.INS.bed"
-    biomart: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/BioMaRt.GrCh37.75.ensembl.mim.hgnc.entrez.txt"
-    mssng_manta_counts: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/MSSNG_COUNTS/Canadian_MSSNG_parent_SVs.Manta.counts.txt"
-    mssng_lumpy_counts: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/MSSNG_COUNTS/Canadian_MSSNG_parent_SVs.LUMPY.counts.txt"
-  eh:
-    catalog: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/ExpansionHunter/tandem_repeat_disease_loci_v1.1.hg19.masked.json"
-    trf: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/ExpansionHunter/tandem_repeat_disease_loci_v1.1.2.tsv"
-    1000g: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/ExpansionHunter/1000G_EH_v1.0.tsv"
-  ehdn:
-    files: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/ExpansionHunterDenovo/"
-    g1k_outlier: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/ExpansionHunterDenovo/1000G_outlier"
-    g1k_manifest: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/ExpansionHunterDenovo/manifest.1000G.txt"
-    g1k_samples: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/ExpansionHunterDenovo/1000G.samples.txt"
-    trf: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/ExpansionHunterDenovo/UCSC_simple_repeats_hg19_coord_motif.tsv"
-    omim: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/ExpansionHunterDenovo/OMIM_hgnc_join_omim_phenos_2024-02-06.tsv"
-    gnomad: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/ExpansionHunterDenovo//gnomad.v2.1.1.lof_metrics.by_gene.txt"
-    annovar_db: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/annovar/humandb/"
-
-  cre:
-     database_path: "/hpf/largeprojects/ccmbio/naumenko/tools/bcbio/genomes/Hsapiens/GRCh37/variation/"
-  melt:
-    genes: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/crg2-non-conda-tools/MELT/MELTv2.2.2/add_bed_files/1KGP_Hg19/hg19.genes.bed"
-
-validation:
-  benchmark: "benchmark_hpf.tsv"
+    dir_cache: "/hpf/largeprojects/ccmbio/mcouse/dmalkin/mouse_WES/data/genome/vep_cache/"
 
 params:
   bwa:
