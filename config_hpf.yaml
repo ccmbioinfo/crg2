@@ -3,7 +3,7 @@ run:
   samples: samples.tsv
   units: units.tsv
   gatk: "gatk"
-  pipeline: "wgs"
+  pipeline: "wes"
 
 tools:
   crg2: " /hpf/largeprojects/ccmbio/mcouse/dmalkin/mouse_WES/crg2"
