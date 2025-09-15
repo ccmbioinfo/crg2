@@ -8,13 +8,14 @@ def get_filt_vcf(wildcards):
 
 
 rule vt:
-    input: get_filt_vcf # (vcf, bcf, or vcf.gz)
+    input:
+        "genotyped/{prefix}.vcf.gz", "genotyped/{prefix}.vcf.gz.tbi"
     output:
-        temp("filtered/{p}/{family}.{p}.uniq.normalized.decomposed.vcf"),
+        "filtered/{prefix}.uniq.normalized.decomposed.vcf"  
     params:
         ref=config["ref"]["genome"],
     log:
-        "logs/vt/{family}.vt.{p}.uniq.normalized.decomposed.log"
+        "logs/vt/{prefix}.log"
     wrapper:
         get_wrapper_path("vt")
 

@@ -13,7 +13,8 @@ ref:
   name: GRCm38
   genome: "/hpf/largeprojects/ccmbio/mcouse/dmalkin/mouse_WES/data/genome/GRCm38.p4.genome.fa"
   canon_bed: "/hpf/largeprojects/ccmbio/mcouse/dmalkin/mouse_WES/data/genome/mm10_canon_chr.txt"
-  known-variants: "/hpf/largeprojects/ccmbio/mcouse/dmalkin/mouse_WES/data/dbSNP/mgp.v5.merged.dbSNP142.normed.chr.reheader.vcf.gz"
+  known_variants: "/hpf/largeprojects/ccmbio/mcouse/dmalkin/mouse_WES/data/dbSNP/mgp.v5.merged.dbSNP142.normed.chr.reheader.AF.samples.removed.vcf.gz"
+  known_variants_common: "/hpf/largeprojects/ccmbio/mcouse/dmalkin/mouse_WES/data/dbSNP/mgp.v5.merged.dbSNP142.normed.chr.reheader.AF.no.sex.no.MT.common.vcf.gz"
   orad_ref: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/crg2-non-conda-tools/orad_2_6_1/oradata"
   ref_cache: ""
 

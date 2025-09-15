@@ -216,7 +216,7 @@ def get_gatk_vcf(wildcards):
 
 def get_gatk_somatic_vcf(ext="vcf.gz"):
     """Get gatk_mutect call vcfs (exome only)"""
-    vcf = expand("genotyped/{family}_{sample}-gatk_somatic.pass.mosaic.{ext}", sample=samples.index, family=project, ext=ext)
+    vcf = expand("genotyped/{family}_{sample}-gatk_somatic.{ext}", sample=samples.index, family=project, ext=ext)
     return vcf
 
 def get_gatk_vcf_tbi(wildcards):

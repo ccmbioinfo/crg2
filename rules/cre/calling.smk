@@ -19,7 +19,7 @@ rule call_variants:
         bam=get_sample_bams,
         #bam=get_cre_bams(),
         ref=config["ref"]["genome"],
-        known=config["ref"]["known-variants"],
+        known=config["ref"]["known_variants"],
         regions="mapped/bed/{family}-sort-callable-{contig}.bed",
         #regions="called/gatk/{contig}.regions.bed" if config["processing"].get("restrict-regions") else []
     output:

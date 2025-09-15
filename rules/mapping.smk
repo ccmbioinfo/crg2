@@ -61,7 +61,7 @@ rule recalibrate_base_qualities:
         bam = get_recal_input(),
         bai = get_recal_input(bai=True),
         ref = config["ref"]["genome"],
-        known = config["ref"]["known-variants"],
+        known = config["ref"]["known_variants"],
         bed = "mapped/{family}_{sample}-callable.bed" 
     output:
         bam = temp("recal/{family}_{sample}.bam")
@@ -78,7 +78,7 @@ rule realignertargetcreator:
         bam = get_recal_input(),
         bai = get_recal_input(bai=True),
         ref = config["ref"]["genome"],
-        known = config["ref"]["known-variants"]
+        known = config["ref"]["known_variants"]
     output:
         intervals="recal/gatk3/realignertargetcreator/{family}_{sample}.intervals",
     log:
@@ -101,7 +101,7 @@ rule indelrealigner:
         bam = get_recal_input(),
         bai = get_recal_input(bai=True),
         ref = config["ref"]["genome"],
-        known = config["ref"]["known-variants"],
+        known = config["ref"]["known_variants"],
         target_intervals="recal/gatk3/realignertargetcreator/{family}_{sample}.intervals",
     output:
         bam = protected("recal/gatk3/indelrealigner/{family}_{sample}-realign.bam"),
@@ -137,7 +137,7 @@ rule baserecalibrator:
         bai = "recal/gatk3/indelrealigner/{family}_{sample}-realign.bam.bai",
         bed = "mapped/{family}_{sample}-callable.bed",
         ref = config["ref"]["genome"],
-        known = config["ref"]["known-variants"]
+        known = config["ref"]["known_variants"]
     output:
         "recal/gatk3/baserecalibrator/{family}_{sample}-recal.grp"
     params:
