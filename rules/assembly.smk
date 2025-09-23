@@ -9,6 +9,8 @@ rule shovill:
         outdir="shovill/{sra_run}"
     output:
         directory("shovill/{sra_run}")
+    resources:
+        scratch=20000
     log:
         "logs/shovill/{sra_run}.log"
     wrapper:

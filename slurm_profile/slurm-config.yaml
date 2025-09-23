@@ -23,7 +23,7 @@ __default__:
   time: "20:00:00"
   output: "slurm/%x-%j.out"
 
-kraken2_pre_assembly:
+kraken2_raw_reads:
   mem: "124G"
 
 kraken2_post_assembly:

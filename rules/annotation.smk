@@ -2,7 +2,7 @@ rule bakta:
     input:
         "shovill/{sra_run}"
     params:
-        outdir="annotated/bakta/",
+        outdir="annotated/{sra_run}_bakta/",
         db=config["tools"]["bakta_db"]
     output:
         directory("annotated/{sra_run}_bakta")
