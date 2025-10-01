@@ -14,6 +14,7 @@ Research pipeline for exploring variants in mouse exome (WES) sequencing data
 - Somatic variant QC with GATK PileupSummaries and GATK CalculateContamination.
 - Somatic variant filtering with GATK FilterMutectCalls.
 - Germline and somatic variant annotation using VEP. 
+- QC report generation with multiQC.
 
 ## Running the pipeline
 1. Make a folder in a directory with sufficient space. Copy over the template files crg2/samples.tsv, crg2/units.tsv, crg2/config_hpf.yaml, crg2/dnaseq_slurm_hpf.sh, crg2/slurm_profile/slurm-config.yaml .
