@@ -16,6 +16,7 @@ rule gatk_call_mosaic:
 rule pileup_summaries:
     input:
         cram="recal/{family}_{sample}.cram",
+        cram_index="recal/{family}_{sample}.cram.crai",
         common_variants=config["ref"]["known_variants_common"],
         ref=config["ref"]["genome"]
     output:
