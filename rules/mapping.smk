@@ -211,12 +211,16 @@ rule concatenate_callable_bed:
     input:
         expand("mapped/{family}_{sample}-callable.bed",family=project,sample=samples.index)
     output: 
-        "mapped/{family}-concat-sort.bed"
+        bed = "mapped/{family}-concat-sort.bed"
+    params:
+        tempdir = temp("mapped/temp/")
     log:
         "logs/bash/{family}-callable-concat.log"
     shell:
         '''
-            cat {input} | sort -k1,1 -k2,2n > {output} 2>{log}
+            export TMPDIR={params.tempdir}
+            if [ ! -d {params.tempdir} ]; then mkdir -p {params.tempdir}; fi
+            cat {input} | sort -k1,1 -k2,2n > {output.bed} 2>{log}
         '''
     
 rule merge_bed:
