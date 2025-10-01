@@ -31,7 +31,7 @@ rule call_variants:
         java_opts=config["params"]["gatk"]["java_opts"],
     group: "gatkcall"
     resources: 
-        mem=lambda wildcards, input: len(input.bam) * 15
+        mem=lambda wildcards, input: len(input.bam) * 20
     wrapper:
         get_wrapper_path("gatk", "haplotypecaller")
 
