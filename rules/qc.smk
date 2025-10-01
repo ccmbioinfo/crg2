@@ -63,23 +63,6 @@ rule qualimap:
         get_wrapper_path("qualimap")
 
 
-rule verifybamid2:
-    input:
-        bam = "mapped/{family}_{sample}.sorted.bam",
-        ref = config["ref"]["no_decoy"],
-        bai = "mapped/{family}_{sample}.sorted.bam.bai"
-    output:
-        sm = "qc/verifybamid2/{family}_{sample}.selfSM",
-    log:
-        "logs/verifybamid2/{family}_{sample}.log"
-    params: 
-        svd_prefix = config["params"]["verifybamid2"]["svd_prefix"],
-        out_dir = "qc/verifybamid2/{family}_{sample}" ,
-        extra = config["params"]["verifybamid2"]["extra"]
-    threads: 4
-    wrapper:
-        get_wrapper_path("verifybamid2")
-
 rule subset:
     input: 
         vcf = get_gatk_vcf
@@ -106,33 +89,12 @@ rule bcftools_stats:
     wrapper:
         get_wrapper_path("bcftools", "stats")
 
-rule peddy:
-    input:
-        vcf = get_gatk_vcf,
-        ped = peddy_ped,
-        vcf_tbi = get_gatk_vcf_tbi
-    output:
-        "qc/peddy/{family}.html",
-        "qc/peddy/{family}.vs.html",
-        "qc/peddy/{family}.het_check.csv",
-        "qc/peddy/{family}.ped_check.csv",
-        "qc/peddy/{family}.peddy.ped",
-        "qc/peddy/{family}.sex_check.csv",
-        "qc/peddy/{family}.background_pca.json"
-    params:
-        "-p 7"
-    log:
-        "logs/peddy/{family}.log"
-    wrapper:
-        get_wrapper_path("peddy")
-
 
 rule multiqc:
     input:
         [expand(input_file, sample=samples.index,family=project) for input_file in ["qc/samtools-stats/{family}_{sample}.txt", 
                                                             "qc/fastqc/{family}_{sample}", 
-                                                            "qc/dedup/{family}_{sample}.metrics.txt", 
-                                                            "qc/verifybamid2/{family}_{sample}.selfSM", 
+                                                            "qc/dedup/{family}_{sample}.metrics.txt",  
                                                             "qc/qualimap/{family}_{sample}/genome_results.txt", 
                                                             "qc/qualimap/{family}_{sample}/raw_data_qualimapReport/coverage_histogram.txt",
                                                             "qc/qualimap/{family}_{sample}/qualimapReport.html", 
@@ -141,13 +103,6 @@ rule multiqc:
                                                             "qc/qualimap/{family}_{sample}/raw_data_qualimapReport/mapped_reads_gc-content_distribution.txt", 
                                                             "qc/fastq_screen/{family}_{sample}_screen.txt",
                                                             "qc/bcftools_stats/{family}_{sample}.txt",
-                                                            "qc/peddy/{family}.html",
-                                                            "qc/peddy/{family}.vs.html",
-                                                            "qc/peddy/{family}.het_check.csv",
-                                                            "qc/peddy/{family}.ped_check.csv",
-                                                            "qc/peddy/{family}.peddy.ped",
-                                                            "qc/peddy/{family}.sex_check.csv",
-                                                            "qc/peddy/{family}.background_pca.json"
                                                                     ]]
     params:
         config["params"]["multiqc"]["config"]
@@ -172,42 +127,3 @@ rule remove_duplicates:
         "logs/remove_duplicates/{family}_{sample}.log"
     wrapper:
         get_wrapper_path("samtools", "markdup")
-
-
-rule calculate_coverage:
-    input:
-        cram="dups_removed/{family}_{sample}.cram",
-        bed=config["annotation"]["svreport"]["exon_bed"],
-        bed_index=config["ref"]["bed_index"]
-    params:
-        crg2_dir=config['tools']['crg2'],
-        reference=config["ref"]["genome"]
-    output:
-        coverage_dir=directory("coverage/{family}_{sample}/"),
-    log:
-        "logs/coverage/{family}_{sample}.log"
-    conda:
-        "../envs/coverage.yaml"
-    shell:
-        """
-        export CRAM_REFERENCE={params.reference}
-        mkdir -p coverage/{wildcards.family}_{wildcards.sample}/
-        cd coverage/{wildcards.family}_{wildcards.sample}/
-
-        bedtools coverage -d -sorted -a {input.bed} -b ../../{input.cram} -g {input.bed_index} > {wildcards.family}_{wildcards.sample}.dedup.cov
-
-        python {params.crg2_dir}/utils/bam.coverage.base_wise.stat.py {wildcards.family}_{wildcards.sample}.dedup.cov 5 $'\\t' > {wildcards.family}_{wildcards.sample}.coverage_stats.csv
-
-        echo {wildcards.family}_{wildcards.sample}.dedup.cov","`cat {wildcards.family}_{wildcards.sample}.dedup.cov | awk -F '\\t' '{{if ($6<20) {{print $4","$1":"$2+$5","$6}}}}' | wc -l` > {wildcards.family}_{wildcards.sample}.less20x.stats.csv
-        {params.crg2_dir}/utils/bam.coverage.less20.sh {wildcards.family}_{wildcards.sample}.dedup.cov > {wildcards.family}_{wildcards.sample}.less20x_coverage.csv
-
-        {params.crg2_dir}/utils/bam.coverage.per_exon.sh {wildcards.family}_{wildcards.sample}.dedup.cov > {wildcards.family}_{wildcards.sample}.per_exon_coverage.csv
-        cat {wildcards.family}_{wildcards.sample}.per_exon_coverage.csv | sed 1d  > {wildcards.family}_{wildcards.sample}.per_exon_coverage.csv.tmp
-        python {params.crg2_dir}/utils/bam.coverage.base_wise.stat.py {wildcards.family}_{wildcards.sample}.per_exon_coverage.csv.tmp 2 ',' > {wildcards.family}_{wildcards.sample}.per_exon.distribution.csv
-        rm {wildcards.family}_{wildcards.sample}.per_exon_coverage.csv.tmp
-
-        median_line=`cat {wildcards.family}_{wildcards.sample}.dedup.cov | wc -l`
-        median_line=$(($median_line/2))
-        cat {wildcards.family}_{wildcards.sample}.dedup.cov | awk '{{print $6}}' | sort -n | sed -n ${{median_line}}p > {wildcards.family}_{wildcards.sample}.median
-        rm {wildcards.family}_{wildcards.sample}.dedup.cov
-        """
