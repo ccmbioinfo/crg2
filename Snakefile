@@ -11,11 +11,12 @@ family=project
 if config["run"]["pipeline"] == "wes":
     rule all:
         input:
-            "report/coding/{}".format(project),
+            "annotated/{p}/vep/{family}.{p}.vep.vcf.gz".format(family=project, p="gatk_haplotype"),
+            "annotated/{p}/vep/{family}.{p}.vep.vcf.gz".format(family=project, p="gatk_somatic"),
             "qc/multiqc/multiqc.html",
             [expand("recal/{family}_{sample}.cram.crai".format(family=project, sample=s)) for s in samples.index],
             [expand("recal/{family}_{sample}.cram.md5".format(family=project, sample=s)) for s in samples.index],
-            expand("report/{p}/{family}", p="gatk_somatic", family=project),
+
 
 
 
@@ -36,3 +37,4 @@ include: "rules/cre/filtering.smk"
 include: "rules/cre/annotation.smk"
 include: "rules/cre/calling_mosaic.smk"
 include: "rules/cre/annotation_mosaic.smk"
+include: "rules/qc.smk"
