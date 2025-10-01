@@ -2,9 +2,9 @@ rule vep_mosaic:
     input:
         "filtered/{family}-{p}.uniq.normalized.decomposed.vcf.gz"
     output:
-        temp("annotated/{p}/vep/{family}.coding.vep.vcf")
+        temp("annotated/{p}/vep/{family}.{p}.vep.vcf")
     log:
-        "logs/vep/{p}/{family}.vep.coding.log"
+        "logs/vep/{p}/{family}.vep.{p}.log"
     threads: 10
     resources:
         mem_mb = 30000
