@@ -1,8 +1,0 @@
-channels:
-  - conda-forge
-  - bioconda
-dependencies:
-  - python=3.9.4
-  - pandas=1.2.4
-  - pyranges
-  - pybedtools
