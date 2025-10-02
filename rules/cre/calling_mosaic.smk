@@ -56,20 +56,19 @@ rule filter_mutect_call:
         get_wrapper_path("gatk", "filtermutectcalls")
 
 
-# # filtering: skip softfilter step to do rule pass. Changed file name to distinguish from  "uniq.normalized.decomposed.pass.vcf.gz"
-# rule pass_mosaic:
-#     input:
-#         "filtered/{family}_{sample}-gatk_somatic.vcf.gz", "filtered/{family}_{sample}-gatk_somatic.vcf.gz.tbi"
-#     output:
-#         "genotyped/{family}_{sample}-gatk_somatic.pass.mosaic.vcf.gz"
-#     threads: 6
-#     resources:
-#         mem=lambda wildcards, threads: threads * 2
-#     params: 
-#         samples = get_sample_order,
-#         filter = "-f 'PASS,.' "
-#     wrapper:
-#         get_wrapper_path("bcftools", "view")
+rule pass_somatic:
+    input:
+        "genotyped/{family}_{sample}-gatk_somatic.vcf.gz", "genotyped/{family}_{sample}-gatk_somatic.vcf.gz.tbi"
+    output:
+        "genotyped/{family}_{sample}-gatk_somatic.pass_mutect2.vcf.gz"
+    threads: 6
+    resources:
+        mem=lambda wildcards, threads: threads * 2
+    params: 
+        samples = get_sample_order,
+        filter = "-f 'PASS,.' "
+    wrapper:
+        get_wrapper_path("bcftools", "view")
 
 
 rule merge_mutect_sample:
