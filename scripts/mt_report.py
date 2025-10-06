@@ -14,56 +14,6 @@ def log_message(*message):
             print(i)
 
 
-def get_INFO_annot(df):
-    """Return a dataframe with ClinVar and GnomAD annotations"""
-
-    # dictionary to store the annotations we want to fetch from the INFO column
-    data = {
-        "clinvar_pathogenic": [],
-        "gnomAD_AC_hom": [],
-        "gnomAD_AC_het": [],
-        "gnomAD_AF_hom": [],
-        "gnomAD_AF_het": [],
-        "gnomAD_max_hl": [],
-    }
-
-    for index, row in df.iterrows():
-        INFO = row["INFO"].split(";")  # Access the INFO column and split by ";"
-        INFO_names = [x.split("=")[0] for x in INFO]  # store the name of the info field
-        INFO_values = [
-            i.split("=")[1] for i in INFO
-        ]  # store the value of the info field
-
-        # If the key of data dict is present in INFO_names, then append corresponding INFO_value to the key's value,
-        # else append value NA
-        for key, value in data.items():
-            if key in INFO_names:
-                value.append(INFO_values[INFO_names.index(key)])
-            else:
-                value.append(".")
-
-    # Create a df from the data dictionary
-    annotations_df = pd.DataFrame(data)
-    log_message(
-        "Successfully fetched relevant ClinVar and GnomAD annotations from the INFO field of the report."
-    )
-
-    return annotations_df
-
-def change_annot_9155(df):
-    """Change status_mitomap column for m.9155A>G from . to Confirmed"""
-    variant_entry = df.loc[df.HGVS == "m.9155A>G"]
-    if variant_entry.empty:
-        log_message("Variant m.9155A>G not present in the report.")
-        return df
-    else:
-        df.loc[df.HGVS == "m.9155A>G", "status_mitomap"] = "Confirmed"
-        df.loc[df.HGVS == "m.9155A>G", "disease_mitomap"] = "MIDD, renal insufficiency"
-        log_message(
-            "Found variant m.9155A>G in the report and updated status_mitomap to confirmed."
-        )
-        return df
-
 def concat_df(df1, df2):
     """Concatenate two dataframes along axis 1 (column)"""
 
@@ -80,9 +30,7 @@ def remove_cols(df):
         "REF DEPTH",
         "TOTAL LOCUS DEPTH",
         "VARIANT QUALITY",
-        "LOCUS MITOMAP",
         "QUAL",
-    #    "FILTER",
         "MQM_INFO",
         "MQMR_INFO",
         "QA_INFO",
@@ -203,7 +151,7 @@ def check_sort(vcf,df):
         updated_df=get_vcf_info(vcf,updated_df,sample)
         return updated_df
 
-def remove_blacklist_pos(report):
+def keep_only_pass(report):
     report=report[report["FILTER"]=="PASS"]
     return report
 
@@ -216,7 +164,7 @@ def reorder_cols(df):
     alt_depth = [x for x in colnames if x.endswith("ALT DEPTH")]
     total_sample_depth = [x for x in colnames if x.endswith("TOTAL SAMPLE DEPTH")]
 
-    df=remove_blacklist_pos(df)
+    df=keep_only_pass(df)
 
     col_list = [
         "CHR",
@@ -231,30 +179,73 @@ def reorder_cols(df):
     ]
 
     col_list2 = [
-        "DISEASE MITOMAP",
-        "STATUS MITOMAP",
-        "DISEASE AMINO ACID CHANGE MITOMAP",
-        "ALLELE FREQUENCY MITOMAP",
-        "GENBANK FREQUENCY MITOMAP",
+        "MITOMAP DISEASE AC",
+        "MITOMAP DISEASE AF",
+        "MITOMAP DISEASE AACHANGE",
+        "MITOMAP DISEASE HOMOPLASMY",
+        "MITOMAP DISEASE HETEROPLASMY",
+        "MITOMAP DISEASE PUBMED IDS",
+        "MITOMAP DISEASE DISEASE",
+        "MITOMAP DISEASE DISEASE STATUS",
+        "MITOMAP DISEASE HGFL",
+        "MITOMAP CONFIRMED MUTATIONS LOCUS",
+        "MITOMAP CONFIRMED MUTATIONS LOCUSTYPE",
+        "MITOMAP CONFIRMED MUTATIONS ASSOCIATEDDISEASE",
+        "MITOMAP CONFIRMED MUTATIONS ALLELE",
+        "MITOMAP CONFIRMED MUTATIONS AMINOACIDCHANGE",
+        "MITOMAP CONFIRMED MUTATIONS STATUSMITOMAPCLINGEN",
+        "MITOMAP CONFIRMED MUTATIONS LASTUPDATE",
+        "MITOMAP MUTATIONS CODING CONTROL LOCUS",
+        "MITOMAP MUTATIONS CODING CONTROL ALLELE",
+        "MITOMAP MUTATIONS CODING CONTROL DISEASE",
+        "MITOMAP MUTATIONS CODING CONTROL NUCLEOTIDECHANGE",
+        "MITOMAP MUTATIONS CODING CONTROL AMINOACIDCHANGE",
+        "MITOMAP MUTATIONS CODING CONTROL PLASMY",
+        "MITOMAP MUTATIONS CODING CONTROL STATUS",
+        "MITOMAP MUTATIONS CODING CONTROL GB FREQ",
+        "MITOMAP MUTATIONS CODING CONTROL GB SEQS",
+        "MITOMAP MUTATIONS CODING CONTROL REFERENCES",
+        "MITOMAP MUTATIONS RNA LOCUS",
+        "MITOMAP MUTATIONS RNA DISEASE",
+        "MITOMAP MUTATIONS RNA ALLELE",
+        "MITOMAP MUTATIONS RNA RNA",
+        "MITOMAP MUTATIONS RNA HOMOPLASMY",
+        "MITOMAP MUTATIONS RNA HETEROPLASMY",
+        "MITOMAP MUTATIONS RNA STATUS",
+        "MITOMAP MUTATIONS RNA MITOTIP",
+        "MITOMAP MUTATIONS RNA GB FREQ",
+        "MITOMAP MUTATIONS RNA GB SEQS",
+        "MITOMAP MUTATIONS RNA REFERENCES",
+        "MITOMAP POLYMORPHISMS AC",
+        "MITOMAP POLYMORPHISMS AF",
+        "MITOMAP POLYMORPHISMS HGFL",
+        "MITOMAP VARIANTS CODING LOCUS",
+        "MITOMAP VARIANTS CODING NUCLEOTIDECHANGE",
+        "MITOMAP VARIANTS CODING CODONNUMBER",
+        "MITOMAP VARIANTS CODING CODONPOSITION",
+        "MITOMAP VARIANTS CODING AMINOACIDCHANGE",
+        "MITOMAP VARIANTS CODING GB FREQ",
+        "MITOMAP VARIANTS CODING GB SEQS",
+        "MITOMAP VARIANTS CODING CURATEDREFERENCES",
+        "MITOMAP VARIANTS CONTROL LOCUS",
+        "MITOMAP VARIANTS CONTROL NUCLEOTIDECHANGE",
+        "MITOMAP VARIANTS CONTROL GB FREQ",
+        "MITOMAP VARIANTS CONTROL GB SEQS",
+        "MITOMAP VARIANTS CONTROL CURATEDREFERENCES",
         "clinvar_pathogenic",
         "gnomAD_AC_hom",
         "gnomAD_AC_het",
         "gnomAD_AF_hom",
         "gnomAD_AF_het",
         "gnomAD_max_hl",
-        "HOMOPLASMY MITOMAP",
-        "HETEROPLASMY MITOMAP",
-        "NUMBER OF REFERENCES MITOMAP",
-        "VARIANT AMINO ACID CHANGE MITOMAP",
-        "CODON POSITION MITOMAP",
-        "CODON NUMBER MITOMAP",
-        "NUM DISEASE REFERENCES MITOMAP",
-        "RNA MITOMAP",
-        "COMMERCIAL PANELS",
         "PHYLOTREE HAPLOTYPE",
         "MITOTIP SCORE",
-        "MITOTIP INTERPRETATION",
         "MITOTIP PERCENTILE",
+        "MITOTIP QUARTILE",
+        "MITOTIP SCORE INTERPRETATION",
+        "MITOMAP STATUS",
+        "COUNT",
+        "PERCENTAGE",
         "ANTICODON",
         "MGRB FREQUENCY",
         "MGRB FILTER",
@@ -270,15 +261,14 @@ def reorder_cols(df):
 
     # replace '.'/'-' with '0' for some columns
     replace_col_values = [
-        "ALLELE FREQUENCY MITOMAP",
-        "GENBANK FREQUENCY MITOMAP",
+        "MITOMAP POLYMORPHISMS AF",
+        "MITOMAP POLYMORPHISMS AC",
         "gnomAD_AC_hom",
         "gnomAD_AC_het",
         "gnomAD_AF_hom",
         "gnomAD_AF_het",
         "gnomAD_max_hl",
         "MGRB FREQUENCY",
-        #"MGRB FILTER",
         "MGRB AC",
         "MGRB AN",
     ]
@@ -317,16 +307,9 @@ def main(vcf, report, family):
     report_df = pd.read_excel(report,engine="openpyxl")
     vcf_df=read_vcf(vcf)
 
-    CV_gnomad_annots_df = get_INFO_annot(report_df)
-    merged_report = concat_df(report_df, CV_gnomad_annots_df)
-    final_report = remove_cols(merged_report)
+    final_report = remove_cols(report_df)
     final_report = check_sort(vcf_df,final_report)
     final_report = reorder_cols(final_report)
-    final_report = change_annot_9155(final_report)
-
-    final_report.to_csv(
-        f"report/mitochondrial/{family}.mitochondrial.report.csv", index=False
-    )
 
     current_date=datetime.now().strftime("%Y-%m-%d")
 
