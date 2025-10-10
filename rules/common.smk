@@ -47,7 +47,7 @@ def get_canon_contigs():
 
 def is_autosomal(chrom):
     # from bcbio-nextgen/bcbio/heterogeneity/chromhacks.py
-    """Keep chromosomes that are a digit 1-22, or chr prefixed digit chr1-chr22
+    """Keep chromosomes that are a digit 1-19, or chr prefixed digit chr1-chr19
     """
     try:
         int(chrom)
@@ -143,68 +143,9 @@ def get_recal_input(bai=False):
             f += ".bai"
     return f
     
-
-def get_recal_input_gatk3(bai=False):
-    # case 1: no duplicate removal
-    f = "mapped/{family}_{sample}.sorted.bam"
-    if config["processing"]["mark-duplicates"]:
-        # case 2: remove duplicates
-        f = "dedup/{family}_{sample}.bam"
-    if bai:
-        if config["processing"].get("restrict-regions"):
-            # case 3: need an index because random access is required
-            f += ".bai"
-            return f
-        else:
-            # case 4: no index needed
-            return []
-    else:
-        return f
-
-def get_annotated_sv_vcf():
-    """Get the annotated MetaSV and Manta vcf of given sample."""
-    metasv = ["sv/metasv/{family}_{sample}/variants.snpeff.svscore.vcf".format(sample=sample, family=project) for sample in samples.index]
-    manta = ["sv/manta/{family}_{sample}/variants.snpeff.svscore.vcf".format(sample=sample, family=project) for sample in samples.index]
-    vcfs = metasv + manta
-    return vcfs
     
 def get_wrapper_path(*dirs):
     return "file:%s" % os.path.join(workflow.basedir, "wrappers", *dirs)
-
-def get_eh_json(wildcards):
-    """Get the EH JSON of all samples."""
-    return ["str/EH/{}_{}.json".format(wildcards.family, sample) for sample in samples.index]
-
-# create peddy.ped for peddy
-def peddy_ped(wildcards):
-    family = wildcards.family
-    sample_id = list(samples.index)
-    sample_id = [family + "_" + str(sample) for sample in sample_id]
-
-    ped = config["run"]["ped"]
-    if os.path.exists(f"{family}_peddy.ped"):
-        pass
-    elif ped == "":
-        data = {'#Family_ID': family, 'Individual_ID':sample_id, 'Paternal_ID': '-9', 'Maternal_ID': '-9', 'Sex': '0', 'Phenotype': '0', 'Ethnicity': '-9'}
-        data_df = pd.DataFrame(data)
-        data_df.to_csv(f"{family}_peddy.ped", sep="\t", index=False, header=True)
-    else:
-        ped = pd.read_csv(
-            ped,
-            sep=" ",
-            header=None,
-            names=["fam_id", "individual_id", "pat_id", "mat_id", "sex", "phenotype"],
-        )
-        pat_id = list(ped['pat_id'])
-        mat_id = list(ped['mat_id'])
-        sex = list(ped['sex'])
-        phenotype = list(ped['phenotype'])
-        indiv_id = list(ped['individual_id'])
-        data = {'#Family_ID': family, 'Individual_ID': indiv_id, 'Paternal_ID': pat_id, 'Maternal_ID': mat_id, 'Sex': sex, 'Phenotype': phenotype, 'Ethnicity': '-9'}
-        data_df = pd.DataFrame(data)
-        data_df.to_csv(f"{family}_peddy.ped", sep="\t", index=False, header=True)
-
-    return f"{family}_peddy.ped"
 
 def get_gatk_vcf(wildcards):
     """ Get vcf from gatk4 calling for the use in qc """
