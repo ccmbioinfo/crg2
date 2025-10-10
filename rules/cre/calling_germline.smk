@@ -1,27 +1,9 @@
-def get_cre_bams(ext="bam"):
-    if gatk == "gatk3":
-        return expand("recal/gatk3/{family}_{sample}.{ext}", family=project, sample=samples.index, ext=ext)
-    return expand("recal/{family}_{sample}.{ext}", family=project, sample=samples.index, ext=ext)
-
-rule gathervcf:
-    input:
-        vcfs = lambda w: expand("called/gatk3/{family}-{contig}.vcf", family=project, contig=get_canon_contigs()),
-    output:
-        gvcf=protected("genotyped/{family}-gatk3_haplotype.vcf")
-    wrapper:
-        get_wrapper_path("picard","gathervcfs")
-
-
-#duplicating gatk4 rules from crg2/calling.smk for cre file namings 
-#sub-workflows does not seem to work smoothly
 rule call_variants:
     input:
         bam=get_sample_bams,
-        #bam=get_cre_bams(),
         ref=config["ref"]["genome"],
         known=config["ref"]["known_variants"],
-        regions="mapped/bed/{family}-sort-callable-{contig}.bed",
-        #regions="called/gatk/{contig}.regions.bed" if config["processing"].get("restrict-regions") else []
+        regions="dedup/bed/{family}-sort-callable-{contig}.bed",
     output:
         gvcf="called/gatk/{family}_{sample}.{contig}.g.vcf.gz"
     log:
@@ -71,8 +53,6 @@ rule merge_variants:
     input:
         ref=get_fai(), # fai is needed to calculate aggregation over contigs below
         vcfs=lambda w: expand("genotyped/gatk/{{family}}.{contig}.vcf.gz", contig=get_canon_contigs()),
-	## use this to remove repetitive contigs for dag generation
-	#vcfs=lambda w: expand("genotyped/all.{contig}.vcf.gz", contig="GRCh37"), 
     output:
         vcf="genotyped/gatk/{family}.vcf.gz"
     log:

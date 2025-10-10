@@ -58,11 +58,11 @@ rule mark_duplicates:
 
 rule recalibrate_base_qualities:
     input:
-        bam = get_recal_input(),
-        bai = get_recal_input(bai=True),
+        bam = "dedup/{family}_{sample}.bam",
+        bai = "dedup/{family}_{sample}.bam.bai",
         ref = config["ref"]["genome"],
         known = config["ref"]["known_variants"],
-        bed = "mapped/{family}_{sample}-callable.bed" 
+        bed = "dedup/{family}_{sample}-callable.bed" 
     output:
         bam = temp("recal/{family}_{sample}.bam")
     params:
@@ -73,57 +73,16 @@ rule recalibrate_base_qualities:
     wrapper:
         get_wrapper_path("gatk", "baserecalibrator")
 
-rule realignertargetcreator:
-    input:
-        bam = get_recal_input(),
-        bai = get_recal_input(bai=True),
-        ref = config["ref"]["genome"],
-        known = config["ref"]["known_variants"]
-    output:
-        intervals="recal/gatk3/realignertargetcreator/{family}_{sample}.intervals",
-    log:
-        "logs/gatk3/realignertargetcreator/{family}_{sample}.log"
-    params:
-        extra = get_regions_param() + config["params"]["gatk3"]["RealignerTargetCreator"],
-        java_opts = config["params"]["gatk"]["java_opts"],
-    threads: 8
-    #resources: #cannot access threads here; fix later
-     #   mem=lambda wildcards, threads: {threads} * 3
-     #using already installed haplotypecaller conda-env, otherwise conda takes forever; 
-     #todo: change to a common gatk3.yaml instead of seperate conda for sub-commands
-    conda: 
-        "../wrappers/gatk3/haplotypecaller/environment.yaml"
-    wrapper:
-        get_wrapper_path("gatk3", "realignertargetcreator")
-
-rule indelrealigner:
-    input:
-        bam = get_recal_input(),
-        bai = get_recal_input(bai=True),
-        ref = config["ref"]["genome"],
-        known = config["ref"]["known_variants"],
-        target_intervals="recal/gatk3/realignertargetcreator/{family}_{sample}.intervals",
-    output:
-        bam = protected("recal/gatk3/indelrealigner/{family}_{sample}-realign.bam"),
-    log:
-        "logs/gatk3/indelrealigner/{family}_{sample}.log"
-    params:
-        extra = get_regions_param() + config["params"]["gatk3"]["IndelRealigner"],
-        java_opts = config["params"]["gatk"]["java_opts"],
-    conda:
-        "../wrappers/gatk3/haplotypecaller/environment.yaml"
-    wrapper:
-        get_wrapper_path("gatk3", "indelrealigner")
 
 rule mosdepth:
     input:
-        bam = get_recal_input(),
-        bai = get_recal_input(bai=True),
+        bam = "dedup/{family}_{sample}.bam",
+        bai = "dedup/{family}_{sample}.bam.bai",
     output:
-        qbed = "mapped/{family}_{sample}.quantized.bed.gz",
-        bed = "mapped/{family}_{sample}-callable.bed"
+        qbed = "dedup/{family}_{sample}.quantized.bed.gz",
+        bed = "dedup/{family}_{sample}-callable.bed"
     params:
-        prefix = f"mapped/{{family}}_{{sample}}",
+        prefix = f"dedup/{{family}}_{{sample}}",
         by = config["ref"]["canon_bed"],
         quantiles = "0:1:4:"
     log:
@@ -131,43 +90,6 @@ rule mosdepth:
     wrapper:
         get_wrapper_path("mosdepth")
        
-rule baserecalibrator:
-    input:
-        bam = "recal/gatk3/indelrealigner/{family}_{sample}-realign.bam",
-        bai = "recal/gatk3/indelrealigner/{family}_{sample}-realign.bam.bai",
-        bed = "mapped/{family}_{sample}-callable.bed",
-        ref = config["ref"]["genome"],
-        known = config["ref"]["known_variants"]
-    output:
-        "recal/gatk3/baserecalibrator/{family}_{sample}-recal.grp"
-    params:
-        extra = get_regions_param() + config["params"]["gatk3"]["BaseRecalibrator"],
-        java_opts = config["params"]["gatk"]["java_opts"],
-    log:
-        "logs/gatk3/baserecalibrator/{family}_{sample}.log"
-    threads: 8
-    conda:
-        "../wrappers/gatk3/haplotypecaller/environment.yaml"
-    wrapper:
-        get_wrapper_path("gatk3", "baserecalibrator")
-
-rule printreads:
-    input:
-        bam = "recal/gatk3/indelrealigner/{family}_{sample}-realign.bam",
-        bai = "recal/gatk3/indelrealigner/{family}_{sample}-realign.bam.bai",
-        ref = config["ref"]["genome"],
-        recal_data = "recal/gatk3/baserecalibrator/{family}_{sample}-recal.grp"
-    output:
-        protected("recal/gatk3/{family}_{sample}.bam")
-    params:
-        extra = get_regions_param() + config["params"]["gatk3"]["PrintReads"],
-        java_opts = config["params"]["gatk"]["java_opts"],
-    log:
-        "logs/gatk3/printreads/{family}_{sample}.log"
-    conda:
-        "../wrappers/gatk3/haplotypecaller/environment.yaml"
-    wrapper:
-        get_wrapper_path("gatk3", "printreads")
 
 rule md5:
     input: 
@@ -209,11 +131,11 @@ rule samtools_index:
 
 rule concatenate_callable_bed:
     input:
-        expand("mapped/{family}_{sample}-callable.bed",family=project,sample=samples.index)
+        expand("dedup/{family}_{sample}-callable.bed",family=project,sample=samples.index)
     output: 
-        bed = "mapped/{family}-concat-sort.bed"
+        bed = "dedup/{family}-concat-sort.bed"
     params:
-        tempdir = temp("mapped/temp/")
+        tempdir = temp("dedup/temp/")
     log:
         "logs/bash/{family}-callable-concat.log"
     shell:
@@ -225,9 +147,9 @@ rule concatenate_callable_bed:
     
 rule merge_bed:
     input: 
-        "mapped/{family}-concat-sort.bed"
+        "dedup/{family}-concat-sort.bed"
     output:
-        "mapped/{family}-sort-callable.bed"
+        "dedup/{family}-sort-callable.bed"
     log:
         "logs/bedtools/{family}-callable-merge.log"
     wrapper:
@@ -235,16 +157,16 @@ rule merge_bed:
 
 rule contigwise_bed:
     input:
-        "mapped/{family}-sort-callable.bed"
+        "dedup/{family}-sort-callable.bed"
     output:
-        "mapped/bed/{family}-sort-callable-{contig}.bed"
+        "dedup/bed/{family}-sort-callable-{contig}.bed"
     log:
         "logs/bash/{family}.{contig}.log"    
     shell:
         """
             awk '{{ if($1=="{wildcards.contig}") print $0; }}' {input} > {output}
             # if there are no callable regions on MT, bed file is empty and freebayes throws an error
-            if [ ! -s mapped/bed/{wildcards.family}-sort-callable-MT.bed ]; then echo -e "MT\t1\t10"  >  mapped/bed/{wildcards.family}-sort-callable-MT.bed; fi 2>{log}
+            if [ ! -s dedup/bed/{wildcards.family}-sort-callable-MT.bed ]; then echo -e "MT\t1\t10"  >  dedup/bed/{wildcards.family}-sort-callable-MT.bed; fi 2>{log}
         """
 
 rule bam_to_cram:

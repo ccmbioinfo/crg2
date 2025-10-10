@@ -39,8 +39,8 @@ rule fastq_screen:
 
 rule qualimap:
     input: 
-        bam = "mapped/{family}_{sample}.sorted.bam", 
-        bai = "mapped/{family}_{sample}.sorted.bam.bai"
+        bam = "recal/{family}_{sample}.bam", 
+        bai = "recal/{family}_{sample}.bam.bai"
     output:
         "qc/qualimap/{family}_{sample}/genome_results.txt",
         "qc/qualimap/{family}_{sample}/qualimapReport.html",

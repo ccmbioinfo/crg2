@@ -12,7 +12,7 @@ if config["run"]["pipeline"] == "wes":
     rule all:
         input:
             "annotated/{p}/vep/{family}.{p}.vep.vcf.gz".format(family=project, p="gatk_haplotype"),
-            "annotated/{p}/vep/{family}.{p}.vep.vcf.gz".format(family=project, p="gatk_somatic"),
+            "annotated/{p}/vep/{family}.{p}.vep.vcf.gz".format(family=project, p="gatk_mutect2"),
             "qc/multiqc/multiqc.html",
             [expand("recal/{family}_{sample}.cram.crai".format(family=project, sample=s)) for s in samples.index],
             [expand("recal/{family}_{sample}.cram.md5".format(family=project, sample=s)) for s in samples.index],
@@ -32,9 +32,8 @@ rule write_version:
 
 ##### Modules #####
 include: "rules/mapping.smk"
-include: "rules/cre/calling.smk"  
-include: "rules/cre/filtering.smk"
+include: "rules/cre/calling_germline.smk"  
+include: "rules/cre/filtering_germline.smk"
 include: "rules/cre/annotation.smk"
-include: "rules/cre/calling_mosaic.smk"
-include: "rules/cre/annotation_mosaic.smk"
+include: "rules/cre/calling_somatic.smk"
 include: "rules/qc.smk"

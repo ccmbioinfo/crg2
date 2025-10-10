@@ -1,21 +1,18 @@
 def get_filt_vcf(wildcards):
-    if wildcards.p == "coding":
-        return "filtered/{family}.vcf.gz"
-    elif wildcards.p == "denovo":
-        return "filtered/{family}.vcf.gz"
+    if wildcards.p == "gatk_haplotype":
+        return "filtered/{family}.gatk_haplotype.vcf.gz"
     else:
-        return "filtered/{p}/{family}.{p}.vcf.gz".format(p=wildcards.p,family=project)
+        return "filtered/{family}.gatk_mutect2.vcf.gz"
 
 
 rule vt:
-    input:
-        "genotyped/{prefix}.vcf.gz", "genotyped/{prefix}.vcf.gz.tbi"
+    input: get_filt_vcf
     output:
-        "filtered/{prefix}.uniq.normalized.decomposed.vcf"  
+        "filtered/{p}/{family}.{p}.uniq.normalized.decomposed.vcf"  
     params:
         ref=config["ref"]["genome"],
     log:
-        "logs/vt/{prefix}.log"
+        "logs/vt/{family}.{p}.log"
     wrapper:
         get_wrapper_path("vt")
 
@@ -49,18 +46,5 @@ rule vep:
     wrapper:
         get_wrapper_path("vep")
 
-
-rule vcf2db:
-    input:
-        "annotated/{p}/vep/{family}.{p}.vep.vcf.gz",
-    output:
-         db="annotated/{p}/{family}-gemini.db",
-    log:
-        "logs/vcf2db/{family}.vcf2db.{p}.log"
-    threads: 1
-    resources:
-        mem_mb = 20000
-    wrapper:
-        get_wrapper_path("vcf2db")
 
 

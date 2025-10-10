@@ -6,7 +6,7 @@ def get_vartype_arg(wildcards):
 rule select_calls:
     input:
         ref=config["ref"]["genome"],
-        vcf="genotyped/{family}.vcf.gz"
+        vcf="genotyped/gatk/{family}.vcf.gz"
     output:
         vcf=temp("filtered/{family}.{vartype}.vcf.gz")
     params:
@@ -59,8 +59,9 @@ rule merge_calls:
                               if config["filtering"]["vqsr"]
                               else "hardfiltered")
     output:
-        vcf="filtered/{family}.vcf.gz"
+        vcf="filtered/{family}.gatk_haplotype.vcf.gz"
     log:
         "logs/picard/{family}.merge-filtered.log"
     wrapper:
         get_wrapper_path("picard", "mergevcfs")
+
