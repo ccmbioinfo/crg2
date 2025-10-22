@@ -34,7 +34,7 @@ rule allsnvreport:
          unset type
          fi;
          '''
-if config["run"]["hpo"]:
+if config["run"]["hpo"] or config["run"]["panel"]:
 
     def get_panel(wildcards):
         if not config["run"]["panel"]:
