@@ -74,10 +74,17 @@ if config["run"]["hpo"] or config["run"]["panel"]:
             '''
             cat {input} | awk -F "\t" '{{print $1"\t"$2-{params}"\t"$3+{params}}}' | sed 's/-[0-9]*/0/g' | bedtools sort | bedtools merge > {output}
             '''
+    
+    
+    def get_intersect_file(wildcards):
+        if config["run"]["dragen_jointcall"]:
+            return "filtered/{p}/{family}.{p}.DeNovo.vcf.gz".format(p=wildcards.p,family=project)
+        else:
+            return "filtered/{family}.vcf.gz"
 
     rule intersect:
         input: 
-            left="filtered/{family}.vcf.gz",
+            left=get_intersect_file,
             right=get_panel
         output:
             vcf="filtered/{p}/{family}.{p}.vcf.gz"
