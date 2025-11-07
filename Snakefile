@@ -19,9 +19,9 @@ if config["run"]["pipeline"] == "wes":
 elif config["run"]["pipeline"] == "wgs":
     rule all:
         input:
-            expand("report/{p}/{family}", p=["panel", "panel-flank"], family=project) if config["run"]["hpo"] or config["run"]["panel"]  else [],
+            expand("report/{p}/{family}", p=["panel", "panel-flank", "dragen_denovo"], family=project) if config["run"]["hpo"] or config["run"]["panel"]  else [],
             expand("report/{p}/{family}", p=["denovo"], family=project) if config["run"]["ped"] else [],
-            expand("report/{p}/{family}", p=["panel", "panel-flank", "denovo"], family=project) if (config["run"]["hpo"] or config["run"]["panel"]) and config["run"]["ped"] else [],
+            expand("report/{p}/{family}", p=["panel", "panel-flank", "denovo", "dragen_denovo"], family=project) if (config["run"]["hpo"] or config["run"]["panel"]) and config["run"]["ped"] else [],
             "report/coding/{family}".format(family=project),
             "report/sv",
             #expand("report/str/{family}.{report_name}.xlsx", family=project, report_name=["EH-v1.1","EHDN"]),

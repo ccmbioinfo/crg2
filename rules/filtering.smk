@@ -69,3 +69,17 @@ rule merge_calls:
         "logs/picard/{family}.merge-filtered.log"
     wrapper:
         get_wrapper_path("picard", "mergevcfs")
+
+
+
+rule subset_dragen_denovo:
+    input:
+        vcf=config["run"]["dragen_jointcall"]
+    output:
+        vcf="filtered/{p}/{family}.{p}.DeNovo.vcf.gz"
+    log:
+        "logs/bcftools/view/{family}.{p}.get_dragen_denovo_calls.log"
+    shell:
+        '''
+            bcftools view -i 'FORMAT/DN="DeNovo"' -Oz -o {output.vcf} {input.vcf}
+        '''
