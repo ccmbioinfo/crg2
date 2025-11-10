@@ -108,10 +108,13 @@ def decompress_ora(r1,r2,orad,orad_ref):
     return decompressed_r1_list,decompressed_r2_list
 
 def remove_bgzipped_files(decompressed_r1_list,decompressed_r2_list):
-    for read in decompressed_r1_list+decompressed_r2_list:
-        log_message(f"Removing {read}")
-        command=f"rm {read}"
-        subprocess.run(command,shell=True)
+    if len(decompressed_r1_list+decompressed_r2_list) > 2:
+        for read in decompressed_r1_list+decompressed_r2_list:
+            log_message(f"Removing {read}")
+            command=f"rm {read}"
+            subprocess.run(command,shell=True)
+    else:
+        log_message(f"No files to remove")
 
 def main(units, sample, family, orad, orad_ref):
     logfile = f"logs/input_prep/{family}_{sample}.log"
