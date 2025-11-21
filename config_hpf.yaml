@@ -24,7 +24,7 @@ tools:
   crg: "~/crg"
   crg2: "~/crg2"
   ehdn: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/crg2-non-conda-tools/EHDN.TCAG/ExpansionHunterDenovo-v0.7.0"
-  mity: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/crg2-non-conda-tools/mity_v1.1.0/bin"
+  mity: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/crg2-non-conda-tools/mity_v2.0.1/bin"
   melt: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/crg2-non-conda-tools/MELT/MELTv2.2.2/MELT.jar"
   orad: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/crg2-non-conda-tools/orad_2_6_1/orad" 
   annovar: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/crg2-non-conda-tools/annovar"
@@ -87,6 +87,10 @@ qc:
     conf: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/qc/FastQ_Screen_Genomes/fastq_screen.conf"
   
 annotation:
+  mity:
+    report_config: "~/crg2/vcfanno/mity/report-config.yaml"
+    vcfanno_config: "~/crg2/vcfanno/mity/vcfanno-config-mt.toml"
+    base_path: "/hpf/largeprojects/ccmbio/naumenko/tools/bcbio/genomes/Hsapiens/GRCh37/variation/"
   cre.vcfanno:
     conf: "~/crg2/vcfanno/cre.vcfanno.conf"
     lua_script: "~/crg2/vcfanno/cre.vcfanno.lua"
