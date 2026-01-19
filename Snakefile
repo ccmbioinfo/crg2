@@ -29,4 +29,7 @@ rule all:
         f"qc/post-assembly/krona/{sra_run}.taxonomy.krona.post_assembly.html",
         f"qc/post-assembly/bracken/{sra_run}.bracken.post_assembly.txt",
         f"annotated/{sra_run}_bakta",
+        f"annotated/{sra_run}_bakta_PI_90",
+        f"annotated/{sra_run}_bakta_PI_30",
         f"qc/multiqc/multiqc.html"
+ 
