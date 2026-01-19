@@ -40,3 +40,18 @@ rule bakta_PI_30:
         "logs/bakta/{sra_run}_PI_30.log"
     wrapper:
         get_wrapper_path("bakta")
+
+rule bakta_PI_30_SQC_50:
+    input:
+        "shovill/{sra_run}"
+    params:
+        outdir="annotated/{sra_run}_bakta_PI_30_SQC_50/",
+        db=config["tools"]["bakta_db"],
+        user_proteins="/hpf/largeprojects/ccmbio/ajain/isaac_chantel_project/pipelines/data/pseudomonas_annot_protein_list_curated/curated_pseudomonas_proteins-bakta_long_format-PI_30_SubjQuery_50.fasta",
+        prefix="{sra_run}_PI_30_SQC_50"
+    output:
+        directory("annotated/{sra_run}_bakta_PI_30_SQC_50")
+    log:
+        "logs/bakta/{sra_run}_PI_30_SQC_50.log"
+    wrapper:
+        get_wrapper_path("bakta")
