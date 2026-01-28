@@ -27,7 +27,6 @@ rule all:
         f"qc/post-assembly/kraken2_post_assembly/{sra_run}_output-post_assembly.txt",
         f"qc/post-assembly/quast/{sra_run}",
         f"qc/post-assembly/krona/{sra_run}.taxonomy.krona.post_assembly.html",
-        f"qc/post-assembly/bracken/{sra_run}.bracken.post_assembly.txt",
         f"annotated/{sra_run}_bakta",
         f"annotated/{sra_run}_bakta_PI_90",
         f"annotated/{sra_run}_bakta_PI_30",
