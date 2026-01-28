@@ -31,5 +31,6 @@ rule all:
         f"annotated/{sra_run}_bakta",
         f"annotated/{sra_run}_bakta_PI_90",
         f"annotated/{sra_run}_bakta_PI_30",
+        f"annotated/{sra_run}_bakta_PI_30_SQC_50",
         f"qc/multiqc/multiqc.html"
  
