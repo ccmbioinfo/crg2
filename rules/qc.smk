@@ -108,3 +108,14 @@ rule multiqc:
     wrapper:
         get_wrapper_path("multiqc")
         
+rule checkm2:
+    input:
+        "shovill/{sra_run}/contigs.fa"
+    params:
+        database_path="/hpf/largeprojects/ccmbio/ajain/isaac_chantel_project/pipelines/tools/checkm2_database/CheckM2_database/uniref100.KO.1.dmnd"
+    output:
+        directory("qc/post-assembly/checkm2/{sra_run}")
+    wrapper:
+        get_wrapper_path("checkm2")
+    
+    
