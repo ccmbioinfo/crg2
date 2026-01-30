@@ -3,7 +3,8 @@ rule bakta:
         "shovill/{sra_run}"
     params:
         outdir="annotated/{sra_run}_bakta/",
-        db=config["tools"]["bakta_db"]
+        db=config["tools"]["bakta_db"],
+        user_proteins=None
     output:
         directory("annotated/{sra_run}_bakta")
     log:
