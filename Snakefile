@@ -27,9 +27,12 @@ rule all:
         f"qc/post-assembly/kraken2_post_assembly/{sra_run}_output-post_assembly.txt",
         f"qc/post-assembly/quast/{sra_run}",
         f"qc/post-assembly/krona/{sra_run}.taxonomy.krona.post_assembly.html",
-        f"qc/post-assembly/bracken/{sra_run}.bracken.post_assembly.txt",
         f"annotated/{sra_run}_bakta",
         f"annotated/{sra_run}_bakta_PI_90",
         f"annotated/{sra_run}_bakta_PI_30",
-        f"qc/multiqc/multiqc.html"
- 
+        f"annotated/{sra_run}_bakta_PI_30_SQC_50",
+        f"qc/multiqc/multiqc.html",
+        f"qc/post-assembly/checkm2/{sra_run}",
+        f"phager/",
+        f"plasmid_assembly/plasmer/{sra_run}",
+        f"plasmid_assembly/mob_suite/{sra_run}"

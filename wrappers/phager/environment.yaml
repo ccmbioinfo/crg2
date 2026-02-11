@@ -1,0 +1,17 @@
+channels:
+  - bioconda
+  - conda-forge
+  - defaults
+dependencies:
+  - python == 3.11
+  - setuptools
+  - tqdm==4.67.1
+  - icecream==2.1.9
+  - colorama==0.4.6
+  - pyrodigal==3.7.0
+  - biopython==1.86
+  - more-itertools==10.8.0
+  - lightgbm==4.6.0
+  - scikit-learn==1.3
+  - pyarrow==23.0.0
+  - pandas==2.3.3

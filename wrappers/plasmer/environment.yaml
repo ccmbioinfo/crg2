@@ -1,0 +1,7 @@
+channels:
+  - iskoldt
+  - bioconda
+  - conda-forge
+dependencies:
+  - python == 3.10
+  - plasmer == 23.04.20
