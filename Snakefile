@@ -32,5 +32,7 @@ rule all:
         f"annotated/{sra_run}_bakta_PI_30",
         f"annotated/{sra_run}_bakta_PI_30_SQC_50",
         f"qc/multiqc/multiqc.html",
-        f"qc/post-assembly/checkm2/{sra_run}"
- 
+        f"qc/post-assembly/checkm2/{sra_run}",
+        f"phager/",
+        f"plasmid_assembly/plasmer/{sra_run}",
+        f"plasmid_assembly/mob_suite/{sra_run}"

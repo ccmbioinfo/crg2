@@ -115,6 +115,8 @@ rule checkm2:
         database_path="/hpf/largeprojects/ccmbio/ajain/isaac_chantel_project/pipelines/tools/checkm2_database/CheckM2_database/uniref100.KO.1.dmnd"
     output:
         directory("qc/post-assembly/checkm2/{sra_run}")
+    log:
+        "logs/qc/post_assembly/checkm2/{sra_run}.log"
     wrapper:
         get_wrapper_path("checkm2")
     
