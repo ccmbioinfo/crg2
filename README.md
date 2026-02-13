@@ -32,6 +32,16 @@ To set up the Bakta environment, I had to follow a few additional steps. Documen
 5. Run: `bakta_db install -i db.tar.xz`
 6. Add the database path to the `config.yaml`
 
+### Setting up checkM2 database:
+1. Downloaded version3 of the DB: https://zenodo.org/records/14897628 to /hpf/largeprojects/ccmbio/ajain/isaac_chantel_project/pipelines/tools/
+2. `tar -xvzf checkm2_database.tar.gz`
+3. `checkm2 database --setdblocation /hpf/largeprojects/ccmbio/ajain/isaac_chantel_project/pipelines/tools/checkm2_database/CheckM2_database/uniref100.KO.1.dmnd`
+
+### Setting up phager:
+1. `cd /hpf/largeprojects/ccmbio/ajain/isaac_chantel_project/pipelines/tools`
+2. Clone git repo: `git clone phager`
+3. `mv phager phager-git`
+
 
 ## Pipeline details
 
