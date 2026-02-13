@@ -20,7 +20,7 @@ rule phager:
     input:
         expand("shovill/{sra_run}/contigs.fa",sra_run=project)
     output:
-        directory("phager/")
+        directory("phager")
     log:
         expand("logs/phager/{sra_run}.log",sra_run=project)
     wrapper:
