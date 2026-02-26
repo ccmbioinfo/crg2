@@ -1,0 +1,8 @@
+channels:
+  - bioconda
+  - conda-forge
+  - defaults
+dependencies:
+  - python==3.12
+  - pyhmmer==0.11
+  - defense-finder==2.0.0

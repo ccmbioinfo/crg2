@@ -35,4 +35,5 @@ rule all:
         f"qc/post-assembly/checkm2/{sra_run}",
         f"phager",
         f"plasmid_assembly/plasmer/{sra_run}",
-        f"plasmid_assembly/mob_suite/{sra_run}"
+        f"plasmid_assembly/mob_suite/{sra_run}",
+        f"annotated/defensefinder/"

@@ -56,3 +56,16 @@ rule bakta_PI_30_SQC_50:
         "logs/bakta/{sra_run}_PI_30_SQC_50.log"
     wrapper:
         get_wrapper_path("bakta")
+
+
+rule defensefinder:
+    input:
+        expand("shovill/{sra_run}/contigs.fa",sra_run=project)
+    params:
+        defensefinder_models="/hpf/projects/CTrost/ajain/bacterial_genomics_pipeline/tools/defensefinder_models"
+    output:
+        directory("annotated/defensefinder/")
+    log:
+       expand("logs/defensefinder/{sra_run}_defensefinder.log",sra_run=project)
+    wrapper:
+        get_wrapper_path("defensefinder")
