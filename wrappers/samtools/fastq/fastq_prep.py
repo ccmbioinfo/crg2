@@ -49,7 +49,7 @@ def check_fastq(read1, read2):  # multiple fastq files per end
             exit()
 
 
-def concatenate_fastq(r1, r2, family, sample):
+def concatenate_fastq(r1, r2, family, sample, temporary=False):
     """
     based on input file suffix, performs
     1. concatenation (more than 1 fastq per end)
@@ -67,14 +67,20 @@ def concatenate_fastq(r1, r2, family, sample):
         log_message(f"Command: {cmd_r2}")
         subprocess.run(cmd_r2, shell=True)
 
-    elif ".fastq" in r1[0] or ".fq" in r1[0] and ".fastq" in r2[0] or ".fq" in r2[0]:
-        # one fastq per end; symlink
-        log_message(f"Single FASTQ file per end for {sample} ")
-        # check_fastq(r1, r2)
-        dest = os.path.join(f"fastq/{family}_{sample}_R1.fastq.gz")
-        create_symlink(r1[0], dest)
-        dest = os.path.join(f"fastq/{family}_{sample}_R2.fastq.gz")
-        create_symlink(r2[0], dest)
+    elif ((".fastq" in r1[0] or ".fq" in r1[0]) and
+        (".fastq" in r2[0] or ".fq" in r2[0])):
+        log_message(f"Single FASTQ file per end for {sample}")
+        dest_r1 = os.path.join(f"fastq/{family}_{sample}_R1.fastq.gz")
+        dest_r2 = os.path.join(f"fastq/{family}_{sample}_R2.fastq.gz")
+
+        if temporary:
+            log_message(f"copying {r1[0]} to {dest_r1}")
+            subprocess.check_call(["cp", r1[0], dest_r1])
+            log_message(f"copying {r2[0]} to {dest_r2}")
+            subprocess.check_call(["cp", r2[0], dest_r2])
+        else:
+            create_symlink(r1[0], dest_r1)
+            create_symlink(r2[0], dest_r2)
     else:
         print(r1, r2)
         log_message(f"Input {r1}, {r2} given for {sample} is not handled. Exiting!")
@@ -142,7 +148,7 @@ def main(units, sample, family, orad, orad_ref):
         #If file is ora compressed, then first decompress it
         log_message(f"Files for {sample} are in ora format. Decompressing the files using orad")
         decompressed_r1, decompressed_r2=decompress_ora(r1,r2,orad,orad_ref)
-        concatenate_fastq(decompressed_r1, decompressed_r2, family, sample)
+        concatenate_fastq(decompressed_r1, decompressed_r2, family, sample, temporary=True)
         #remove the bgzipped files
         remove_bgzipped_files(decompressed_r1,decompressed_r2)
 
