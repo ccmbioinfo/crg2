@@ -4,6 +4,7 @@ run:
   units: units.tsv
   gatk: "gatk"
   pipeline: "wes"
+  metadata: metadata.tsv
 
 tools:
   crg2: " /hpf/largeprojects/ccmbio/mcouse/dmalkin/mouse_WES/crg2"
@@ -17,6 +18,7 @@ ref:
   known_variants_common: "/hpf/largeprojects/ccmbio/mcouse/dmalkin/mouse_WES/data/dbSNP/mgp.v5.merged.dbSNP142.normed.chr.reheader.AF.no.sex.no.MT.common.vcf.gz"
   orad_ref: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/crg2-non-conda-tools/orad_2_6_1/oradata"
   ref_cache: ""
+  mutect_intervals: "/hpf/largeprojects/ccmbio/students/rkhan/mouse_WES/db_make/mm10_canonical_per_chr.list"
 
 filtering:
   vqsr: false
@@ -98,6 +100,7 @@ params:
     c: "-c"
     hm: 3
     gtf: "/hpf/largeprojects/ccmbio/mcouse/dmalkin/mouse_WES/data/genes/M10_exons.bed"
+    extra: ""
   verifybamid2:
     svd_prefix: "1000g.phase3 100k b37"
     # --DisableSanityCheck ensures verifybamid2 does not fail for exomes with < 10,000 markers
@@ -124,3 +127,19 @@ params:
       sdf: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/rtg-tools/GRch37_SDF/"
     vcfsubset:
       java_opts: "-Xmx2048m"
+
+baseline:
+  genotype: WT
+  stages: P90,E12
+
+variant_filters:
+  germline_exclude_build:
+    min_dp: 10
+    min_alt_depth: 3
+  germline_final:
+    min_dp: 10
+    min_alt_depth: 3
+  somatic_final:
+    min_dp: 10
+    min_af: 0.05
+    min_alt_ac: 3

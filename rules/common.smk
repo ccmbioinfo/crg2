@@ -23,12 +23,34 @@ validate(units, schema="../schemas/units.schema.yaml")
 project = config["run"]["project"]
 gatk = config["run"]["gatk"] 
 
+metadata = pd.read_table(config["run"]["metadata"], dtype=str)
+metadata = metadata.replace(r"^\s*$", pd.NA, regex=True)
+metadata = metadata[metadata["Sample"].isin(samples.index)].copy()
+
+
 ##### Wildcard constraints #####
 wildcard_constraints:
     vartype = "snvs|indels",
     sample = "|".join(samples.index),
     family = str(project)
 
+##### Metadata baseline groups #####
+
+def parse_config_csv(value):
+    if isinstance(value, str):
+        return {item.strip() for item in value.split(",") if item.strip()}
+    return set(value)
+
+BASELINE_GENOTYPE = str(config["baseline"]["genotype"]).strip()
+BASELINE_STAGES = parse_config_csv(config["baseline"]["stages"])
+
+BASELINE_SAMPLES = sorted(
+    metadata.loc[(metadata["Genotype"] == BASELINE_GENOTYPE) & (metadata["Stage"].isin(BASELINE_STAGES)), "Sample", ].dropna().unique().tolist()
+)
+
+NON_BASELINE_SAMPLES = sorted(
+    [sample for sample in samples.index if sample not in set(BASELINE_SAMPLES)]
+)
 
 ##### Helper functions #####
 
@@ -167,3 +189,12 @@ def get_gatk_vcf_tbi(wildcards):
     elif config["run"]["pipeline"] == "wgs":
         vcf_tbi = expand("genotyped/{family}.vcf.gz.tbi", family=wildcards.family)
     return vcf_tbi
+
+def get_baseline_samples():
+    return BASELINE_SAMPLES
+
+def get_non_baseline_samples():
+    return NON_BASELINE_SAMPLES
+
+def get_nonbaseline_gatk_somatic_vcf(ext="vcf.gz"):
+    return expand("genotyped/{family}_{sample}.gatk_somatic.pass_mutect2.{ext}",family=project,sample=NON_BASELINE_SAMPLES,ext=ext,)

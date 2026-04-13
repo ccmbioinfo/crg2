@@ -23,7 +23,7 @@ rule map_reads:
     input:
         reads = ["fastq/{family}_{sample}_R1.fastq.gz", "fastq/{family}_{sample}_R2.fastq.gz"]
     output:
-        temp("mapped/{family}_{sample}.sorted.bam")
+        "mapped/{family}_{sample}.sorted.bam"
     log:
         "logs/bwa_mem/{family}_{sample}.log"
     params:
@@ -45,7 +45,7 @@ rule mark_duplicates:
     input:
         "mapped/{family}_{sample}.sorted.bam"
     output:
-        bam = temp("dedup/{family}_{sample}.bam"),
+        bam = "dedup/{family}_{sample}.bam",
         metrics = "qc/dedup/{family}_{sample}.metrics.txt"
     log:
         "logs/picard/dedup/{family}_{sample}.log"
@@ -64,7 +64,7 @@ rule recalibrate_base_qualities:
         known = config["ref"]["known_variants"],
         bed = "dedup/{family}_{sample}-callable.bed" 
     output:
-        bam = temp("recal/{family}_{sample}.bam")
+        bam = "recal/{family}_{sample}.bam"
     params:
         extra = get_regions_param() + config["params"]["gatk"]["BaseRecalibrator"],
         java_opts = config["params"]["gatk"]["java_opts"],
