@@ -46,7 +46,8 @@ filtering:
       indel:
         name: 'GATKCutoffIndel'
         filter: 'TYPE="indel" && (ReadPosRankSum < -20.0 || QD < 2.0 || FS > 200.0 || SOR > 10.0)'
-
+  pon: ""
+  germline_excludelist: ""
 
 processing:
   mark-duplicates: true

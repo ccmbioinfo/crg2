@@ -44,9 +44,9 @@ rule baseline_germline_excludelist:
 rule exclude_baseline_germline_from_somatic:
     input:
         vcf="annotated/gatk_mutect2/vep/{family}.gatk_mutect2.vep.vcf.gz",
-        exclude="excludelists/{family}.baseline_germline.vcf.gz",
+        exclude=get_germline_excludelist_vcf,
         vcf_tbi="annotated/gatk_mutect2/vep/{family}.gatk_mutect2.vep.vcf.gz.tbi",
-        exclude_tbi="excludelists/{family}.baseline_germline.vcf.gz.tbi"
+        exclude_tbi=get_germline_excludelist_vcf_index
     output:
         vcf="study_filtered/gatk_mutect2/{family}.gatk_mutect2.baseline_excluded.vep.vcf.gz"
     log:
@@ -82,7 +82,7 @@ rule final_filter_somatic:
     output:
         vcf="study_filtered/gatk_mutect2/{family}.gatk_mutect2.final_filtered.vep.vcf.gz"
     params:
-        nonbaseline_samples=get_non_baseline_samples(),
+        somatic_samples=samples.index.tolist(),
         min_dp=config["variant_filters"]["somatic_final"]["min_dp"],
         min_af=config["variant_filters"]["somatic_final"]["min_af"],
         min_alt_ac=config["variant_filters"]["somatic_final"]["min_alt_ac"]

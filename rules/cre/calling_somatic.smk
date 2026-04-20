@@ -12,20 +12,6 @@ def get_baseline_pon_vcf_indices(wildcards):
         sample=BASELINE_SAMPLES,
     )
 
-def get_nonbaseline_bams(wildcards):
-    return expand(
-        "recal/{family}_{sample}.bam",
-        family=wildcards.family,
-        sample=NON_BASELINE_SAMPLES,
-    )
-
-def get_nonbaseline_mutect_vcfs(wildcards):
-    return expand(
-        "called/gatk_mutect2/{family}_{sample}.vcf",
-        family=wildcards.family,
-        sample=NON_BASELINE_SAMPLES,
-    )
-
 rule baseline_mutect2_for_pon:
     input:
         map="recal/{family}_{sample}.bam",
@@ -99,7 +85,7 @@ rule gatk_mutect2:
         map = "recal/{family}_{sample}.bam",
         fasta=config["ref"]["genome"],
         mgp_germline=config["ref"]["known_variants"],
-        pon="called/gatk_mutect2_pon/panel_of_normals/{family}.baseline.panel_of_normals.vcf.gz"
+        pon=get_pon_vcf
     output:
         vcf="called/gatk_mutect2/{family}_{sample}.vcf",
         stats="called/gatk_mutect2/{family}_{sample}.vcf.stats"
@@ -170,8 +156,8 @@ rule pass_somatic:
 
 rule merge_mutect2_sample:
     input:
-        vcf=get_nonbaseline_gatk_somatic_vcf(),
-        index=get_nonbaseline_gatk_somatic_vcf(ext="vcf.gz.tbi")
+        vcf=get_gatk_somatic_vcf(),
+        index=get_gatk_somatic_vcf(ext="vcf.gz.tbi")
     output:
         vcf_unsort=temp("filtered/{family}.gatk_mutect2.unsorted.vcf"),
         vcf="filtered/{family}.gatk_mutect2.vcf"

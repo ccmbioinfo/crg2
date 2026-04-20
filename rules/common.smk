@@ -52,6 +52,33 @@ NON_BASELINE_SAMPLES = sorted(
     [sample for sample in samples.index if sample not in set(BASELINE_SAMPLES)]
 )
 
+##### Filtering Paths #####
+def get_optional_filtering_path(key):
+    value = config["filtering"].get(key, "")
+    if value is None:
+        return ""
+    return str(value).strip()
+
+def get_pon_vcf(wildcards):
+    pon = get_optional_filtering_path("pon")
+    if pon:
+        return pon
+    return "called/gatk_mutect2_pon/panel_of_normals/{family}.baseline.panel_of_normals.vcf.gz".format(
+        family=wildcards.family
+    )
+
+def get_germline_excludelist_vcf(wildcards):
+    excludelist = get_optional_filtering_path("germline_excludelist")
+    if excludelist:
+        return excludelist
+    return "excludelists/{family}.baseline_germline.vcf.gz".format(
+        family=wildcards.family
+    )
+
+def get_germline_excludelist_vcf_index(wildcards):
+    return get_germline_excludelist_vcf(wildcards) + ".tbi"
+
+
 ##### Helper functions #####
 
 def get_fai():
@@ -195,6 +222,3 @@ def get_baseline_samples():
 
 def get_non_baseline_samples():
     return NON_BASELINE_SAMPLES
-
-def get_nonbaseline_gatk_somatic_vcf(ext="vcf.gz"):
-    return expand("genotyped/{family}_{sample}.gatk_somatic.pass_mutect2.{ext}",family=project,sample=NON_BASELINE_SAMPLES,ext=ext,)

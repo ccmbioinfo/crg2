@@ -13,6 +13,9 @@ if config["run"]["pipeline"] == "wes":
         input:
             "annotated/{p}/vep/{family}.{p}.vep.vcf.gz".format(family=project, p="gatk_haplotype"),
             "annotated/{p}/vep/{family}.{p}.vep.vcf.gz".format(family=project, p="gatk_mutect2"),
+            "study_filtered/gatk_haplotype/{family}.gatk_haplotype.final_filtered.vep.vcf.gz".format(family=project),
+            "study_filtered/gatk_mutect2/{family}.gatk_mutect2.final_filtered.vep.vcf.gz".format(family=project),
+            "study_filtered/{family}.per_sample_variant_counts.tsv".format(family=project),
             "qc/multiqc/multiqc.html",
             [expand("recal/{family}_{sample}.cram.crai".format(family=project, sample=s)) for s in samples.index],
             [expand("recal/{family}_{sample}.cram.md5".format(family=project, sample=s)) for s in samples.index],
