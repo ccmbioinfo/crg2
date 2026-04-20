@@ -10,7 +10,6 @@ SOMATIC_MIN_ALT_AC = snakemake.params.somatic_min_alt_ac
 
 vcfs = {
     "germline_annotated": snakemake.input.germline_annotated,
-    "germline_baseline_excluded": snakemake.input.germline_baseline_excluded,
     "germline_final": snakemake.input.germline_final,
     "somatic_annotated": snakemake.input.somatic_annotated,
     "somatic_baseline_excluded": snakemake.input.somatic_baseline_excluded,
