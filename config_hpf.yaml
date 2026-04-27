@@ -144,3 +144,6 @@ variant_filters:
     min_dp: 10
     min_af: 0.05
     min_alt_ac: 3
+  somatic_sample_specific_germline:
+    germline_min_dp: 30
+    germline_min_alt_depth: 10

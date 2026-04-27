@@ -14,6 +14,7 @@ vcfs = {
     "somatic_annotated": snakemake.input.somatic_annotated,
     "somatic_baseline_excluded": snakemake.input.somatic_baseline_excluded,
     "somatic_final": snakemake.input.somatic_final,
+    "somatic_sample_specific_germline_excluded": snakemake.input.somatic_sample_specific_germline_excluded
 }
 
 rows = []

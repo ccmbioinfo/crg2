@@ -93,13 +93,32 @@ rule final_filter_somatic:
     script:
         "../../scripts/filter_annotated_somatic.py"
 
+rule sample_specific_germline_filter_somatic:
+    input:
+        germline_vcf="study_filtered/gatk_haplotype/{family}.gatk_haplotype.final_filtered.vep.vcf.gz",
+        germline_tbi="study_filtered/gatk_haplotype/{family}.gatk_haplotype.final_filtered.vep.vcf.gz.tbi",
+        somatic_vcf="study_filtered/gatk_mutect2/{family}.gatk_mutect2.final_filtered.vep.vcf.gz",
+        somatic_tbi="study_filtered/gatk_mutect2/{family}.gatk_mutect2.final_filtered.vep.vcf.gz.tbi"
+    output:
+        vcf="study_filtered/gatk_mutect2/{family}.gatk_mutect2.final_filtered.sample_germline_excluded.vep.vcf.gz"
+    params:
+        germline_min_dp=config["variant_filters"]["somatic_sample_specific_germline"]["germline_min_dp"],
+        germline_min_alt_depth=config["variant_filters"]["somatic_sample_specific_germline"]["germline_min_alt_depth"]
+    log:
+        "logs/metadata/{family}.sample_specific_germline_filter_somatic.log"
+    conda:
+        "../../envs/crg.yaml"
+    script:
+        "../../scripts/filter_somatic_sample_specific_germline.py"
+
 rule per_sample_variant_counts:
     input:
         germline_annotated="annotated/gatk_haplotype/vep/{family}.gatk_haplotype.vep.vcf.gz",
         germline_final="study_filtered/gatk_haplotype/{family}.gatk_haplotype.final_filtered.vep.vcf.gz",
         somatic_annotated="annotated/gatk_mutect2/vep/{family}.gatk_mutect2.vep.vcf.gz",
         somatic_baseline_excluded="study_filtered/gatk_mutect2/{family}.gatk_mutect2.baseline_excluded.vep.vcf.gz",
-        somatic_final="study_filtered/gatk_mutect2/{family}.gatk_mutect2.final_filtered.vep.vcf.gz"
+        somatic_final="study_filtered/gatk_mutect2/{family}.gatk_mutect2.final_filtered.vep.vcf.gz",
+        somatic_sample_specific_germline_excluded="study_filtered/gatk_mutect2/{family}.gatk_mutect2.final_filtered.sample_germline_excluded.vep.vcf.gz"
     output:
         summary="study_filtered/{family}.per_sample_variant_counts.tsv"
     params:
