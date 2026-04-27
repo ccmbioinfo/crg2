@@ -57,6 +57,9 @@ input_prep:
 gatkcall:
   mem: "200G"
 
+pon_genomicsdb_import:
+  mem: "120G"
+  time: "72:00:00"
 
 
 

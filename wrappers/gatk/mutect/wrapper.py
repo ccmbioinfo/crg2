@@ -16,5 +16,6 @@ shell(
     "--output {snakemake.output.vcf} "  # Path to output vcf file
     "--reference {snakemake.input.fasta} "  # Path to reference fasta file
     "--germline-resource {snakemake.input.mgp_germline} "
+    "--panel-of-normals {snakemake.input.pon} "
     "{log}"  # Logging behaviour
 )
