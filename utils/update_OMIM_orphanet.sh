@@ -1,8 +1,8 @@
 #!/bin/bash
-# Update OMIM and Orphanet annotations for cre, the cre-hg38 branch, and crg2-pacbio cre
+# Update OMIM and Orphanet annotations for cre, the cre-hg38 branch, crg2-pacbio cre, and CPHI-DRAGEN-anno cre
 #
 # This script will:
-# 1. Update OMIM and Orphanet annotations in both repos
+# 1. Update OMIM and Orphanet annotations in all repos
 # 2. Create new branches and push changes to remote repos
 # 3. After running, you'll need to create and merge PRs in each repo
 #
