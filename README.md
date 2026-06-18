@@ -6,7 +6,7 @@ Clinical research pipeline for exploring variants in whole genome (WGS) and exom
 </div>
 
 crg2 is a research pipeline aimed at discovering clinically relevant variants in whole genome and exome sequencing data.
-It aims to provide reproducible results, be computationally efficient, and transparent in it's workflow.
+It aims to provide reproducible results, be computationally efficient, and transparent in its workflow.
 
 crg2 uses Snakemake and Conda to manage jobs and software dependencies.
 
@@ -88,9 +88,9 @@ Replace `config["tools"]["mity"]` with the path to the conda environment binarie
 4. Remove reads mapped to decoy chromosomes
 
 ### WGS: SNV
-1. Call SNV's and generate gVCFs
+1. Call SNVs and generate gVCFs
 
-2. Merge gVCF's and perform joint genotyping
+2. Merge gVCFs and perform joint genotyping
 
 3. Filter against GATK best practices filters
 
@@ -120,7 +120,7 @@ Replace `config["tools"]["mity"]` with the path to the conda environment binarie
 8. Repeat the above 1-7 steps using GATK MUTECT2 variant calls to generate a mosaic variant report
 
 ### WGS: SV (filtered and unfiltered)
-1. Call SV's using Manta, Smoove and Wham
+1. Call SVs using Manta, Smoove and Wham
 
 2. Merge calls using MetaSV
 
@@ -143,7 +143,7 @@ Replace `config["tools"]["mity"]` with the path to the conda environment binarie
 A. ExpansionHunter: known repeat location
 
   1. Identify repeat expansions in sample BAM/CRAMs
-  2. Annotate repeats with disease threshold, gene name, repeat sizes from 1000Genome (mean& median) 
+  2. Annotate repeats with disease threshold, gene name, repeat sizes from 1000Genome (mean & median) 
   3. Generate per-family report as Excel file
 
 B. ExpansionHunterDenovo: denovo repeats
@@ -179,10 +179,10 @@ cd NA12878
 ```
 
 2. Set up pipeline run 
-  * Reconfigure 'samples.tsv', 'units.tsv' to reflect sample names and input files.
+  * Reconfigure 'samples.tsv' and 'units.tsv' to reflect sample names and input files.
   * Modify 'config_hpf.yaml': 
     * change `project` to refer to the family ID (here, NA12878).
-    * set `pipeline` to `wes`, `wgs`, `annot` or `mity` for exome sequences, whole genome sequences, to simply annotate a VCF respectively or to generate mitochondrial reports
+    * set `pipeline` to `wes`, `wgs`, `annot` or `mity` for exome sequences, whole genome sequences, to simply annotate a VCF, or to generate mitochondrial reports, respectively
     * inclusion of a panel bed file (`panel`) or hpofile (`hpo`) will generate 2 SNV reports with all variants falling within these regions, one which includes variants in flanking regions as specified by `flank`.
     * inclusion of a `ped` file with parents and a proband(s) will allow generation of a genome-wide de novo report if `pipeline` is `wgs`.
     * `minio` refers to the path of the file system mount that backs MinIO in the CHEO HPC4Health tenancy. Exome reports (and coverage reports, if duplication percentage is >20%) will be copied to this path if specified. 
