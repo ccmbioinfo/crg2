@@ -290,14 +290,6 @@ This was a dry-run (flag -n). The order of jobs does not reflect the order of ex
 
 4. Submit pipeline job to the cluster
 
-    Job scheduler: PBS on SickKids hpf
-      * Serialized jobs:
-      ```qsub dnaseq.pbs```
-      * Parallelized jobs:
-       ```qsub dnaseq_cluster.pbs```
-
-    Refer to `pbs_profile/cluster.md` document for detailed documentation for cluster integration.
-
     Job scheduler: Slurm
       * Parallelized jobs on SickKids hpf:
       ```sbatch dnaseq_slurm_hpf.sh```
