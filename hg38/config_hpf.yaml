@@ -154,11 +154,11 @@ params:
     AssumeSortOrder: "ASSUME_SORT_ORDER=coordinate"
     java_opts: "-Xmx2g"
   qualimap:
-    mem: "20G"
+    mem: "60G"
     nw: 400
     c: "-c"
     hm: 3
-    gtf: "/hpf/largeprojects/ccmbio/nhanafi/c4r/downloads/databases/hg38_exons_from_biomart_20220802_placeholder_nochr.txt"
+    gtf: "/hpf/largeprojects/ccmbio/nhanafi/c4r/downloads/databases/hg38_exons_from_biomart_20220802_placeholder_wchr.txt"
     extra: ""
   verifybamid2:
     svd_prefix: "1000g.phase3 100k b38"
