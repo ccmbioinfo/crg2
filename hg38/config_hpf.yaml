@@ -179,4 +179,5 @@ params:
     java_opts: "-Xmx20g"
     vcfeval:
       sdf: "/hpf/largeprojects/ccmbio/nhanafi/c4r/genomes/GIAB/hg38_SD"
-
+  peddy:
+    sites: "--sites hg38"

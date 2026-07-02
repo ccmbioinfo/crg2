@@ -159,7 +159,7 @@ class PTQuery:
                 "metadata": dumps(
                     {
                         "patientId": patient_id,
-                        "refGenome": "GRCh37",
+                        "refGenome": "GRCh38",
                         "fileName": filename,
                         "updateAnnotations": "true",
                     }
@@ -345,7 +345,7 @@ class PTQuery:
             "data": dumps(
                 {
                     "gene": {"geneName": gene_name, "ensemblID": ensembl_id},
-                    "variant": {"maxFrequency": 0.05, "assemblyId": "GRCh37"},
+                    "variant": {"maxFrequency": 0.05, "assemblyId": "GRCh38"},
                 }
             ),
             "headers": {
