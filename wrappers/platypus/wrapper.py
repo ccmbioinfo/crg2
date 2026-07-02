@@ -5,6 +5,7 @@ __license__ = "MIT"
 
 
 import os
+import re
 
 from snakemake.shell import shell
 
@@ -26,7 +27,7 @@ params = snakemake.params if snakemake.params else ""
 
 # need sequence dictionary for picard sort
 # sometimes Platypus VCFs are not properly sorted , even after vcfstreamsort
-seq_dict = snakemake.input.ref.replace(".fa", ".dict")
+seq_dict = re.sub(r"\.fa(sta)?$", ".dict", snakemake.input.ref)
 
 log = snakemake.log_fmt_shell(stdout=True, stderr=True)
 
