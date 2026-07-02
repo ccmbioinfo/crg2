@@ -65,6 +65,7 @@ elif input_type == ["cram"]:
     reheader_cmd = " samtools reheader -i fastq/{family}_{sample}_header.sam {dest}; "
 
     fastq_cmd = (
+        "export REF_CACHE={snakemake.params.ref_cache}; export REF_PATH={snakemake.params.ref_cache}; "
         " samtools sort -n -T {snakemake.params.outdir}/{snakemake.wildcards.sample} {dest} | samtools fastq - --reference {snakemake.params.new_cram_ref} "
         " -1 fastq/{family}_{sample}_R1.fastq.gz"
         " -2 fastq/{family}_{sample}_R2.fastq.gz"

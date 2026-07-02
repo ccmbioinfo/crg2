@@ -5,6 +5,7 @@ rule input_prep:
     params:
         outdir = temp("fastq/"),
         sort_check = True,
+        ref_cache = config["ref"]["ref_cache"],
         old_cram_ref = config["ref"]["old_cram_ref"],
         new_cram_ref = config["ref"]["new_cram_ref"]
     output:

@@ -35,6 +35,7 @@ ref:
   split_genome: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/genomes/split_genome"
   dragstr_table: "/hpf/largeprojects/ccmbio/nhanafi/c4r/genomes/illumina/hg38.str.zip"
   gatk-known: "/hpf/largeprojects/ccmbio/nhanafi/c4r/genomes/Mills_and_1000G_gold_standard.indels.hg38.vcf.gz"
+  ref_cache: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/genomes/REF_CACHE/GRCh37d5/%2s/%2s/%s:/hpf/largeprojects/ccm_dccforge/dccdipg/Common/genomes/REF_CACHE/hg19/%2s/%2s/%s:/hpf/largeprojects/ccm_dccforge/dccdipg/Common/genomes/REF_CACHE/GRCh37/%2s/%2s/%s"
   old_cram_ref: "UR:/mnt/hnas/reference/hg19/hg19.fa"
   new_cram_ref: "/hpf/largeprojects/ccmbio/naumenko/tools/bcbio/genomes/Hsapiens/hg19/seq/hg19.fa"
   bed_index: "/hpf/largeprojects/ccmbio/naumenko/tools/bcbio/genomes/Hsapiens/GRCh37/seq/GRCh37.fa.bedtoolsindex"
