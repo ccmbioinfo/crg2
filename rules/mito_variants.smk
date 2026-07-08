@@ -30,10 +30,13 @@ rule mity_report:
         "mitochondrial_variants/{family}.mity.normalise.decompose.vcf.gz"
     output:
         "mitochondrial_variants/{family}.mity.annotated.vcf",
-        "mitochondrial_variants/{family}.annotated_variants.xlsx"
+        "mitochondrial_variants/{family}.mity.report.xlsx"
     params:
         outdir="mitochondrial_variants/",
-        tool=config["tools"]["mity"]
+        tool=config["tools"]["mity"],
+        report_config=config["annotation"]["mity"]["report_config"],
+        vcfanno_config=config["annotation"]["mity"]["vcfanno_config"],
+        base_path=config["annotation"]["mity"]["base_path"]
     log:
         "logs/mity/mity_report/{family}.mity_report.log"
     wrapper:
@@ -42,7 +45,7 @@ rule mity_report:
 rule generate_mt_report:
     input:
         vcf="mitochondrial_variants/{family}.mity.annotated.vcf.gz",
-        report="mitochondrial_variants/{family}.annotated_variants.xlsx"
+        report="mitochondrial_variants/{family}.mity.report.xlsx"
     output:
         "report/mitochondrial/{family}.mitochondrial.report.csv"        
     log:
