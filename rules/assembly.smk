@@ -43,7 +43,7 @@ rule plasmer:
         directory("plasmid_assembly/plasmer/{sra_run}")
     params:
         sample_name={sra_run},
-        db="/hpf/largeprojects/ccmbio/ajain/isaac_chantel_project/pipelines/tools/plasmer_db"
+        db="/hpf/projects/CTrost/ajain/bacterial_genomics_pipeline/tools/plasmer_db"
     log:
         "logs/plasmer/{sra_run}.log"
     wrapper:
