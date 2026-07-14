@@ -69,3 +69,15 @@ rule defensefinder:
        expand("logs/defensefinder/{sra_run}_defensefinder.log",sra_run=project)
     wrapper:
         get_wrapper_path("defensefinder")
+
+rule defensefinder_prot:
+    input:
+        expand("annotated/{sra_run}_bakta/{sra_run}.faa",sra_run=project)
+    params:
+        defensefinder_models="/hpf/projects/CTrost/ajain/bacterial_genomics_pipeline/tools/defensefinder_models"
+    output:
+        directory("annotated/defensefinder_ProtInput/")
+    log:
+       expand("logs/defensefinder_prot/{sra_run}_defensefinder.log",sra_run=project)
+    wrapper:
+        get_wrapper_path("defensefinder")

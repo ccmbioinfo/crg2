@@ -36,4 +36,5 @@ rule all:
         f"phager",
         f"plasmid_assembly/plasmer/{sra_run}",
         f"plasmid_assembly/mob_suite/{sra_run}",
-        f"annotated/defensefinder/"
+        f"annotated/defensefinder/",
+        f"annotated/defensefinder_ProtInput/"
