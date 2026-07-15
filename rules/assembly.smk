@@ -18,7 +18,7 @@ rule shovill:
 
 rule phager:
     input:
-        expand("shovill/{sra_run}/contigs.fa",sra_run=project)
+        expand("shovill/{sra_run}",sra_run=project)
     output:
         directory("phager")
     log:
@@ -28,7 +28,7 @@ rule phager:
 
 rule mob_suite:
     input:
-        "shovill/{sra_run}/contigs.fa"
+        "shovill/{sra_run}"
     output:
         directory("plasmid_assembly/mob_suite/{sra_run}")
     log:
@@ -38,12 +38,12 @@ rule mob_suite:
 
 rule plasmer:
     input:
-        "shovill/{sra_run}/contigs.fa"
+        "shovill/{sra_run}"
     output:
         directory("plasmid_assembly/plasmer/{sra_run}")
     params:
         sample_name={sra_run},
-        db="/hpf/largeprojects/ccmbio/ajain/isaac_chantel_project/pipelines/tools/plasmer_db"
+        db="/hpf/projects/CTrost/ajain/bacterial_genomics_pipeline/tools/plasmer_db"
     log:
         "logs/plasmer/{sra_run}.log"
     wrapper:

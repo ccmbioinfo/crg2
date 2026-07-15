@@ -5,9 +5,9 @@
 #SBATCH --mem=4G
 #SBATCH --output=%x-%j.out
 
-SF=/hpf/largeprojects/ccmbio/ajain/isaac_chantel_project/pipelines/crg2/Snakefile
+SF=/hpf/projects/CTrost/ajain/bacterial_genomics_pipeline/crg2/Snakefile
 CP="/hpf/largeprojects/ccm_dccforge/dccdipg/Common/snakemake"
-SLURM=/hpf/largeprojects/ccmbio/ajain/isaac_chantel_project/pipelines/crg2/slurm_profile/
+SLURM=/hpf/projects/CTrost/ajain/bacterial_genomics_pipeline/crg2/slurm_profile/
 CONFIG=config_hpf.yaml
 
 module purge

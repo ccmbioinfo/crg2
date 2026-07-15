@@ -3,6 +3,6 @@ run:
   accession: accession.tsv
 
 tools:
-  sratoolkit: "/hpf/largeprojects/ccmbio/ajain/isaac_chantel_project/pipelines/tools/sratoolkit.3.2.1-alma_linux64/bin"
-  kraken2_db: "/hpf/largeprojects/ccmbio/ajain/isaac_chantel_project/pipelines/data/k2_standard"
-  bakta_db: "/hpf/largeprojects/ccmbio/ajain/isaac_chantel_project/pipelines/data/db"
+  sratoolkit: "/hpf/projects/CTrost/ajain/bacterial_genomics_pipeline/tools/sratoolkit.3.2.1-alma_linux64/bin"
+  kraken2_db: "/hpf/projects/CTrost/ajain/bacterial_genomics_pipeline/tools/k2_standard"
+  bakta_db: "/hpf/projects/CTrost/ajain/bacterial_genomics_pipeline/tools/db"
