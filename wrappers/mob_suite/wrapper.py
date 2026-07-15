@@ -9,7 +9,7 @@ from os import path
 from snakemake.shell import shell
 
 
-assembly = snakemake.input
+assembly = f"{snakemake.input}/contigs.fa"
 output_dir = snakemake.output
 log = snakemake.log_fmt_shell(stdout=True, stderr=True)
 

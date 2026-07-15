@@ -110,7 +110,7 @@ rule multiqc:
         
 rule checkm2:
     input:
-        "shovill/{sra_run}/contigs.fa"
+        assembly_dir="shovill/{sra_run}"
     params:
         database_path="/hpf/projects/CTrost/ajain/bacterial_genomics_pipeline/tools/checkm2_database/CheckM2_database/uniref100.KO.1.dmnd"
     output:

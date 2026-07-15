@@ -60,9 +60,10 @@ rule bakta_PI_30_SQC_50:
 
 rule defensefinder:
     input:
-        expand("shovill/{sra_run}/contigs.fa",sra_run=project)
+        expand("shovill/{sra_run}",sra_run=project)
     params:
-        defensefinder_models="/hpf/projects/CTrost/ajain/bacterial_genomics_pipeline/tools/defensefinder_models"
+        defensefinder_models="/hpf/projects/CTrost/ajain/bacterial_genomics_pipeline/tools/defensefinder_models",
+        input_type="nucleotide"
     output:
         directory("annotated/defensefinder/")
     log:
@@ -72,9 +73,11 @@ rule defensefinder:
 
 rule defensefinder_prot:
     input:
-        expand("annotated/{sra_run}_bakta/{sra_run}.faa",sra_run=project)
+        bakta_dir=expand("annotated/{sra_run}_bakta",sra_run=project),
     params:
-        defensefinder_models="/hpf/projects/CTrost/ajain/bacterial_genomics_pipeline/tools/defensefinder_models"
+        defensefinder_models="/hpf/projects/CTrost/ajain/bacterial_genomics_pipeline/tools/defensefinder_models",
+        input_type="protein",
+        acc=project
     output:
         directory("annotated/defensefinder_ProtInput/")
     log:

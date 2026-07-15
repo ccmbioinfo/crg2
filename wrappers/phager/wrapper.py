@@ -7,7 +7,7 @@ __email__ = "anjali.jain@sickkids.ca"
 from snakemake.shell import shell
 import sys
 
-assembly = snakemake.input[0]
+assembly = f"{snakemake.input}/contigs.fa"
 output_dir = snakemake.output[0]
 log = snakemake.log_fmt_shell(stdout=True, stderr=True)
 python_path = sys.executable
