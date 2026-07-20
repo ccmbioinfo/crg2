@@ -30,7 +30,8 @@ snpeff:
   mem: "25G"
 
 qualimap:
-  mem: "30G"
+  mem: "60G"
+  time: "100:00:00"
 
 allsnvreport:
   mem: "60G"

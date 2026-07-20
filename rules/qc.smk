@@ -120,7 +120,7 @@ rule peddy:
         "qc/peddy/{family}.sex_check.csv",
         "qc/peddy/{family}.background_pca.json"
     params:
-        "-p 7"
+        f"-p 7 {config['params']['peddy']['sites']}"
     log:
         "logs/peddy/{family}.log"
     wrapper:

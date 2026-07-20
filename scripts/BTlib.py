@@ -140,7 +140,7 @@ def get_repeat_features_extended_segments(repeat_filename, CNV_chr, CNV_start, C
     CNV_end = int(CNV_end)
     CNV_size = CNV_end - CNV_start + 1
 
-    chr_size = get_hg19_chromosome_sizes()
+    chr_size = get_hg38_chromosome_sizes()
 
     extend_size = CNV_size * extend_proportion
 

@@ -13,7 +13,7 @@ run:
 
 genes:
   ensembl: "/hpf/largeprojects/ccmbio/nhanafi/c4r/downloads/databases/ensembl_genes_hg38_gtf.csv"
-  refseq: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/GRCh37_latest_genomic.gff_subset.csv" 
+  refseq: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/GRCh38_latest_genomic.gff_subset.csv" 
   hgnc: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/HGNC_20210617.txt"
 
 tools:
@@ -30,11 +30,11 @@ ref:
   genome: /hpf/largeprojects/ccmbio/nhanafi/c4r/genomes/GIAB/GCA_000001405.15_GRCh38_no_alt_analysis_set_maskedGRC_exclusions_v2.fasta
   known-variants: /hpf/largeprojects/ccmbio/nhanafi/c4r/genomes/Homo_sapiens_assembly38.dbsnp138.vcf
   no_decoy: /hpf/largeprojects/ccmbio/nhanafi/c4r/genomes/GIAB/GCA_000001405.15_GRCh38_no_alt_analysis_set_maskedGRC_exclusions_v2_EBV_removed.fasta
-  decoy_bed: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/pipelines/cre/data/grch37d5.decoy.bed"
   canon_bed: "/hpf/largeprojects/ccmbio/nhanafi/c4r/genomes/illumina/grch38_canon.bed"
   split_genome: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/genomes/split_genome"
   dragstr_table: "/hpf/largeprojects/ccmbio/nhanafi/c4r/genomes/illumina/hg38.str.zip"
   gatk-known: "/hpf/largeprojects/ccmbio/nhanafi/c4r/genomes/Mills_and_1000G_gold_standard.indels.hg38.vcf.gz"
+  ref_cache: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/genomes/REF_CACHE/GRCh37d5/%2s/%2s/%s:/hpf/largeprojects/ccm_dccforge/dccdipg/Common/genomes/REF_CACHE/hg19/%2s/%2s/%s:/hpf/largeprojects/ccm_dccforge/dccdipg/Common/genomes/REF_CACHE/GRCh37/%2s/%2s/%s"
   old_cram_ref: "UR:/mnt/hnas/reference/hg19/hg19.fa"
   new_cram_ref: "/hpf/largeprojects/ccmbio/naumenko/tools/bcbio/genomes/Hsapiens/hg19/seq/hg19.fa"
   bed_index: "/hpf/largeprojects/ccmbio/naumenko/tools/bcbio/genomes/Hsapiens/GRCh37/seq/GRCh37.fa.bedtoolsindex"
@@ -136,6 +136,9 @@ params:
     #BaseRecalibrator: "--interval-set-rule INTERSECTION -U LENIENT-VCF-PROCESSING --read-filter BadCigar --read-filter NotzPrimaryAlignment"
     GenotypeGVCFs: ""
     VariantRecalibrator: ""
+    Mutect2:
+      gnomad_germline: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/annotation/Mutect2/af-only-gnomad.hg38.vcf.gz"
+    FilterMutectCalls: ""
   gatk3:
     java_opts: "-Xms500m -Xmx9555m"
     HaplotypeCaller: "-drf DuplicateRead --interval_set_rule INTERSECTION --pair_hmm_implementation VECTOR_LOGLESS_CACHING -ploidy 2 -U LENIENT_VCF_PROCESSING --read_filter BadCigar --read_filter NotPrimaryAlignment"
@@ -153,11 +156,11 @@ params:
     AssumeSortOrder: "ASSUME_SORT_ORDER=coordinate"
     java_opts: "-Xmx2g"
   qualimap:
-    mem: "20G"
+    mem: "60G"
     nw: 400
     c: "-c"
     hm: 3
-    gtf: "/hpf/largeprojects/ccmbio/nhanafi/c4r/downloads/databases/hg38_exons_from_biomart_20220802_placeholder_nochr.txt"
+    gtf: "/hpf/largeprojects/ccmbio/nhanafi/c4r/downloads/databases/hg38_exons_from_biomart_20220802_placeholder_wchr.txt"
     extra: ""
   verifybamid2:
     svd_prefix: "1000g.phase3 100k b38"
@@ -172,10 +175,16 @@ params:
   bcftools:
     mpileup: "-a DP -a AD "
     call: " -m -v "
-  freebayes: " --genotype-qualities --strict-vcf --ploidy 2 --no-partial-observations --min-repeat-entropy 1 "
+    # -F x sets the output filter to PASS if any of the variant filters is PASS in sample VCFs to be merged
+    merge: "-F x"
+  freebayes:
+    call: " --genotype-qualities --strict-vcf --ploidy 2 --no-partial-observations --min-repeat-entropy 1 "
   platypus: "--filterDuplicates=0"
   rtg-tools:
     java_opts: "-Xmx20g"
     vcfeval:
       sdf: "/hpf/largeprojects/ccmbio/nhanafi/c4r/genomes/GIAB/hg38_SD"
-
+    vcfsubset:
+      java_opts: "-Xmx2048m"
+  peddy:
+    sites: "--sites hg38"
