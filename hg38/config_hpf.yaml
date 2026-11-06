@@ -23,6 +23,8 @@ tools:
   crg2: "~/crg2"
   ehdn: "/hpf/largeprojects/ccmbio/arun/Tools/EHDN.TCAG/ExpansionHunterDenovo-v0.7.0"
   mity: "/hpf/largeprojects/ccmbio/ajain/mity/mity_package/bin"
+  orad: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/crg2-non-conda-tools/orad_2_6_1/orad"
+  
 
 ref:
   name: GRCh38.86
@@ -38,6 +40,7 @@ ref:
   old_cram_ref: "UR:/mnt/hnas/reference/hg19/hg19.fa"
   new_cram_ref: "/hpf/largeprojects/ccmbio/naumenko/tools/bcbio/genomes/Hsapiens/hg19/seq/hg19.fa"
   bed_index: "/hpf/largeprojects/ccmbio/naumenko/tools/bcbio/genomes/Hsapiens/GRCh37/seq/GRCh37.fa.bedtoolsindex"
+  orad_ref: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/crg2-non-conda-tools/orad_2_6_1/oradata"
 
 filtering:
   vqsr: false
@@ -97,7 +100,7 @@ annotation:
     conf: "~/crg2/vcfanno/mt.vcfanno.conf"
     base_path: "/hpf/largeprojects/ccmbio/ajain/mity/vcfanno"
   vep:
-    dir: "/hpf/largeprojects/ccmbio/nhanafi/c4r/downloads/executables/ensembl-vep/"
+    dir: "/hpf/largeprojects/ccm_dccforge/dccdipg/Common/snakemake/2e646bf8/share/ensembl-vep-115.2-1/"
     dir_cache: "/hpf/largeprojects/ccmbio/nhanafi/c4r/downloads/databases/vep"
   snpeff:
     dataDir: "/hpf/largeprojects/ccmbio/nhanafi/c4r/downloads/databases/snpeff/data"

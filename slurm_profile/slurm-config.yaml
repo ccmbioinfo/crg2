@@ -45,9 +45,21 @@ smoove:
 manta:
   mem: "100G"
 
+annot_caller:
+  time: "100:00:00"
+  mem: "64G"
 
+gatk_call_mosaic:
+  time: "80:00:00"
+  mem: "60G"
 
+platypus:
+  time: "80:00:00"
+  mem: "60G"
 
+filter_mutect_call:
+  time: "80:00:00"
+  mem: "60G"
 
 
 
