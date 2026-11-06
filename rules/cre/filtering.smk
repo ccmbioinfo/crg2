@@ -80,17 +80,19 @@ if len(get_cre_vcfs()) > 1:
             hdr = "isec/hdr.txt"
         params:
             crg2 = config["tools"]["crg2"],
-            callers = caller_annotation
+            callers = caller_annotation,
+        threads: 32
         conda:
             "../../envs/common.yaml"
         shell:
             '''
-            cat {input.all_sites} | parallel -k -j 16  {params.crg2}/scripts/annotate-caller.sh {{}} >> {output.all_sites}
+            cat {input.all_sites} | parallel -k -j 32  {params.crg2}/scripts/annotate-caller.sh {{}} >> {output.all_sites}
             echo -e '##INFO=<ID=CALLERS,Number=.,Type=String,Description="Variant called by"\\n##INFO=<ID=NUMCALLS,Number=1,Type=Integer,Description="Number of callers at this location">' > {output.hdr}
             for i in {params.callers}; do 
                 sh {params.crg2}/scripts/callerwise_annotation.sh ${{i}} {output.all_sites} isec isec/${{i}}.annot.vcf.gz
             done;
             '''
+
     rule vcf_concat:
         input:
             vcf = expand("isec/{caller}.annot.vcf.gz",caller=caller_annotation),
